@@ -12,3 +12,140 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Users {
+  user_id Int @id @default(autoincrement())
+  user_name String
+  user_email String @unique
+  user_password String
+  user_role UserRole
+  user_phone String
+  user_address String
+  user_profile_picture String? // Optional
+  passengers Passengers[]
+  transactions Transactions[]
+  tickets Tickets[]
+  notifications Notifications[]
+}
+
+model Passengers {
+  passenger_id Int @id @default(autoincrement())
+  passenger_user_id Int
+  passenger_name String @unique
+  passenger_type String @unique
+  passenger_seat String
+  user Users @relation(fields: [passenger_user_id], references: [user_id])
+}
+
+model Notifications {
+  notification_id Int @id @default(autoincrement())
+  notification_user_id Int
+  notification_type NotificationType
+  notification_message String
+  notification_isRead Boolean
+  notification_createdAt DateTime @default(now())
+  user Users @relation(fields: [notification_user_id], references: [user_id])
+}
+
+model Airports {
+  airport_id Int @id @default(autoincrement())
+  airport_name String
+  airport_code String @unique
+  airport_city String
+  flights_departure Flights[] @relation("FlightDeparture")
+  flights_arrival Flights[] @relation("FlightArrival")
+}
+
+model Flights {
+  flight_id Int @id @default(autoincrement())
+  flight_airline_id Int
+  flight_departure_airport_id Int
+  flight_arrival_airport_id Int
+  flight_departure_date DateTime
+  flight_arrival_date DateTime
+  flight_price Float
+  flight_available_seats Int
+  flight_number String
+  airline Airlines @relation(fields: [flight_airline_id], references: [airline_id])
+  departure_airport Airports @relation("FlightDeparture",fields: [flight_departure_airport_id], references: [airport_id])
+  arrival_airport Airports @relation("FlightArrival",fields: [flight_arrival_airport_id], references: [airport_id])
+  tickets Tickets[]
+}
+
+model Airlines {
+  airline_id Int @id @default(autoincrement())
+  airline_name String
+  airline_code String
+  flights Flights[]
+}
+
+model Transactions {
+  transaction_id Int @id @default(autoincrement())
+  transaction_user_id Int
+  transaction_date DateTime @default(now())
+  transaction_amount Float
+  transaction_payment_status PaymentStatus
+  transaction_payment_method PaymentMethod
+  user Users @relation(fields: [transaction_user_id], references: [user_id])
+  details Transaction_details[]
+}
+
+model Transaction_details {
+  transaction_detail_id Int @id @default(autoincrement())
+  transaction_detail_transaction_id Int
+  transaction_detail_ticket_id Int
+  transaction_detail_seat_class SeatClass
+  transaction_detail_quantity Int
+  transaction Transactions @relation(fields: [transaction_detail_transaction_id], references: [transaction_id])
+  ticket Tickets @relation(fields: [transaction_detail_ticket_id], references: [ticket_id])
+}
+
+model Tickets {
+  ticket_id Int @id @default(autoincrement())
+  ticket_flight_id Int
+  ticket_user_id Int
+  ticket_status TicketStatus
+  ticket_ticket_type TicketType
+  flight Flights @relation(fields: [ticket_flight_id], references: [flight_id])
+  user Users @relation(fields: [ticket_user_id], references: [user_id])
+  transactions Transaction_details[]
+}
+
+enum UserRole {
+  buyer
+  admin
+}
+
+enum NotificationType {
+  PROMO
+  SCHEDULE_CHANGE
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+}
+
+enum TicketStatus {
+  BOOKED
+  CONFIRMED
+  CANCELLED
+}
+
+enum TicketType {
+  ONE_WAY
+  ROUD_TRIP
+}
+
+enum SeatClass {
+  Economy
+  Premium_economy
+  Business
+  First_class
+}
