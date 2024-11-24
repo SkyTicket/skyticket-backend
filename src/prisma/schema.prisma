@@ -31,10 +31,18 @@ model Users {
 model Passengers {
   passenger_id Int @id @default(autoincrement())
   passenger_user_id Int
+  passenger_seat_id Int @unique
   passenger_name String @unique
-  passenger_type String @unique
+  passenger_type PassengerType
   passenger_seat String
   user Users @relation(fields: [passenger_user_id], references: [user_id])
+  seat Seats @relation(fields: [passenger_seat_id], references: [seat_id])
+}
+
+model Seats {
+  seat_id Int @id @default(autoincrement())
+  seat_name String
+  passenger Passengers? @relation
 }
 
 model Notifications {
@@ -51,6 +59,7 @@ model Airports {
   airport_id Int @id @default(autoincrement())
   airport_name String
   airport_code String @unique
+  airport_country String
   airport_city String
   flights_departure Flights[] @relation("FlightDeparture")
   flights_arrival Flights[] @relation("FlightArrival")
@@ -58,15 +67,10 @@ model Airports {
 
 model Flights {
   flight_id Int @id @default(autoincrement())
-  flight_airline_id Int
+  flight_airlines_id Int?
   flight_departure_airport_id Int
   flight_arrival_airport_id Int
-  flight_departure_date DateTime
-  flight_arrival_date DateTime
-  flight_price Float
-  flight_available_seats Int
-  flight_number String
-  airline Airlines @relation(fields: [flight_airline_id], references: [airline_id])
+  airlines Flights_airlines[]
   departure_airport Airports @relation("FlightDeparture",fields: [flight_departure_airport_id], references: [airport_id])
   arrival_airport Airports @relation("FlightArrival",fields: [flight_arrival_airport_id], references: [airport_id])
   tickets Tickets[]
@@ -76,7 +80,27 @@ model Airlines {
   airline_id Int @id @default(autoincrement())
   airline_name String
   airline_code String
-  flights Flights[]
+  flights Flights_airlines[]
+}
+
+model Flights_airlines {
+  flight_airline_id Int @id @default(autoincrement())
+  airline_id Int
+  flight_id Int
+  flight_departure_date DateTime
+  flight_arrival_date DateTime
+  flight_seat_class_id Int
+  flight_airline_price Float
+  airline Airlines @relation(fields: [airline_id], references: [airline_id])
+  flight Flights @relation(fields: [flight_id], references: [flight_id])
+  seat_class Seat_classes @relation(fields: [flight_seat_class_id], references: [seat_class_id])
+}
+
+model Seat_classes {
+  seat_class_id Int @id @default(autoincrement())
+  seat_class_name SeatClassName
+  seat_class_capacity Int
+  flight_airlines Flights_airlines[]
 }
 
 model Transactions {
@@ -86,6 +110,7 @@ model Transactions {
   transaction_amount Float
   transaction_payment_status PaymentStatus
   transaction_payment_method PaymentMethod
+  tickets Tickets[]
   user Users @relation(fields: [transaction_user_id], references: [user_id])
   details Transaction_details[]
 }
@@ -94,7 +119,6 @@ model Transaction_details {
   transaction_detail_id Int @id @default(autoincrement())
   transaction_detail_transaction_id Int
   transaction_detail_ticket_id Int
-  transaction_detail_seat_class SeatClass
   transaction_detail_quantity Int
   transaction Transactions @relation(fields: [transaction_detail_transaction_id], references: [transaction_id])
   ticket Tickets @relation(fields: [transaction_detail_ticket_id], references: [ticket_id])
@@ -102,13 +126,16 @@ model Transaction_details {
 
 model Tickets {
   ticket_id Int @id @default(autoincrement())
-  ticket_flight_id Int
+  ticket_flight_airline_id Int
   ticket_user_id Int
+  ticket_transaction_id Int?
   ticket_status TicketStatus
-  ticket_ticket_type TicketType
-  flight Flights @relation(fields: [ticket_flight_id], references: [flight_id])
+  ticket_booking_code String
+  ticket_qr String
+  flight Flights @relation(fields: [ticket_flight_airline_id], references: [flight_id])
   user Users @relation(fields: [ticket_user_id], references: [user_id])
-  transactions Transaction_details[]
+  transactions Transactions? @relation(fields: [ticket_transaction_id], references: [transaction_id])
+  transaction_details Transaction_details[]
 }
 
 enum UserRole {
@@ -144,6 +171,18 @@ enum TicketType {
 }
 
 enum SeatClass {
+  Economy
+  Premium_economy
+  Business
+  First_class
+}
+
+enum PassengerType {
+  Infant
+  Adult
+}
+
+enum SeatClassName {
   Economy
   Premium_economy
   Business
