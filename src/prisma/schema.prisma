@@ -93,6 +93,7 @@ model Airports {
   airport_code String @unique @db.Char(3)
   airport_country String
   airport_city String
+  airport_time_zone String // Asia/Jakarta, Asia/Singapore, etc
   flights_departure Flights[] @relation("FlightDeparture")
   flights_arrival Flights[] @relation("FlightArrival")
 }
