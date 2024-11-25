@@ -14,133 +14,152 @@ datasource db {
 }
 
 model Users {
-  user_id Int @id @default(autoincrement())
+  user_id String @id @default(uuid())
   user_name String
   user_email String @unique
   user_password String
   user_role UserRole
   user_phone String
-  user_address String
-  user_profile_picture String? // Optional
-  passengers Passengers[]
-  transactions Transactions[]
-  tickets Tickets[]
+  Bookers Bookers[] // new
   notifications Notifications[]
 }
 
-model Passengers {
-  passenger_id Int @id @default(autoincrement())
-  passenger_user_id Int
-  passenger_seat_id Int @unique
-  passenger_name String @unique
-  passenger_type PassengerType
-  passenger_seat String
-  user Users @relation(fields: [passenger_user_id], references: [user_id])
-  seat Seats @relation(fields: [passenger_seat_id], references: [seat_id])
-}
-
-model Seats {
-  seat_id Int @id @default(autoincrement())
-  seat_name String
-  passenger Passengers? @relation
-}
-
 model Notifications {
-  notification_id Int @id @default(autoincrement())
-  notification_user_id Int
+  notification_id String @id @default(uuid())
+  user_id String
   notification_type NotificationType
   notification_message String
-  notification_isRead Boolean
-  notification_createdAt DateTime @default(now())
-  user Users @relation(fields: [notification_user_id], references: [user_id])
+  notification_is_read Boolean
+  notification_created_at DateTime @default(now())
+  user Users @relation(fields: [user_id], references: [user_id])
+}
+
+model Bookers { // new
+  booker_id String @id @default(uuid())
+  user_id String
+  booker_name String
+  booker_email String
+  booker_phone String
+  user Users @relation(fields: [user_id], references: [user_id])
+  bookings Bookings[]
+}
+
+model Passengers {
+  passenger_id String @id @default(uuid())
+  booking_id String
+  passenger_name String
+  passenger_type PassengerType
+  booking Bookings @relation(fields: [booking_id], references: [booking_id])
+}
+
+model Bookings {
+  booking_id String @id @default(uuid())
+  booker_id String
+  booking_date DateTime @default(now())
+  booking_amount Decimal @db.Decimal(15, 2)
+  booking_payment_status PaymentStatus
+  booking_payment_method PaymentMethod
+  booker Bookers @relation(fields: [booker_id], references: [booker_id])
+  passengers Passengers[]
+  booking_details Booking_details[]
+  tickets Tickets[]
+}
+
+model Booking_details {
+  booking_detail_id String @id @default(uuid())
+  booking_id String
+  ticket_id String
+  transaction_detail_quantity Int
+  booking Bookings @relation(fields: [booking_id], references: [booking_id])
+  ticket Tickets @relation(fields: [ticket_id], references: [ticket_id])
+}
+
+model Tickets {
+  ticket_id String @id @default(uuid())
+  flight_id String
+  booking_id String
+  aircraft_seat_id String @unique
+  ticket_status TicketStatus
+  ticket_qr String
+  flight Flights @relation(fields: [flight_id], references: [flight_id])
+  booking Bookings @relation(fields: [booking_id], references: [booking_id])
+  aircraft_seat Aircraft_seats? @relation(fields: [aircraft_seat_id], references: [aircraft_seat_id]) // Kalau mungkin ada tiket tanpa seat (contoh tiket hold tanpa assign seat langsung), bisa jadi optional
+  booking_details Booking_details[]
 }
 
 model Airports {
-  airport_id Int @id @default(autoincrement())
+  airport_id String @id @default(uuid())
   airport_name String
-  airport_code String @unique
+  airport_code String @unique @db.Char(3)
   airport_country String
   airport_city String
   flights_departure Flights[] @relation("FlightDeparture")
   flights_arrival Flights[] @relation("FlightArrival")
 }
 
+model Seat_classes {
+  seat_class_id String @id @default(uuid())
+  seat_class_type SeatClass
+  flight_seat_classes Flight_seat_classes[]
+}
+
+model Flight_seat_classes {
+  flight_seat_class_id String @id @default(uuid())
+  seat_class_id String
+  flight_id String
+  seat_class_price Decimal @db.Decimal(15, 2)
+  seat_class_capacity Int
+  seat_class Seat_classes @relation(fields: [seat_class_id], references: [seat_class_id])
+  flight Flights @relation(fields: [flight_id], references: [flight_id])
+}
+
 model Flights {
-  flight_id Int @id @default(autoincrement())
-  flight_airlines_id Int?
-  flight_departure_airport_id Int
-  flight_arrival_airport_id Int
-  airlines Flights_airlines[]
+  flight_id String @id @default(uuid())
+  airline_id String
+  flight_departure_airport_id String
+  flight_arrival_airport_id String
+  aircraft_id String // new
+  flight_departure_date DateTime
+  flight_arrival_date DateTime
+  // flight_price Float
+  // flight_available_seats Int
+  flight_number String
+  airline Airlines @relation(fields: [airline_id], references: [airline_id])
   departure_airport Airports @relation("FlightDeparture",fields: [flight_departure_airport_id], references: [airport_id])
   arrival_airport Airports @relation("FlightArrival",fields: [flight_arrival_airport_id], references: [airport_id])
+  flight_seat_classes Flight_seat_classes[]
   tickets Tickets[]
 }
 
 model Airlines {
-  airline_id Int @id @default(autoincrement())
+  airline_id String @id @default(uuid())
   airline_name String
   airline_code String
-  flights Flights_airlines[]
+  flights Flights[]
 }
 
-model Flights_airlines {
-  flight_airline_id Int @id @default(autoincrement())
-  airline_id Int
-  flight_id Int
-  flight_departure_date DateTime
-  flight_arrival_date DateTime
-  flight_seat_class_id Int
-  flight_airline_price Float
-  airline Airlines @relation(fields: [airline_id], references: [airline_id])
-  flight Flights @relation(fields: [flight_id], references: [flight_id])
-  seat_class Seat_classes @relation(fields: [flight_seat_class_id], references: [seat_class_id])
+model Aircrafts {
+  aircraft_id String @id @default(uuid())
+  aircraft_manufacturer String
+  aircraft_type String @db.Char(5)
 }
 
-model Seat_classes {
-  seat_class_id Int @id @default(autoincrement())
-  seat_class_name SeatClassName
-  seat_class_capacity Int
-  flight_airlines Flights_airlines[]
-}
-
-model Transactions {
-  transaction_id Int @id @default(autoincrement())
-  transaction_user_id Int
-  transaction_date DateTime @default(now())
-  transaction_amount Float
-  transaction_payment_status PaymentStatus
-  transaction_payment_method PaymentMethod
-  tickets Tickets[]
-  user Users @relation(fields: [transaction_user_id], references: [user_id])
-  details Transaction_details[]
-}
-
-model Transaction_details {
-  transaction_detail_id Int @id @default(autoincrement())
-  transaction_detail_transaction_id Int
-  transaction_detail_ticket_id Int
-  transaction_detail_quantity Int
-  transaction Transactions @relation(fields: [transaction_detail_transaction_id], references: [transaction_id])
-  ticket Tickets @relation(fields: [transaction_detail_ticket_id], references: [ticket_id])
-}
-
-model Tickets {
-  ticket_id Int @id @default(autoincrement())
-  ticket_flight_airline_id Int
-  ticket_user_id Int
-  ticket_transaction_id Int?
-  ticket_status TicketStatus
-  ticket_booking_code String
-  ticket_qr String
-  flight Flights @relation(fields: [ticket_flight_airline_id], references: [flight_id])
-  user Users @relation(fields: [ticket_user_id], references: [user_id])
-  transactions Transactions? @relation(fields: [ticket_transaction_id], references: [transaction_id])
-  transaction_details Transaction_details[]
+model Aircraft_seats {
+  aircraft_seat_id String @id @default(uuid())
+  aircraft_id String
+  aircraft_seat_position String @db.Char(3)
+  Ticket Tickets?
 }
 
 enum UserRole {
   buyer
   admin
+}
+
+enum PassengerType {
+  Infant
+  Child
+  Adult
 }
 
 enum NotificationType {
@@ -165,26 +184,9 @@ enum TicketStatus {
   CANCELLED
 }
 
-enum TicketType {
-  ONE_WAY
-  ROUD_TRIP
-}
-
 enum SeatClass {
   Economy
-  Premium_economy
+  PremiumEconomy
   Business
-  First_class
-}
-
-enum PassengerType {
-  Infant
-  Adult
-}
-
-enum SeatClassName {
-  Economy
-  Premium_economy
-  Business
-  First_class
+  FirstClass
 }
