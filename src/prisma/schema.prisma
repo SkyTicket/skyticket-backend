@@ -22,6 +22,15 @@ model Users {
   user_phone String
   Bookers Bookers[] // new
   notifications Notifications[]
+  passwordResetTokens PasswordResetToken[] @relation("UserPasswordResetTokens")
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    String
+  createdAt DateTime @default(now())
+  user      Users     @relation("UserPasswordResetTokens", fields: [userId], references: [user_id])
 }
 
 model Notifications {
