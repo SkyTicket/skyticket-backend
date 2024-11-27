@@ -18,7 +18,8 @@ const PORT = process.env.PORT || 3000;
 
 <<<<<<< HEAD
 const dotenv = require('dotenv').config();
-const PORT = process.env.PORT;
+// const PORT = process.env.PORT;
+const PORT = 3000;
 
 const favDestinationRoutes = require('./routes/favDestination.routes');
 
