@@ -22,15 +22,15 @@ model Users {
   user_phone String
   Bookers Bookers[] // new
   notifications Notifications[]
-  passwordResetTokens PasswordResetToken[] @relation("UserPasswordResetTokens")
+  passwordResetTokens Password_reset_tokens[]
 }
 
-model PasswordResetToken {
-  id        Int      @id @default(autoincrement())
-  token     String   @unique
-  userId    String
-  createdAt DateTime @default(now())
-  user      Users     @relation("UserPasswordResetTokens", fields: [userId], references: [user_id])
+model Password_reset_tokens {
+  id String @id @default(uuid())
+  token String @unique
+  user_id String
+  created_at DateTime @default(now())
+  user Users @relation(fields: [user_id], references: [user_id])
 }
 
 model Notifications {
