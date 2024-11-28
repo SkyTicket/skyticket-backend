@@ -13,14 +13,7 @@ class Moment {
         let differenceInMin = datetime_2.diff(datetime_1, 'minutes')
         differenceInMin %= 60
 
-        
-        let formattedTimeDiff = `${differenceInHour}h ${differenceInMin}m`
-        
-        if(formattedTimeDiff.includes("0h ")){ // if a flight duration is less than an hour
-            return formattedTimeDiff = `${differenceInMin}m`
-        }
-
-        return formattedTimeDiff
+        return `${differenceInHour}h ${differenceInMin}m`
     }
 
     static timeDifferenceInMin(dateTime_2, dateTime_1){
