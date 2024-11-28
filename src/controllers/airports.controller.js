@@ -26,7 +26,8 @@ class AirportsController {
                 // const mappedAirports = AirportsController.airportMapping(airports);
                 const mappedAirports = airports.map((airport) => {
                     return {
-                        airport: `${airport.airport_code} - ${airport.airport_city}`
+                        airport: `${airport.airport_code} - ${airport.airport_city}`,
+                        input_value: airport.airport_code
                     }
                     // return `${airport.airport_code} - ${airport.airport_city}`
                 })
@@ -63,7 +64,8 @@ class AirportsController {
             // const mappedAirports = AirportsController.airportMapping(airports);
             const mappedAirports = airports.map((airport) => {
                 return {
-                    airport: `${airport.airport_code} - ${airport.airport_city}`
+                    airport: `${airport.airport_code} - ${airport.airport_city}`,
+                    input_value: airport.airport_code
                 }
                 // return `${airport.airport_code} - ${airport.airport_city}`
             })
