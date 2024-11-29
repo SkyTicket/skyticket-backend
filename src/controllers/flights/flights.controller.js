@@ -1,11 +1,10 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-const DateTimeUtils = require('../libs/datetime');
-const Luxon = require('../libs/luxon');
-const Moment = require('../libs/moment');
-const Currency = require('../libs/currency');
-const { x } = require('joi');
+const DateTimeUtils = require('../../libs/datetime');
+const Luxon = require('../../libs/luxon');
+const Moment = require('../../libs/moment');
+const Currency = require('../../libs/currency');
 
 class FlightsController {
     static async searchFlights(req, res, next){
@@ -51,30 +50,65 @@ class FlightsController {
                 }
             }))
 
+            const returningDepartureAirportTz = await prisma.airports.findFirst(({
+                where: {
+                    airport_code: arrival_airport
+                },
+                select: {
+                    airport_time_zone: true
+                }
+            }))
+
             const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // Asia/Jakarta, Asia/Kuala_Lumpur, etc...
             const systemTzOffset = Luxon.getTimezoneOffset(localTimezone); // timezone offset in hours
             const departureAirportTzOffset = Luxon.getTimezoneOffset(departureAirportTz.airport_time_zone); // timezone offset in hours
+            const returningDepartureAirportTzOffset = Luxon.getTimezoneOffset(returningDepartureAirportTz.airport_time_zone); // timezone offset in hours
 
             let pickedDepartureDate = DateTimeUtils.modifyHours(flight_departure_date, systemTzOffset, -departureAirportTzOffset)
+            let pickedReturningDepartureDate = DateTimeUtils.modifyHours(returning_flight_departure_date, systemTzOffset, -returningDepartureAirportTzOffset)
 
             const flights = await prisma.flights.findMany({
                 where: {
                     AND: [
                         {
-                            departure_airport: {
-                                airport_code: {
-                                    equals: departure_airport,
-                                    mode: 'default'
+                            OR: [
+                                {
+                                    departure_airport: {
+                                        airport_code: {
+                                            equals: departure_airport,
+                                            mode: 'default',
+                                        }
+                                    }
+                                },
+                                {
+                                    departure_airport: {
+                                        airport_code: {
+                                            equals: arrival_airport,
+                                            mode: 'default',
+                                        }
+                                    }
                                 }
-                            }
+                            ],
                         },
                         {
-                            arrival_airport: {
-                                airport_code: {
-                                    equals: arrival_airport,
-                                    mode: 'default'
+                            OR: [
+                                {
+                                    arrival_airport: {
+                                        airport_code: {
+                                            equals: arrival_airport,
+                                            mode: 'default'
+                                        }
+                                    }
+                                },
+                                {
+                                    arrival_airport: {
+                                        airport_code: {
+                                            equals: departure_airport,
+                                            mode: 'default'
+                                        }
+                                    }
                                 }
-                            },
+                            ]
                         },
                     ],
                     flight_departure_date: {
@@ -132,10 +166,6 @@ class FlightsController {
                     }
                 }
             }
-            
-            const sortByLowestPrice = flights.sort((a, b) => {
-                
-            })
 
             const mappedFlights = flights.map((flight) => {
                 const findBySeatClassType = flight.flight_seat_classes.find(flightSeatClass => {
@@ -172,6 +202,29 @@ class FlightsController {
                 }
             })
 
+            // filter to show returning flights by comparing arrival airport to returning flight airport
+            const returningFlights = mappedFlights.filter((returningFlight) => {
+                if(returningFlight.departure_airport === arrival_airport){
+                    return returningFlight
+                }
+            })
+
+            // filter to show only based on returning_flight_departure_date request body
+            const filterReturningFlightsByDepDate = returningFlights.filter((filteredReturningFlight) => {
+                const convertedRawDepartureDatetime = DateTimeUtils.convertISOStringToDate(filteredReturningFlight.flight_details.raw_departure_datetime)
+                const convertedDateLimit = DateTimeUtils.modifyHours(pickedReturningDepartureDate, 24)
+                
+                if(convertedRawDepartureDatetime >= pickedReturningDepartureDate && convertedRawDepartureDatetime < convertedDateLimit){
+                    return filteredReturningFlight
+                }
+            })
+
+            const departingFlights = mappedFlights.filter((departingFlight) => {
+                if(departingFlight.departure_airport === departure_airport){
+                    return departingFlight
+                }
+            })
+
             switch(sort_by){
                 case 'lowest_price':
                     mappedFlights.sort((a,b) => (a.seat_class_price.raw > b.seat_class_price.raw) ? 1 : ((b.seat_class_price.raw > a.seat_class_price.raw) ? -1 : 0))
@@ -202,9 +255,16 @@ class FlightsController {
                 status: 'success',
                 message: 'Berhasil menemukan penerbangan',
                 debug: {
-                    gte: pickedDepartureDate.toISOString(),
-                    lt: DateTimeUtils.modifyHours(pickedDepartureDate, 24).toISOString(),
-                    dep_tz: departureAirportTz.airport_time_zone
+                    dep: {
+                        gte: pickedDepartureDate.toISOString(),
+                        lt: DateTimeUtils.modifyHours(pickedDepartureDate, 24).toISOString(),
+                        tz: departureAirportTz.airport_time_zone
+                    },
+                    arr: {
+                        // gte: pickedReturningDepartureDate.toISOString(),
+                        // lt: DateTimeUtils.modifyHours(pickedReturningDepartureDate, 24).toISOString(),
+                        // tz: returningDepartureAirportTz.airport_time_zone
+                    },
                 },
                 passengers: {
                     adult: Number(total_adult_passengers),
@@ -212,7 +272,8 @@ class FlightsController {
                     infant: Number(total_infant_passengers),
                     total: passengersTotal,
                 },
-                flights: mappedFlights,
+                departing_flights: departingFlights,
+                returning_flights: filterReturningFlightsByDepDate,
             })
         } catch(err) {
             if(err.statusCode){

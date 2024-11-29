@@ -1,57 +1,35 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
-const { PrismaClient } = require("@prisma/client");
-const passport = require("passport");
-require("./controllers/oauth.controller");
-const session = require("express-session");
-const authRoutes = require("./routes/auth.routes");
-const passwordRoutes = require("./routes/password.routes");
-const userRoutes = require("./routes/user.routes");
-const oauthRoutes = require("./routes/oauth.routes");
-require("./services/removeJwt");
-
-dotenv.config();
-const prisma = new PrismaClient();
+const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 3000;
+const cors = require('cors');
 
-<<<<<<< HEAD
 const dotenv = require('dotenv').config();
 // const PORT = process.env.PORT;
 const PORT = 3000;
 
-const favDestinationRoutes = require('./routes/favDestination.routes');
+const router = require('./routes/router');
 
-=======
-app.use(cors());
->>>>>>> 11f579b (push auth)
 app.use(express.json());
+app.use(express.urlencoded({extended: false}));
+app.use(cors())
 
-<<<<<<< HEAD
-app.use('/api/home', favDestinationRoutes);
-=======
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-  })
-);
->>>>>>> 11f579b (push auth)
+app.use(router);
 
-app.use(passport.initialize());
-app.use(passport.session());
+app.use(function(req, res, next) {
+    return res.status(404).json({
+        status: 'error',
+        message: 'Not found'
+    })
+})
 
-app.use("/api/v1", authRoutes);
-app.use("/api/v1", passwordRoutes);
-app.use("/api/v1", userRoutes);
-app.use("/", oauthRoutes);
+app.use((err, req, res, next) => {
+    console.error(err.stack)
 
-app.get("/", (req, res) => {
-  res.send("E-Flight Ticket Platform Backend");
-});
+    res.status(500).json({
+        status: 'error',
+        message: 'Internal server error'
+    })
+})
 
 app.listen(PORT, () => {
-  console.log(`aku cinta ${PORT}`);
-});
+    console.log(`Listening to ${PORT}`)
+})
