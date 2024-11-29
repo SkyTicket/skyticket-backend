@@ -7,6 +7,7 @@ const Currency = require('../../libs/currency');
 
 const ErrorHandler = require('./error_handler.utils');
 const AirportTimezone = require('./airport_timezone.flights')
+const FlightDataFilters = require('./filters.flights');
 
 class FlightsController {
     static async searchFlights(req, res, next){
@@ -161,14 +162,13 @@ class FlightsController {
                 }
             })
 
-            // filter to show returning flights by comparing arrival airport to returning flight airport
-            const returningFlights = mappedFlights.filter((returningFlight) => {
-                if(returningFlight.departure_airport === arrival_airport){
-                    return returningFlight
-                }
-            })
+            // sort mappedFlights by query parameter of sort_by
+            FlightDataFilters.sortFlights(mappedFlights, sort_by)
 
-            // filter to show only based on returning_flight_departure_date request parameter
+            // filter to show returning flights by comparing arrival airport to returning flight airport
+            const returningFlights = FlightDataFilters.returningFlights(mappedFlights, arrival_airport)
+
+            // filter to show only based on returning_flight_departure_date request body
             const filterReturningFlightsByDepDate = returningFlights.filter((filteredReturningFlight) => {
                 const convertedRawDepartureDatetime = DateTimeUtils.convertISOStringToDate(filteredReturningFlight.flight_details.raw_departure_datetime)
                 const convertedDateLimit = DateTimeUtils.modifyHours(airportTimezone.pickedReturningDepartureDate, 24)
@@ -178,37 +178,8 @@ class FlightsController {
                 }
             })
 
-            const departingFlights = mappedFlights.filter((departingFlight) => {
-                if(departingFlight.departure_airport === departure_airport){
-                    return departingFlight
-                }
-            })
-
-            switch(sort_by){
-                case 'lowest_price':
-                    mappedFlights.sort((a,b) => (a.seat_class_price.raw > b.seat_class_price.raw) ? 1 : ((b.seat_class_price.raw > a.seat_class_price.raw) ? -1 : 0))
-                break;
-                case 'highest_price':
-                    mappedFlights.sort((a,b) => (b.seat_class_price.raw > a.seat_class_price.raw) ? 1 : ((a.seat_class_price.raw > b.seat_class_price.raw) ? -1 : 0))
-                break;
-                case 'shortest_duration':
-                    mappedFlights.sort((a,b) => (a.flight_duration.raw > b.flight_duration.raw) ? 1 : ((b.flight_duration.raw > a.flight_duration.raw) ? -1 : 0))
-                break;
-                case 'earliest_departure':
-                    mappedFlights.sort((a,b) => (a.flight_details.raw_departure_datetime > b.flight_details.raw_departure_datetime) ? 1 : ((b.flight_details.raw_departure_datetime > a.flight_details.raw_departure_datetime) ? -1 : 0))
-                break;
-                case 'latest_departure':
-                    mappedFlights.sort((a,b) => (b.flight_details.raw_departure_datetime > a.flight_details.raw_departure_datetime) ? 1 : ((a.flight_details.raw_departure_datetime > b.flight_details.raw_departure_datetime) ? -1 : 0))
-                break;
-                case 'earliest_arrival':
-                    mappedFlights.sort((a,b) => (a.flight_details.raw_arrival_datetime > b.flight_details.raw_arrival_datetime) ? 1 : ((b.flight_details.raw_arrival_datetime > a.flight_details.raw_arrival_datetime) ? -1 : 0))
-                break;
-                case 'latest_arrival':
-                    mappedFlights.sort((a,b) => (b.flight_details.raw_arrival_datetime > a.flight_details.raw_arrival_datetime) ? 1 : ((a.flight_details.raw_arrival_datetime > b.flight_details.raw_arrival_datetime) ? -1 : 0))
-                break;
-                default:
-                    mappedFlights.sort((a,b) => (a.seat_class_price.raw > b.seat_class_price.raw) ? 1 : ((b.seat_class_price.raw > a.seat_class_price.raw) ? -1 : 0))
-            }
+            // filter to show departing flights by comparing departure_airport to departing departure_airport
+            const departingFlights = FlightDataFilters.departingFlights(mappedFlights, departure_airport)
 
             const departingFlightsPagination = paginate(airportTimezone.pickedDepartureDate, airportTimezone.departureAirportTz.airport_time_zone)
             const returningFlightsPagination = paginate(airportTimezone.pickedReturningDepartureDate, airportTimezone.returningDepartureAirportTz.airport_time_zone)
