@@ -51,6 +51,10 @@ class DateTimeUtils {
         });
         return formatter.format(time)
     }
+
+    static convertISOStringToDate(dateTimeString){
+        return new Date(dateTimeString);
+    }
 }
 
 module.exports = DateTimeUtils;
