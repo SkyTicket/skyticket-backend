@@ -2,10 +2,10 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const DateTimeUtils = require('../../libs/datetime');
-const Luxon = require('../../libs/luxon');
 const Moment = require('../../libs/moment');
 const Currency = require('../../libs/currency');
-// const FlightsPagination = require('./flights.pagination');
+
+const ErrorHandler = require('./error_handler.utils');
 const AirportTimezone = require('./airport_timezone.flights')
 
 class FlightsController {
@@ -28,49 +28,9 @@ class FlightsController {
             // } = req.body
             const passengersTotal = Number(total_adult_passengers) + Number(total_child_passengers) + Number(total_infant_passengers)
 
-            if(is_round_trip === "true"){ // if is_round_trip is true (yes)
-                if(!returning_flight_departure_date){ // if no returning flight date provided
-                    throw {
-                        statusCode: 400,
-                        message: {
-                            line_1: 'Tanggal penerbangan pulang belum diisi',
-                            line_2: 'Mohon isi tanggal penerbangan pulang'
-                        }
-                    }
-                }
-            }
+            if(is_round_trip === "true") // if is_round_trip is true (yes)
+                ErrorHandler.ifNoReturningDateInRoundTrip(returning_flight_departure_date)
 
-            // const departureAirportTz = await prisma.airports.findFirst(({
-            //     where: {
-            //         airport_code: departure_airport
-            //     },
-            //     select: {
-            //         airport_time_zone: true
-            //     }
-            // }))
-
-            // const returningDepartureAirportTz = await prisma.airports.findFirst(({
-            //     where: {
-            //         airport_code: arrival_airport
-            //     },
-            //     select: {
-            //         airport_time_zone: true
-            //     }
-            // }))
-
-            // const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // Asia/Jakarta, Asia/Kuala_Lumpur, etc...
-            // const systemTzOffset = Luxon.getTimezoneOffset(localTimezone); // timezone offset in hours
-            // const departureAirportTzOffset = Luxon.getTimezoneOffset(departureAirportTz.airport_time_zone); // timezone offset in hours
-            // const returningDepartureAirportTzOffset = Luxon.getTimezoneOffset(returningDepartureAirportTz.airport_time_zone); // timezone offset in hours
-
-            // let pickedReturningDepartureDate;
-            // let pickedDepartureDate = DateTimeUtils.modifyHours(flight_departure_date, systemTzOffset, -departureAirportTzOffset)
-            // pickedReturningDepartureDate = DateTimeUtils.modifyHours(returning_flight_departure_date, systemTzOffset, -returningDepartureAirportTzOffset)
-            
-            // if no returning_flight_departure_date provided
-            // if(!returning_flight_departure_date){
-            //     (await AirportTimezone(departure_airport, arrival_airport)).pickedReturningDepartureDate = '1111-11-11 00:00:00'
-            // }
             const airportTimezone = await AirportTimezone(departure_airport, arrival_airport, flight_departure_date, returning_flight_departure_date)
 
             const flights = await prisma.flights.findMany({
@@ -163,15 +123,7 @@ class FlightsController {
                 }
             })
 
-            if(typeof flights !== 'undefined' && flights.length === 0){
-                throw {
-                    statusCode: 404,
-                    message: {
-                        line_1: 'Maaf, pencarian Anda tidak ditemukan',
-                        line_2: 'Coba cari perjalanan lainnya!'
-                    }
-                }
-            }
+            ErrorHandler.ifNoFlightsFound(flights) // if no flights record found
 
             const mappedFlights = flights.map((flight) => {
                 const findBySeatClassType = flight.flight_seat_classes.find(flightSeatClass => {
@@ -179,7 +131,6 @@ class FlightsController {
                 })
                 
                 return {
-                    // pagination: FlightsPagination.paginate(pickedDepartureDate && pickedReturningDepartureDate, departureAirportTz.airport_time_zone && returningDepartureAirportTz.airport_time_zone),
                     airline_logo: flight.airline.Airline_logo,
                     airline_name_and_class: `${flight.airline.airline_name} - ${findBySeatClassType.seat_class.seat_class_type}`,
                     seat_class_price: {
@@ -217,7 +168,7 @@ class FlightsController {
                 }
             })
 
-            // filter to show only based on returning_flight_departure_date request body
+            // filter to show only based on returning_flight_departure_date request parameter
             const filterReturningFlightsByDepDate = returningFlights.filter((filteredReturningFlight) => {
                 const convertedRawDepartureDatetime = DateTimeUtils.convertISOStringToDate(filteredReturningFlight.flight_details.raw_departure_datetime)
                 const convertedDateLimit = DateTimeUtils.modifyHours(airportTimezone.pickedReturningDepartureDate, 24)
