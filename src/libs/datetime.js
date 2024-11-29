@@ -32,6 +32,16 @@ class DateTimeUtils {
         return formatter.format(date)
     }
 
+    static formatToID(dateTimeString, timezone){
+        const date = new Date(dateTimeString);
+        let formattedDate = date.toLocaleString('id-ID', {
+            timeZone: timezone
+        });
+        return formattedDate.substring(0, formattedDate.indexOf(','))
+        // return formattedDate.replace(toBeRemoved, '')
+        // return formattedDate
+    }
+
     static formatDateByTimezone(dateTimeString, timezone){
         const date = new Date(dateTimeString);
         const formatter = new Intl.DateTimeFormat('id-ID', {
@@ -54,6 +64,12 @@ class DateTimeUtils {
 
     static convertISOStringToDate(dateTimeString){
         return new Date(dateTimeString);
+    }
+
+    static addDays(date, days) {
+        const newDate = new Date(date);
+        newDate.setDate(date.getDate() + days);
+        return newDate;
     }
 }
 

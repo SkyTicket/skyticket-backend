@@ -5,31 +5,29 @@ const DateTimeUtils = require('../../libs/datetime');
 const Luxon = require('../../libs/luxon');
 const Moment = require('../../libs/moment');
 const Currency = require('../../libs/currency');
+const FlightsPagination = require('./flights.pagination');
 
 class FlightsController {
     static async searchFlights(req, res, next){
         const {
-            dep_date,
-            return_dep_date,
+            departure_airport,
+            arrival_airport,
+            flight_departure_date,
+            returning_flight_departure_date,
+            is_round_trip,
+            total_adult_passengers,
+            total_child_passengers,
+            total_infant_passengers,
+            seat_class_type,
             sort_by
         } = req.query
         
         try {
-            const {
-                departure_airport,
-                arrival_airport,
-                flight_departure_date,
-                returning_flight_departure_date,
-                is_round_trip,
-                total_adult_passengers,
-                total_child_passengers,
-                total_infant_passengers,
-                seat_class_type
-            } = req.body
-
+            // const {
+            // } = req.body
             const passengersTotal = Number(total_adult_passengers) + Number(total_child_passengers) + Number(total_infant_passengers)
 
-            if(is_round_trip.toLowerCase() === "true"){ // if is_round_trip is true (yes)
+            if(is_round_trip === "true"){ // if is_round_trip is true (yes)
                 if(!returning_flight_departure_date){ // if no returning flight date provided
                     throw {
                         statusCode: 400,
@@ -64,8 +62,14 @@ class FlightsController {
             const departureAirportTzOffset = Luxon.getTimezoneOffset(departureAirportTz.airport_time_zone); // timezone offset in hours
             const returningDepartureAirportTzOffset = Luxon.getTimezoneOffset(returningDepartureAirportTz.airport_time_zone); // timezone offset in hours
 
+            let pickedReturningDepartureDate;
             let pickedDepartureDate = DateTimeUtils.modifyHours(flight_departure_date, systemTzOffset, -departureAirportTzOffset)
-            let pickedReturningDepartureDate = DateTimeUtils.modifyHours(returning_flight_departure_date, systemTzOffset, -returningDepartureAirportTzOffset)
+            pickedReturningDepartureDate = DateTimeUtils.modifyHours(returning_flight_departure_date, systemTzOffset, -returningDepartureAirportTzOffset)
+            
+            // if no returning_flight_departure_date provided
+            if(!returning_flight_departure_date){
+                pickedReturningDepartureDate = '1111-11-11 00:00:00'
+            }
 
             const flights = await prisma.flights.findMany({
                 where: {
@@ -171,7 +175,9 @@ class FlightsController {
                 const findBySeatClassType = flight.flight_seat_classes.find(flightSeatClass => {
                     return flightSeatClass.seat_class.seat_class_type === seat_class_type
                 })
+                
                 return {
+                    // pagination: FlightsPagination.paginate(pickedDepartureDate && pickedReturningDepartureDate, departureAirportTz.airport_time_zone && returningDepartureAirportTz.airport_time_zone),
                     airline_logo: flight.airline.Airline_logo,
                     airline_name_and_class: `${flight.airline.airline_name} - ${findBySeatClassType.seat_class.seat_class_type}`,
                     seat_class_price: {
@@ -251,29 +257,26 @@ class FlightsController {
                     mappedFlights.sort((a,b) => (a.seat_class_price.raw > b.seat_class_price.raw) ? 1 : ((b.seat_class_price.raw > a.seat_class_price.raw) ? -1 : 0))
             }
 
+            const departingFlightsPagination = paginate(pickedDepartureDate, departureAirportTz.airport_time_zone)
+            const returningFlightsPagination = paginate(pickedReturningDepartureDate, returningDepartureAirportTz.airport_time_zone)
+
             return res.json({
                 status: 'success',
                 message: 'Berhasil menemukan penerbangan',
-                debug: {
-                    dep: {
-                        gte: pickedDepartureDate.toISOString(),
-                        lt: DateTimeUtils.modifyHours(pickedDepartureDate, 24).toISOString(),
-                        tz: departureAirportTz.airport_time_zone
-                    },
-                    arr: {
-                        // gte: pickedReturningDepartureDate.toISOString(),
-                        // lt: DateTimeUtils.modifyHours(pickedReturningDepartureDate, 24).toISOString(),
-                        // tz: returningDepartureAirportTz.airport_time_zone
-                    },
-                },
                 passengers: {
                     adult: Number(total_adult_passengers),
                     child: Number(total_child_passengers),
                     infant: Number(total_infant_passengers),
                     total: passengersTotal,
                 },
-                departing_flights: departingFlights,
-                returning_flights: filterReturningFlightsByDepDate,
+                departing_flights: {
+                    flights: departingFlights,
+                    pagination: departingFlightsPagination,
+                },
+                returning_flights: {
+                    // Only include pagination and flights if returning_flight_departure_date is provided
+                    ...(returning_flight_departure_date ? { pagination: returningFlightsPagination, flights: filterReturningFlightsByDepDate } : {}),
+                },
             })
         } catch(err) {
             if(err.statusCode){
@@ -287,6 +290,28 @@ class FlightsController {
             }
             next(err)
         }
+
+        function paginate(dateTimeString, timezone) {
+            const departureDate = new Date(dateTimeString);
+            const newDate = [];
+        
+            for (let i = -3; i <= 4; i++) {  // from -3 to 4 (8 days total)
+                const modifiedDate = DateTimeUtils.addDays(departureDate, i);
+        
+                const returningFlightDate = returning_flight_departure_date ? new Date(returning_flight_departure_date).toISOString() : new Date('1111-11-11 00:00:00').toISOString();
+
+                let url;
+                url = `${req.protocol}://${req.get('host')}/api/v1/flights?sort_by=lowest_price&departure_airport=${departure_airport}&arrival_airport=${arrival_airport}&is_round_trip=${is_round_trip}&flight_departure_date=${modifiedDate.toISOString()}&returning_flight_departure_date=${returningFlightDate}&seat_class_type=${seat_class_type}&total_adult_passengers=${total_adult_passengers}&total_child_passengers=${total_child_passengers}&total_infant_passengers=${total_infant_passengers}`;
+
+                newDate.push({
+                    date: DateTimeUtils.formatToID(modifiedDate, timezone),
+                    day: DateTimeUtils.getDateWeekday(modifiedDate, timezone),
+                    url: url
+                });
+            }
+
+            return newDate;
+        }        
     }
 }
 
