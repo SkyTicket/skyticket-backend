@@ -5,7 +5,8 @@ const DateTimeUtils = require('../../libs/datetime');
 const Luxon = require('../../libs/luxon');
 const Moment = require('../../libs/moment');
 const Currency = require('../../libs/currency');
-const FlightsPagination = require('./flights.pagination');
+// const FlightsPagination = require('./flights.pagination');
+const AirportTimezone = require('./airport_timezone.flights')
 
 class FlightsController {
     static async searchFlights(req, res, next){
@@ -39,37 +40,38 @@ class FlightsController {
                 }
             }
 
-            const departureAirportTz = await prisma.airports.findFirst(({
-                where: {
-                    airport_code: departure_airport
-                },
-                select: {
-                    airport_time_zone: true
-                }
-            }))
+            // const departureAirportTz = await prisma.airports.findFirst(({
+            //     where: {
+            //         airport_code: departure_airport
+            //     },
+            //     select: {
+            //         airport_time_zone: true
+            //     }
+            // }))
 
-            const returningDepartureAirportTz = await prisma.airports.findFirst(({
-                where: {
-                    airport_code: arrival_airport
-                },
-                select: {
-                    airport_time_zone: true
-                }
-            }))
+            // const returningDepartureAirportTz = await prisma.airports.findFirst(({
+            //     where: {
+            //         airport_code: arrival_airport
+            //     },
+            //     select: {
+            //         airport_time_zone: true
+            //     }
+            // }))
 
-            const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // Asia/Jakarta, Asia/Kuala_Lumpur, etc...
-            const systemTzOffset = Luxon.getTimezoneOffset(localTimezone); // timezone offset in hours
-            const departureAirportTzOffset = Luxon.getTimezoneOffset(departureAirportTz.airport_time_zone); // timezone offset in hours
-            const returningDepartureAirportTzOffset = Luxon.getTimezoneOffset(returningDepartureAirportTz.airport_time_zone); // timezone offset in hours
+            // const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // Asia/Jakarta, Asia/Kuala_Lumpur, etc...
+            // const systemTzOffset = Luxon.getTimezoneOffset(localTimezone); // timezone offset in hours
+            // const departureAirportTzOffset = Luxon.getTimezoneOffset(departureAirportTz.airport_time_zone); // timezone offset in hours
+            // const returningDepartureAirportTzOffset = Luxon.getTimezoneOffset(returningDepartureAirportTz.airport_time_zone); // timezone offset in hours
 
-            let pickedReturningDepartureDate;
-            let pickedDepartureDate = DateTimeUtils.modifyHours(flight_departure_date, systemTzOffset, -departureAirportTzOffset)
-            pickedReturningDepartureDate = DateTimeUtils.modifyHours(returning_flight_departure_date, systemTzOffset, -returningDepartureAirportTzOffset)
+            // let pickedReturningDepartureDate;
+            // let pickedDepartureDate = DateTimeUtils.modifyHours(flight_departure_date, systemTzOffset, -departureAirportTzOffset)
+            // pickedReturningDepartureDate = DateTimeUtils.modifyHours(returning_flight_departure_date, systemTzOffset, -returningDepartureAirportTzOffset)
             
             // if no returning_flight_departure_date provided
-            if(!returning_flight_departure_date){
-                pickedReturningDepartureDate = '1111-11-11 00:00:00'
-            }
+            // if(!returning_flight_departure_date){
+            //     (await AirportTimezone(departure_airport, arrival_airport)).pickedReturningDepartureDate = '1111-11-11 00:00:00'
+            // }
+            const airportTimezone = await AirportTimezone(departure_airport, arrival_airport, flight_departure_date, returning_flight_departure_date)
 
             const flights = await prisma.flights.findMany({
                 where: {
@@ -116,8 +118,8 @@ class FlightsController {
                         },
                     ],
                     flight_departure_date: {
-                        gte: pickedDepartureDate.toISOString(),
-                        lt: DateTimeUtils.modifyHours(pickedDepartureDate, 24).toISOString()
+                        gte: airportTimezone.pickedDepartureDate.toISOString(),
+                        lt: DateTimeUtils.modifyHours(airportTimezone.pickedDepartureDate, 24).toISOString()
                     },
                     flight_seat_classes: {
                         some: {
@@ -218,9 +220,9 @@ class FlightsController {
             // filter to show only based on returning_flight_departure_date request body
             const filterReturningFlightsByDepDate = returningFlights.filter((filteredReturningFlight) => {
                 const convertedRawDepartureDatetime = DateTimeUtils.convertISOStringToDate(filteredReturningFlight.flight_details.raw_departure_datetime)
-                const convertedDateLimit = DateTimeUtils.modifyHours(pickedReturningDepartureDate, 24)
+                const convertedDateLimit = DateTimeUtils.modifyHours(airportTimezone.pickedReturningDepartureDate, 24)
                 
-                if(convertedRawDepartureDatetime >= pickedReturningDepartureDate && convertedRawDepartureDatetime < convertedDateLimit){
+                if(convertedRawDepartureDatetime >= airportTimezone.pickedReturningDepartureDate && convertedRawDepartureDatetime < convertedDateLimit){
                     return filteredReturningFlight
                 }
             })
@@ -257,8 +259,8 @@ class FlightsController {
                     mappedFlights.sort((a,b) => (a.seat_class_price.raw > b.seat_class_price.raw) ? 1 : ((b.seat_class_price.raw > a.seat_class_price.raw) ? -1 : 0))
             }
 
-            const departingFlightsPagination = paginate(pickedDepartureDate, departureAirportTz.airport_time_zone)
-            const returningFlightsPagination = paginate(pickedReturningDepartureDate, returningDepartureAirportTz.airport_time_zone)
+            const departingFlightsPagination = paginate(airportTimezone.pickedDepartureDate, airportTimezone.departureAirportTz.airport_time_zone)
+            const returningFlightsPagination = paginate(airportTimezone.pickedReturningDepartureDate, airportTimezone.returningDepartureAirportTz.airport_time_zone)
 
             return res.json({
                 status: 'success',
@@ -275,7 +277,7 @@ class FlightsController {
                 },
                 returning_flights: {
                     // Only include pagination and flights if returning_flight_departure_date is provided
-                    ...(returning_flight_departure_date ? { pagination: returningFlightsPagination, flights: filterReturningFlightsByDepDate } : {}),
+                    ...(returning_flight_departure_date ? { flights: filterReturningFlightsByDepDate, pagination: returningFlightsPagination } : {}),
                 },
             })
         } catch(err) {
