@@ -81,6 +81,13 @@ class FlightsController {
                             ]
                         }
                     ],
+                    flight_seat_classes: {
+                        some: {
+                            seat_class: {
+                                seat_class_type: seat_class_type
+                            }
+                        }
+                    }
                 },
                 select: {
                     airline: {
@@ -209,8 +216,6 @@ class FlightsController {
                 returning_flights: {
                     flights: returningFlights,
                     pagination: returningFlightsPagination,
-                    // Only include pagination and flights if returning_flight_departure_date is provided
-                    // ...(returning_flight_departure_date ? { flights: returningFlights, pagination: returningFlightsPagination } : {}),
                 },
             })
         } catch(err) {
