@@ -9,8 +9,7 @@ const ErrorHandler = require('./error_handler.utils');
 const AirportTimezone = require('./airport_timezone.flights')
 const FlightDataFilters = require('./filters.flights');
 const BookedTicketCount = require('./ticket_count.flights');
-const GetSeatCapacity = require('./get_seat_capacity.flights'); 
-// const countBookedSeats = require('./ticket_count.flights');
+const FlightSeatChecker = require('./flight_seat_checker.flights');
 
 class FlightsController {
     static async searchFlights(req, res, next){
@@ -30,7 +29,11 @@ class FlightsController {
         try {
             // const {
             // } = req.body
-            const passengersTotal = Number(total_adult_passengers) + Number(total_child_passengers) + Number(total_infant_passengers)
+            const adultPassengersTotal = Number(total_adult_passengers)
+            const childPassengersTotal = Number(total_child_passengers)
+            const infantPassengersTotal = Number(total_infant_passengers)
+
+            const passengersTotal = adultPassengersTotal + childPassengersTotal + infantPassengersTotal
 
             if(is_round_trip === "true") // if is_round_trip is true (yes)
                 ErrorHandler.ifNoReturningDateInRoundTrip(returning_flight_departure_date)
@@ -168,18 +171,8 @@ class FlightsController {
             // sort mappedFlights by query parameter of sort_by
             FlightDataFilters.sortFlights(mappedFlights, sort_by)
             
-            const bookedTicketsFlightIds = mappedFlights.map((mappedFlights) => {
-                return mappedFlights.flight_id
-            })
-
-            const countBookedSeats = await BookedTicketCount(bookedTicketsFlightIds)
-
-            // const seatCapacity = await GetSeatCapacity(flights.find(flight => {
-            //     return flight.flight_seat_classes.find(flightSeatClass => {
-            //         return flightSeatClass.seat_class_capacity
-            //     })
-            // }))
-            
+            // check if each flight has enough available seats for the total number of passengers (adults + children)
+            const flightSeatChecker = await FlightSeatChecker(mappedFlights, adultPassengersTotal, childPassengersTotal);
             
             // filter to show departing flights by comparing departure_airport to departing departure_airport
             const departingFlights = FlightDataFilters.departingFlights(mappedFlights, departure_airport)
@@ -187,26 +180,33 @@ class FlightsController {
             // filter to show returning flights by comparing departing flight's arrival airport to returning flight's departure_airport
             const returningFlights = FlightDataFilters.returningFlights(mappedFlights, arrival_airport)
 
-            const departingFlightsPagination = paginate(airportTimezone.pickedDepartureDate, airportTimezone.departureAirportTz.airport_time_zone)
+            let departingFlightsPagination = paginate(airportTimezone.pickedDepartureDate, airportTimezone.departureAirportTz.airport_time_zone)
             let returningFlightsPagination = paginate(airportTimezone.pickedReturningDepartureDate, airportTimezone.returningDepartureAirportTz.airport_time_zone)
 
             if(typeof returningFlights !== 'undefined' && returningFlights.length === 0 || !returning_flight_departure_date){
                 returningFlightsPagination = []
             }
 
+            if(typeof departingFlights !== 'undefined' && departingFlights.length === 0){
+                departingFlightsPagination = []
+            }
+
             return res.json({
                 status: 'success',
                 message: 'Berhasil menemukan penerbangan',
                 debug: {
-                    bookedTicketsFlightIds: bookedTicketsFlightIds,
+                    bookedTicketsFlightIds: flightSeatChecker.bookedTicketsFlightIds,
                     // totalFlightIds: totalFlightIds,
-                    countBookedSeats: countBookedSeats
+                    bookedSeatsPerFlight: flightSeatChecker.bookedSeatsPerFlight,
+                    flightSeatCapacities: flightSeatChecker.flightSeatCapacities,
+                    filteredFlightsStatus: flightSeatChecker.filteredFlightsStatus
                     // seatCapacity: seatCapacity
                 },
                 passengers: {
-                    adult: Number(total_adult_passengers),
-                    child: Number(total_child_passengers),
-                    infant: Number(total_infant_passengers),
+                    adult: adultPassengersTotal,
+                    child: childPassengersTotal,
+                    infant: infantPassengersTotal,
+                    total_no_infant: passengersTotal - infantPassengersTotal,
                     total: passengersTotal,
                 },
                 departing_flights: {
