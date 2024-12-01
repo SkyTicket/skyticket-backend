@@ -125,6 +125,26 @@ async function main() {
               flight_arrival_date: '2024-12-27T09:00:00.000Z',
               flight_number: '916'
             },
+            {
+              flight_id: '234a23a9-0bbb-44b5-a8a3-4f604c94b266',
+              airline_id: 'c000cdc0-b0d5-4728-8616-8d6abc4a95ad', // Lion
+              flight_departure_airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a18', // SUB
+              flight_arrival_airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a21', // DPS
+              aircraft_id: '8bf696ca-b0fc-4466-8fee-97f0bfcd0z81', // B738
+              flight_departure_date: '2024-12-29T00:00:00.000Z',
+              flight_arrival_date: '2024-12-29T00:50:00.000Z',
+              flight_number: '111'
+            },
+            {
+              flight_id: 'c0032936-6984-495e-9faf-938753c690e5',
+              airline_id: 'c000cdc0-b0d5-4728-8616-8d6abc4a95ad', // Lion
+              flight_departure_airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a21', // DPS
+              flight_arrival_airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a18', // SUB
+              aircraft_id: '8bf696ca-b0fc-4466-8fee-97f0bfcd0z81', // B738
+              flight_departure_date: '2024-12-30T03:00:00.000Z',
+              flight_arrival_date: '2024-12-30T03:50:00.000Z',
+              flight_number: '222'
+            },
         ]
     })
 

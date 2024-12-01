@@ -34,7 +34,7 @@ async function getAirportTimezone(departure_airport, arrival_airport, flight_dep
             
     // if no returning_flight_departure_date provided
     if(!returning_flight_departure_date){
-        pickedReturningDepartureDate = '1111-11-11 00:00:00'
+        pickedReturningDepartureDate = new Date('1111-11-11 00:00:00')
     }
     // // let pickedReturningDepartureDate;
     // let pickedReturningDepartureDate = DateTimeUtils.modifyHours(returning_flight_departure_date, systemTzOffset, -returningDepartureAirportTzOffset)
