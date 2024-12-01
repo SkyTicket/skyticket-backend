@@ -23,9 +23,19 @@ class FlightsController {
             total_child_passengers,
             total_infant_passengers,
             seat_class_type,
-            sort_by
+            sort_by,
         } = req.query
         
+        let {
+            page,
+            limit
+        } = req.query
+        
+        page = parseInt(page) || 1;  
+        limit = parseInt(limit) || 10;
+
+        const skip = (page - 1) * limit;
+
         try {
             // const {
             // } = req.body
@@ -41,6 +51,8 @@ class FlightsController {
             const airportTimezone = await AirportTimezone(departure_airport, arrival_airport, flight_departure_date, returning_flight_departure_date)
 
             const flights = await prisma.flights.findMany({
+                skip: skip,
+                take: limit,
                 where: {
                     OR: [
                         {
@@ -61,6 +73,15 @@ class FlightsController {
                                         lt: DateTimeUtils.modifyHours(airportTimezone.pickedDepartureDate, 24).toISOString()
                                     },
                                 },
+                                {
+                                    flight_seat_classes: {
+                                        some: {
+                                            seat_class: {
+                                                seat_class_type: seat_class_type
+                                            }
+                                        }
+                                    }
+                                }
                             ],
                         },
                         {
@@ -81,16 +102,18 @@ class FlightsController {
                                         lt: DateTimeUtils.modifyHours(airportTimezone.pickedReturningDepartureDate, 24).toISOString()
                                     }
                                 },
+                                {
+                                    flight_seat_classes: {
+                                        some: {
+                                            seat_class: {
+                                                seat_class_type: seat_class_type
+                                            }
+                                        }
+                                    }
+                                }
                             ]
                         }
                     ],
-                    flight_seat_classes: {
-                        some: {
-                            seat_class: {
-                                seat_class_type: seat_class_type
-                            }
-                        }
-                    }
                 },
                 select: {
                     airline: {
@@ -180,16 +203,25 @@ class FlightsController {
             // filter to show returning flights by comparing departing flight's arrival airport to returning flight's departure_airport
             const returningFlights = FlightDataFilters.returningFlights(mappedFlights, arrival_airport)
 
-            let departingFlightsPagination = paginate(airportTimezone.pickedDepartureDate, airportTimezone.departureAirportTz.airport_time_zone)
-            let returningFlightsPagination = paginate(airportTimezone.pickedReturningDepartureDate, airportTimezone.returningDepartureAirportTz.airport_time_zone)
+            // let departingFlightsPagination = paginate(airportTimezone.pickedDepartureDate, airportTimezone.departureAirportTz.airport_time_zone)
+            // let returningFlightsPagination = paginate(airportTimezone.pickedReturningDepartureDate, airportTimezone.returningDepartureAirportTz.airport_time_zone)
 
-            if(typeof returningFlights !== 'undefined' && returningFlights.length === 0 || !returning_flight_departure_date){
-                returningFlightsPagination = []
-            }
+            // if(typeof returningFlights !== 'undefined' && returningFlights.length === 0 || !returning_flight_departure_date){
+            //     returningFlightsPagination = []
+            // }
 
-            if(typeof departingFlights !== 'undefined' && departingFlights.length === 0){
-                departingFlightsPagination = []
-            }
+            // if(typeof departingFlights !== 'undefined' && departingFlights.length === 0){
+            //     departingFlightsPagination = []
+            // }
+
+            const url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
+            const params = new URLSearchParams(url.search);
+
+            // delete 'page' and 'limit' query params
+            params.delete('page');
+            params.delete('limit');
+
+            const fullUrlWithoutPageAndLimit = `${url.origin}${url.pathname}?${params.toString()}`;
 
             return res.json({
                 status: 'success',
@@ -211,11 +243,17 @@ class FlightsController {
                 },
                 departing_flights: {
                     flights: departingFlights,
-                    pagination: departingFlightsPagination,
+                    // pagination: departingFlightsPagination,
                 },
                 returning_flights: {
                     flights: returningFlights,
-                    pagination: returningFlightsPagination,
+                    // pagination: returningFlightsPagination,
+                },
+                pagination: {
+                    current_page: page,
+                    limit: limit,
+                    prev_url: page > 1 ? `${fullUrlWithoutPageAndLimit}&page=${page - 1}&limit=${limit}` : null,
+                    next_url: `${fullUrlWithoutPageAndLimit}&page=${page + 1}&limit=${limit}`,
                 },
             })
         } catch(err) {
