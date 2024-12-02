@@ -46,6 +46,16 @@ async function main() {
                 flight_number: '381'
             },
             {
+              flight_id: '4c06c9c5-63f7-4293-99ba-4109594e0720',
+              airline_id: 'c000cdc0-b0d5-4728-8616-8d6abc4a95ad', // Lion
+              flight_departure_airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a18', // SUB
+              flight_arrival_airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a19', // CGK
+              aircraft_id: '8bf696ca-b0fc-4466-8fee-97f0bfcd0z81', // B738
+              flight_departure_date: '2024-12-25T05:25:00.000Z',
+              flight_arrival_date: '2024-12-25T06:40:00.000Z',
+              flight_number: '387'
+            },
+            {
                 flight_id: 'd53f13ec-44ee-458a-821e-6189c1bbe55b',
                 airline_id: 'c000cdc0-b0d5-4728-1662-8d6abc4z91h3', // Batik
                 flight_departure_airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a18', // SUB 

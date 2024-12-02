@@ -24,16 +24,22 @@ class ErrorHandler {
     }
 
     static ifAllFlightsAreFull(filteredFlightsStatus){
-        const allFlightsAreFull = (filteredFlightsStatus) => filteredFlightsStatus.every(value => value === true);
-            if(allFlightsAreFull(filteredFlightsStatus)){
-                throw {
-                    statusCode: 422,
-                    message: {
-                        line_1: 'Maaf, Tiket terjual habis!',
-                        line_2: 'Coba cari perjalanan lainnya!'
-                    }
+        const allFlightsAreFull = (flightsStatus) => {
+            if (flightsStatus.length === 0 || !flightsStatus.every(value => value === true)) {
+                return false;
+            }
+            return true;
+        };
+
+        if(allFlightsAreFull(filteredFlightsStatus)){
+            throw {
+                statusCode: 422,
+                message: {
+                    line_1: 'Maaf, Tiket terjual habis!',
+                    line_2: 'Coba cari perjalanan lainnya!'
                 }
             }
+        }
     }
 }
 

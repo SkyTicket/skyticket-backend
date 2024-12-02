@@ -48,6 +48,13 @@ async function main() {
                 seat_class_capacity: 180,
             },
             {
+                flight_seat_class_id: 'd99b9ddb-6c3b-44c7-829e-d333367db075',
+                seat_class_id: '6d1f8718-d810-4b7b-95a8-58fdff928823', // Economy
+                flight_id: '4c06c9c5-63f7-4293-99ba-4109594e0720', // JT387
+                seat_class_price: 1350000.00,
+                seat_class_capacity: 180,
+            },
+            {
                 flight_seat_class_id: '6c8b9c49-d701-4226-8c2e-35293967c2a4',
                 seat_class_id: '6d1f8718-d810-4b7b-95a8-58fdff928823', // Economy
                 flight_id: 'd53f13ec-44ee-458a-821e-6189c1bbe55b', // ID629
