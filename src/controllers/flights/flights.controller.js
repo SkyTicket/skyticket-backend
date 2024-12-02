@@ -47,6 +47,9 @@ class FlightsController {
             const infantPassengersTotal = Number(total_infant_passengers)
 
             const passengersTotal = adultPassengersTotal + childPassengersTotal + infantPassengersTotal
+            const totalNoInfant = passengersTotal - infantPassengersTotal
+
+            ErrorHandler.passengersTotalValidation(totalNoInfant, infantPassengersTotal, adultPassengersTotal)
 
             const airportTimezone = await AirportTimezone(departure_airport, arrival_airport, flight_departure_date, returning_flight_departure_date)
 
@@ -244,7 +247,7 @@ class FlightsController {
                     adult: adultPassengersTotal,
                     child: childPassengersTotal,
                     infant: infantPassengersTotal,
-                    total_no_infant: passengersTotal - infantPassengersTotal,
+                    total_no_infant: totalNoInfant,
                     total: passengersTotal,
                 },
                 flights: show_returning_flights === false ? {

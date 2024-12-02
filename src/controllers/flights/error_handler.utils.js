@@ -1,4 +1,29 @@
 class ErrorHandler {
+    static passengersTotalValidation(totalNoInfant, infantPassengersTotal, adultPassengersTotal){
+        if(totalNoInfant > 7){
+            throw {
+                statusCode: 400,
+                message: {
+                    line_1: 'Maksimal 7 penumpang (dewasa dan anak-anak)',
+                }
+            }
+        } else if(infantPassengersTotal > adultPassengersTotal){
+            throw {
+                statusCode: 400,
+                message: {
+                    line_1: 'Jumlah penumpang bayi tidak boleh melebihi jumlah penumpang dewasa',
+                }
+            }
+        } else if(adultPassengersTotal === 0) {
+            throw {
+                statusCode: 400,
+                message: {
+                    line_1: 'Minimal 1 penumpang dewasa',
+                }
+            }
+        }
+    }
+
     static ifNoFlightsFound(flights){
         if(typeof flights !== 'undefined' && flights.length === 0){
             throw {
