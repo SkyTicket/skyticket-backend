@@ -9,7 +9,7 @@ const ErrorHandler = require('./error_handler.utils');
 const AirportTimezone = require('./airport_timezone.flights')
 const FlightDataFilters = require('./filters.flights');
 const FlightSeatChecker = require('./flight_seat_checker.flights');
-const flightSeatChecker = require('./flight_seat_checker.flights');
+const FlightDataMapper = require('./mapper.flights');
 
 class FlightsController {
     static async searchFlights(req, res, next){
@@ -28,14 +28,16 @@ class FlightsController {
         
         const returningDepartureAirport = arrival_airport;
         const returningArrivalAirport = departure_airport;
-
+        
         let {
             page,
-            limit
+            limit,
+            show_returning_flights
         } = req.query
         
         page = parseInt(page) || 1;  
         limit = parseInt(limit) || 5;
+        show_returning_flights = false
 
         const skip = (page - 1) * limit;
 
@@ -48,165 +50,149 @@ class FlightsController {
 
             const airportTimezone = await AirportTimezone(departure_airport, arrival_airport, flight_departure_date, returning_flight_departure_date)
 
-            const flightsWhereClause = {
-                OR: [
+            const departingFlightsWhereClause = {
+                AND: [
                     {
-                        AND: [
-                            {
-                                departure_airport: {
-                                    airport_code: departure_airport
-                                }
-                            },
-                            {
-                                arrival_airport: {
-                                    airport_code: arrival_airport
-                                }
-                            },
-                            {
-                                flight_departure_date: {
-                                    gte: airportTimezone.pickedDepartureDate.toISOString(),
-                                    lt: DateTimeUtils.modifyHours(airportTimezone.pickedDepartureDate, 24).toISOString()
-                                },
-                            },
-                            {
-                                flight_seat_classes: {
-                                    some: {
-                                        seat_class: {
-                                            seat_class_type: seat_class_type
-                                        }
-                                    }
-                                }
-                            }
-                        ],
+                        departure_airport: {
+                            airport_code: departure_airport
+                        }
                     },
                     {
-                        AND: [
-                            {
-                                departure_airport: {
-                                    airport_code: returningDepartureAirport // flip between departure_aiport and arrival_airport
-                                }
-                            },
-                            {
-                                arrival_airport: {
-                                    airport_code: returningArrivalAirport // flip between departure_aiport and arrival_airport
-                                }
-                            },
-                            {
-                                flight_departure_date: {
-                                    gte: airportTimezone.pickedReturningDepartureDate.toISOString(),
-                                    lt: DateTimeUtils.modifyHours(airportTimezone.pickedReturningDepartureDate, 24).toISOString()
-                                }
-                            },
-                            {
-                                flight_seat_classes: {
-                                    some: {
-                                        seat_class: {
-                                            seat_class_type: seat_class_type
-                                        }
-                                    }
+                        arrival_airport: {
+                            airport_code: arrival_airport
+                        }
+                    },
+                    {
+                        flight_departure_date: {
+                            gte: airportTimezone.pickedDepartureDate.toISOString(),
+                            lt: DateTimeUtils.modifyHours(airportTimezone.pickedDepartureDate, 24).toISOString()
+                        },
+                    },
+                    {
+                        flight_seat_classes: {
+                            some: {
+                                seat_class: {
+                                    seat_class_type: seat_class_type
                                 }
                             }
-                        ]
+                        }
                     }
                 ],
             }
 
-            const flights = await prisma.flights.findMany({
+            const returningFlightsWhereClause = {
+                AND: [
+                    {
+                        departure_airport: {
+                            airport_code: returningDepartureAirport // flip between departure_aiport and arrival_airport
+                        }
+                    },
+                    {
+                        arrival_airport: {
+                            airport_code: returningArrivalAirport // flip between departure_aiport and arrival_airport
+                        }
+                    },
+                    {
+                        flight_departure_date: {
+                            gte: airportTimezone.pickedReturningDepartureDate.toISOString(),
+                            lt: DateTimeUtils.modifyHours(airportTimezone.pickedReturningDepartureDate, 24).toISOString()
+                        }
+                    },
+                    {
+                        flight_seat_classes: {
+                            some: {
+                                seat_class: {
+                                    seat_class_type: seat_class_type
+                                }
+                            }
+                        }
+                    }
+                ]
+            }
+
+            const selectFlightData = {
+                airline: {
+                    select: {
+                        Airline_logo: true,
+                        airline_name: true,
+                        airline_code: true
+                    }
+                },
+                departure_airport: {
+                    select: {
+                        airport_code: true,
+                        airport_time_zone: true,
+                        airport_name: true
+                    }
+                },
+                arrival_airport: {
+                    select: {
+                        airport_code: true,
+                        airport_time_zone: true,
+                        airport_name: true
+                    }
+                },
+                flight_seat_classes: {
+                    select: {
+                        seat_class_price: true,
+                        seat_class: true,
+                        seat_class_capacity: true
+                    },
+                },
+                flight_id: true,
+                flight_number: true,
+                flight_departure_date: true,
+                flight_arrival_date: true
+            }
+
+            const departingFlights = await prisma.flights.findMany({
                 skip: skip,
                 take: limit,
-                where: flightsWhereClause,
-                select: {
-                    airline: {
-                        select: {
-                            Airline_logo: true,
-                            airline_name: true,
-                            airline_code: true
-                        }
-                    },
-                    departure_airport: {
-                        select: {
-                            airport_code: true,
-                            airport_time_zone: true,
-                            airport_name: true
-                        }
-                    },
-                    arrival_airport: {
-                        select: {
-                            airport_code: true,
-                            airport_time_zone: true,
-                            airport_name: true
-                        }
-                    },
-                    flight_seat_classes: {
-                        select: {
-                            seat_class_price: true,
-                            seat_class: true,
-                            seat_class_capacity: true
-                        },
-                    },
-                    flight_id: true,
-                    flight_number: true,
-                    flight_departure_date: true,
-                    flight_arrival_date: true
-                }
+                where: departingFlightsWhereClause,
+                select: selectFlightData
             })
 
-            let flightsTotal = await prisma.flights.count({
-                where: flightsWhereClause
+            const returningFlights = await prisma.flights.findMany({
+                skip: skip,
+                take: limit,
+                where: returningFlightsWhereClause,
+                select: selectFlightData
             })
 
-            const mappedFlights = flights.map((flight) => {
-                const findBySeatClassType = flight.flight_seat_classes.find(flightSeatClass => {
-                    return flightSeatClass.seat_class.seat_class_type === seat_class_type
-                })
-                
-                return {
-                    flight_id: flight.flight_id, // for count tickets handling
-                    flight_seat_class_capacity: findBySeatClassType.seat_class_capacity, // for count tickets handling
-                    airline_logo: flight.airline.Airline_logo,
-                    airline_name_and_class: `${flight.airline.airline_name} - ${findBySeatClassType.seat_class.seat_class_type}`,
-                    seat_class_price: {
-                        raw: Number(findBySeatClassType.seat_class_price),
-                        formatted: Currency.format(findBySeatClassType.seat_class_price),
-                    },
-                    departure_airport: flight.departure_airport.airport_code,
-                    departure_time: DateTimeUtils.formatHoursByTimezone(flight.flight_departure_date, flight.departure_airport.airport_time_zone),
-                    flight_duration: {
-                        raw: Moment.timeDifferenceInMin(flight.flight_arrival_date, flight.flight_departure_date),
-                        formatted: Moment.timeDifferenceFormatted(flight.flight_arrival_date, flight.flight_departure_date),
-                    }, 
-                    arrival_airport: flight.arrival_airport.airport_code,
-                    arrival_time: DateTimeUtils.formatHoursByTimezone(flight.flight_arrival_date, flight.arrival_airport.airport_time_zone),
-                    flight_details: {
-                        departure_time: DateTimeUtils.formatHoursByTimezone(flight.flight_departure_date, flight.departure_airport.airport_time_zone),
-                        departure_date: DateTimeUtils.formatDateByTimezone(flight.flight_departure_date, flight.departure_airport.airport_time_zone),
-                        departure_airport_name: flight.departure_airport.airport_name,
-                        airline_name_and_class: `${flight.airline.airline_name} - ${findBySeatClassType.seat_class.seat_class_type}`,
-                        flight_number: `${flight.airline.airline_code} - ${flight.flight_number}`,
-                        airline_logo: flight.airline.Airline_logo,
-                        arrival_time: DateTimeUtils.formatHoursByTimezone(flight.flight_arrival_date, flight.arrival_airport.airport_time_zone),
-                        arrival_date: DateTimeUtils.formatDateByTimezone(flight.flight_arrival_date, flight.arrival_airport.airport_time_zone),
-                        arrival_airport_name: flight.arrival_airport.airport_name,
-                        raw_departure_datetime: flight.flight_departure_date,
-                        raw_arrival_datetime: flight.flight_arrival_date
-                    }
-                }
-            })
-
-            // sort mappedFlights by query parameter of sort_by
-            FlightDataFilters.sortFlights(mappedFlights, sort_by)
             
-            // filter to show departing flights by comparing departure_airport to departing departure_airport
-            const departingFlights = FlightDataFilters.departingFlights(mappedFlights, departure_airport)
-
+            let departingFlightsTotal = await prisma.flights.count({
+                where: departingFlightsWhereClause
+            })
+            
+            let returningFlightsTotal = await prisma.flights.count({
+                where: returningFlightsWhereClause
+            })
+            
             // if no flights record found
             ErrorHandler.ifNoFlightsFound(departingFlights)
 
+            // if(is_round_trip === "true" && ){
+            //     ErrorHandler.ifNoFlightsFound(returningFlights)
+            // }
+            if (show_returning_flights && returningFlights.length === 0) {
+                ErrorHandler.ifNoFlightsFound(returningFlights);
+            }
+
+            // map departingFlights and returningFlights array respectively
+            const mappedDepartingFlights = FlightDataMapper.mapFlights(departingFlights, seat_class_type);
+            const mappedReturningFlights = FlightDataMapper.mapFlights(returningFlights, seat_class_type);
+
+            // sort mappedFlights by query parameter of sort_by
+            FlightDataFilters.sortFlights(mappedDepartingFlights, sort_by)
+            FlightDataFilters.sortFlights(mappedReturningFlights, sort_by)
+
             // check if each flight has enough available seats for the total number of passengers (adults + children)
-            let departingFlightSeatChecker = await FlightSeatChecker(departingFlights, adultPassengersTotal, childPassengersTotal);
+            let departingFlightSeatChecker = await FlightSeatChecker(mappedDepartingFlights, adultPassengersTotal, childPassengersTotal);
+            let returningFlightSeatChecker = await FlightSeatChecker(mappedReturningFlights, adultPassengersTotal, childPassengersTotal);
 
             // check if all flights are full
             ErrorHandler.ifAllFlightsAreFull(departingFlightSeatChecker.filteredFlightsStatus, departingFlightSeatChecker.flightSeatCapacities)
+            ErrorHandler.ifAllFlightsAreFull(returningFlightSeatChecker.filteredFlightsStatus, departingFlightSeatChecker.flightSeatCapacities)
 
             // base_url with full URL
             const url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
@@ -221,7 +207,6 @@ class FlightsController {
             let returningFlightsUrl;
             if(is_round_trip === "true"){
                 ErrorHandler.ifNoReturningDateInRoundTrip(returning_flight_departure_date)
-                // flightsTotal = Math.ceil(flightsTotal / 2)
                 params.delete('flight_departure_date');
                 params.delete('returning_flight_departure_date');
                 params.delete('departure_airport');
@@ -231,7 +216,7 @@ class FlightsController {
                 const encodedReturningFlightDepartureDate = encodeURIComponent(returning_flight_departure_date);
                 const encodedFlightDepartureDate = encodeURIComponent(flight_departure_date);
 
-                returningFlightsUrl = `${url.origin}${url.pathname}?${params.toString()}&flight_departure_date=${encodedReturningFlightDepartureDate}&departure_airport=${returningDepartureAirport}&arrival_airport=${returningArrivalAirport}`;
+                returningFlightsUrl = `${url.origin}${url.pathname}?${params.toString()}&flight_departure_date=${encodedReturningFlightDepartureDate}&departure_airport=${returningDepartureAirport}&arrival_airport=${returningArrivalAirport}&show_returning_flights=false`;
                 fullUrlWithoutPageAndLimit = `${url.origin}${url.pathname}?${params.toString()}&flight_departure_date=${encodedFlightDepartureDate}&departure_airport=${departure_airport}&arrival_airport=${arrival_airport}&is_round_trip=${is_round_trip}&returning_flight_departure_date=${encodedReturningFlightDepartureDate}`;
             }
 
@@ -239,13 +224,21 @@ class FlightsController {
                 status: 'success',
                 message: 'Berhasil menemukan penerbangan',
                 debug: {
-                    flightSeatChecker: {
+                    departingFlightSeatChecker: {
                         bookedTicketsFlightIds: departingFlightSeatChecker.bookedTicketsFlightIds,
                         bookedSeatsPerFlight: departingFlightSeatChecker.bookedSeatsPerFlight,
                         flightSeatCapacities: departingFlightSeatChecker.flightSeatCapacities,
                         filteredFlightsStatus: departingFlightSeatChecker.filteredFlightsStatus,
-                        flightsTotal: flightsTotal
+                        departingFlightsTotal: departingFlightsTotal
                     },
+                    returningFlightSeatChecker: {
+                        bookedTicketsFlightIds: returningFlightSeatChecker.bookedTicketsFlightIds,
+                        bookedSeatsPerFlight: returningFlightSeatChecker.bookedSeatsPerFlight,
+                        flightSeatCapacities: returningFlightSeatChecker.flightSeatCapacities,
+                        filteredFlightsStatus: returningFlightSeatChecker.filteredFlightsStatus,
+                        returningFlightsTotal: returningFlightsTotal
+                    },
+                    show_returning_flights: show_returning_flights
                 },
                 passengers: {
                     adult: adultPassengersTotal,
@@ -254,13 +247,23 @@ class FlightsController {
                     total_no_infant: passengersTotal - infantPassengersTotal,
                     total: passengersTotal,
                 },
-                flights: departingFlights,
-                returning_flights_url: returningFlightsUrl,
-                pagination: {
-                    current_page: page,
-                    limit: limit,
-                    prev_url: page > 1 ? `${fullUrlWithoutPageAndLimit}&page=${page - 1}&limit=${limit}` : null,
-                    next_url: page >= Math.ceil(Number(flightsTotal) / Number(limit)) ? null : `${fullUrlWithoutPageAndLimit}&page=${page + 1}&limit=${limit}`,
+                flights: show_returning_flights === false ? {
+                    flights_data: mappedDepartingFlights,
+                    returning_flights_url: returningFlightsUrl,
+                    pagination: {
+                        current_page: page,
+                        limit: limit,
+                        prev_url: page > 1 ? `${fullUrlWithoutPageAndLimit}&page=${page - 1}&limit=${limit}` : null,
+                        next_url: page >= Math.ceil(Number(departingFlightsTotal) / Number(limit)) ? null : `${fullUrlWithoutPageAndLimit}&page=${page + 1}&limit=${limit}`,
+                    },
+                } : {
+                    returning_flights: mappedReturningFlights,
+                    pagination: {
+                        current_page: page,
+                        limit: limit,
+                        prev_url: page > 1 ? `${fullUrlWithoutPageAndLimit}&page=${page - 1}&limit=${limit}` : null,
+                        next_url: page >= Math.ceil(Number(returningFlightsTotal) / Number(limit)) ? null : `${fullUrlWithoutPageAndLimit}&page=${page + 1}&limit=${limit}`,
+                    }
                 },
             })
         } catch(err) {
