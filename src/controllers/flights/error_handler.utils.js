@@ -1,4 +1,15 @@
 class ErrorHandler {
+    static validateReturnDate(returningFlightDepartureDate, flightDepartureDate){
+        if(returningFlightDepartureDate < flightDepartureDate){
+            throw {
+                statusCode: 400,
+                message: {
+                    line_1: "Tanggal kepulangan harus setelah tanggal keberangkatan"
+                }
+            }
+        }
+    }
+
     static passengersTotalValidation(totalNoInfant, infantPassengersTotal, adultPassengersTotal){
         if(totalNoInfant > 7){
             throw {

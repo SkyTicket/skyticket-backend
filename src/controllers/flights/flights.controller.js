@@ -49,6 +49,10 @@ class FlightsController {
             const passengersTotal = adultPassengersTotal + childPassengersTotal + infantPassengersTotal
             const totalNoInfant = passengersTotal - infantPassengersTotal
 
+            // if returning departure date is earlier than departing date
+            ErrorHandler.validateReturnDate(returning_flight_departure_date, flight_departure_date)
+
+            // validate maximum passenger total
             ErrorHandler.passengersTotalValidation(totalNoInfant, infantPassengersTotal, adultPassengersTotal)
 
             const airportTimezone = await AirportTimezone(departure_airport, arrival_airport, flight_departure_date, returning_flight_departure_date)
@@ -174,9 +178,6 @@ class FlightsController {
             // if no flights record found
             ErrorHandler.ifNoFlightsFound(departingFlights)
 
-            // if(is_round_trip === "true" && ){
-            //     ErrorHandler.ifNoFlightsFound(returningFlights)
-            // }
             if (show_returning_flights && returningFlights.length === 0) {
                 ErrorHandler.ifNoFlightsFound(returningFlights);
             }
