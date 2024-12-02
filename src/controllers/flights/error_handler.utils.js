@@ -22,6 +22,19 @@ class ErrorHandler {
             }
         }
     }
+
+    static ifAllFlightsAreFull(filteredFlightsStatus){
+        const allFlightsAreFull = (filteredFlightsStatus) => filteredFlightsStatus.every(value => value === true);
+            if(allFlightsAreFull(filteredFlightsStatus)){
+                throw {
+                    statusCode: 422,
+                    message: {
+                        line_1: 'Maaf, Tiket terjual habis!',
+                        line_2: 'Coba cari perjalanan lainnya!'
+                    }
+                }
+            }
+    }
 }
 
 module.exports = ErrorHandler;

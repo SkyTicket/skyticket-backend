@@ -10,6 +10,7 @@ const AirportTimezone = require('./airport_timezone.flights')
 const FlightDataFilters = require('./filters.flights');
 const BookedTicketCount = require('./ticket_count.flights');
 const FlightSeatChecker = require('./flight_seat_checker.flights');
+const flightSeatChecker = require('./flight_seat_checker.flights');
 
 class FlightsController {
     static async searchFlights(req, res, next){
@@ -44,9 +45,6 @@ class FlightsController {
             const infantPassengersTotal = Number(total_infant_passengers)
 
             const passengersTotal = adultPassengersTotal + childPassengersTotal + infantPassengersTotal
-
-            if(is_round_trip === "true") // if is_round_trip is true (yes)
-                ErrorHandler.ifNoReturningDateInRoundTrip(returning_flight_departure_date)
 
             const airportTimezone = await AirportTimezone(departure_airport, arrival_airport, flight_departure_date, returning_flight_departure_date)
 
@@ -194,45 +192,49 @@ class FlightsController {
             // sort mappedFlights by query parameter of sort_by
             FlightDataFilters.sortFlights(mappedFlights, sort_by)
             
-            // check if each flight has enough available seats for the total number of passengers (adults + children)
-            const flightSeatChecker = await FlightSeatChecker(mappedFlights, adultPassengersTotal, childPassengersTotal);
-            
             // filter to show departing flights by comparing departure_airport to departing departure_airport
             const departingFlights = FlightDataFilters.departingFlights(mappedFlights, departure_airport)
 
-            // filter to show returning flights by comparing departing flight's arrival airport to returning flight's departure_airport
-            const returningFlights = FlightDataFilters.returningFlights(mappedFlights, arrival_airport)
+            // check if each flight has enough available seats for the total number of passengers (adults + children)
+            let departingFlightSeatChecker = await FlightSeatChecker(departingFlights, adultPassengersTotal, childPassengersTotal);
 
-            // let departingFlightsPagination = paginate(airportTimezone.pickedDepartureDate, airportTimezone.departureAirportTz.airport_time_zone)
-            // let returningFlightsPagination = paginate(airportTimezone.pickedReturningDepartureDate, airportTimezone.returningDepartureAirportTz.airport_time_zone)
+            // check if all flights are full
+            ErrorHandler.ifAllFlightsAreFull(departingFlightSeatChecker.filteredFlightsStatus)
 
-            // if(typeof returningFlights !== 'undefined' && returningFlights.length === 0 || !returning_flight_departure_date){
-            //     returningFlightsPagination = []
-            // }
-
-            // if(typeof departingFlights !== 'undefined' && departingFlights.length === 0){
-            //     departingFlightsPagination = []
-            // }
-
+            // base_url with full URL
             const url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);
             const params = new URLSearchParams(url.search);
+
+            // if is_round_trip is true (yes)
+            let returningFlightsUrl;
+            if(is_round_trip === "true"){
+                ErrorHandler.ifNoReturningDateInRoundTrip(returning_flight_departure_date)
+                params.delete('flight_departure_date');
+                params.delete('returning_flight_departure_date');
+                params.delete('departure_airport');
+                params.delete('arrival_airport');
+                params.delete('is_round_trip');
+
+                const encodedFlightDepartureDate = encodeURIComponent(returning_flight_departure_date);
+
+                returningFlightsUrl = `${url.origin}${url.pathname}?${params.toString()}&flight_departure_date=${encodedFlightDepartureDate}&departure_airport=${arrival_airport}&arrival_airport=${departure_airport}`;
+            }
 
             // delete 'page' and 'limit' query params
             params.delete('page');
             params.delete('limit');
-
             const fullUrlWithoutPageAndLimit = `${url.origin}${url.pathname}?${params.toString()}`;
 
             return res.json({
                 status: 'success',
                 message: 'Berhasil menemukan penerbangan',
                 debug: {
-                    bookedTicketsFlightIds: flightSeatChecker.bookedTicketsFlightIds,
-                    // totalFlightIds: totalFlightIds,
-                    bookedSeatsPerFlight: flightSeatChecker.bookedSeatsPerFlight,
-                    flightSeatCapacities: flightSeatChecker.flightSeatCapacities,
-                    filteredFlightsStatus: flightSeatChecker.filteredFlightsStatus
-                    // seatCapacity: seatCapacity
+                    flightSeatChecker: {
+                        bookedTicketsFlightIds: departingFlightSeatChecker.bookedTicketsFlightIds,
+                        bookedSeatsPerFlight: departingFlightSeatChecker.bookedSeatsPerFlight,
+                        flightSeatCapacities: departingFlightSeatChecker.flightSeatCapacities,
+                        filteredFlightsStatus: departingFlightSeatChecker.filteredFlightsStatus,
+                    },
                 },
                 passengers: {
                     adult: adultPassengersTotal,
@@ -241,14 +243,8 @@ class FlightsController {
                     total_no_infant: passengersTotal - infantPassengersTotal,
                     total: passengersTotal,
                 },
-                departing_flights: {
-                    flights: departingFlights,
-                    // pagination: departingFlightsPagination,
-                },
-                returning_flights: {
-                    flights: returningFlights,
-                    // pagination: returningFlightsPagination,
-                },
+                flights: departingFlights,
+                returning_flights_url: returningFlightsUrl,
                 pagination: {
                     current_page: page,
                     limit: limit,
@@ -269,7 +265,7 @@ class FlightsController {
             next(err)
         }
 
-        function paginate(dateTimeString, timezone) {
+        function dateFilters(dateTimeString, timezone) {
             const departureDate = new Date(dateTimeString);
             const newDate = [];
         
