@@ -1,6 +1,6 @@
-const DateTimeUtils = require('../../libs/datetime');
-const Moment = require('../../libs/moment');
-const Currency = require('../../libs/currency');
+const DateTimeUtils = require('../../../libs/datetime');
+const Moment = require('../../../libs/moment');
+const Currency = require('../../../libs/currency');
 
 class FlightDataMapper {
     static mapFlights(flights, seatClassType){

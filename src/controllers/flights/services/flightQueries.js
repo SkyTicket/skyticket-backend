@@ -1,6 +1,6 @@
-const DateTimeUtils = require('../../libs/datetime');
+const DateTimeUtils = require('../../../libs/datetime');
 
-const AirportTimezone = require('./airport_timezone.flights')
+const AirportTimezone = require('../helpers/airport_timezone.flights')
 const{ PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 

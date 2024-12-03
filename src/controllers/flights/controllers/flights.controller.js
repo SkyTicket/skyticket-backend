@@ -1,8 +1,8 @@
-const ErrorHandler = require('./error_handler.utils');
-const FlightDataFilters = require('./filters.flights');
-const FlightSeatChecker = require('./flight_seat_checker.flights');
-const FlightDataMapper = require('./mapper.flights');
-const FlightQueries = require('./queries.flights');
+const ErrorHandler = require('../utils/errorHandler');
+const FlightDataFilters = require('../services/filters.flights');
+const FlightSeatChecker = require('../helpers/flight_seat_checker.flights');
+const FlightDataMapper = require('../utils/flightMapper');
+const FlightQueries = require('../services/flightQueries.js');
 
 class FlightsController {
     static async searchFlights(req, res, next){
@@ -72,8 +72,8 @@ class FlightsController {
             let returningFlightSeatChecker = await FlightSeatChecker(mappedReturningFlights, adultPassengersTotal, childPassengersTotal);
 
             // check if all flights are full
-            ErrorHandler.ifAllFlightsAreFull(departingFlightSeatChecker.filteredFlightsStatus, departingFlightSeatChecker.flightSeatCapacities)
-            ErrorHandler.ifAllFlightsAreFull(returningFlightSeatChecker.filteredFlightsStatus, departingFlightSeatChecker.flightSeatCapacities)
+            ErrorHandler.ifAllFlightsAreFull(departingFlightSeatChecker.filteredFlightsStatus)
+            ErrorHandler.ifAllFlightsAreFull(returningFlightSeatChecker.filteredFlightsStatus)
 
             // base_url with full URL
             const url = new URL(req.protocol + '://' + req.get('host') + req.originalUrl);

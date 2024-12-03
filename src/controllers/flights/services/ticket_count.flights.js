@@ -1,8 +1,8 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-const DateTimeUtils = require('../../libs/datetime');
-const Luxon = require('../../libs/luxon');
+const DateTimeUtils = require('../../../libs/datetime');
+const Luxon = require('../../../libs/luxon');
 
 async function countBookedSeats(flightIds){
     let bookedSeatsOnFlightsBySeatClassCount = []

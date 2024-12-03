@@ -1,4 +1,4 @@
-const BookedTicketCount = require('./ticket_count.flights');
+const BookedTicketCount = require('../services/ticket_count.flights');
 
 async function flightSeatChecker(mappedFlights, adultPassengersTotal, childPassengersTotal){
     // TICKET COUNTING

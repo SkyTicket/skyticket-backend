@@ -4,9 +4,6 @@ class FlightDataFilters {
             case 'lowest_price':
                 mappedFlights.sort((a,b) => (a.seat_class_price.raw > b.seat_class_price.raw) ? 1 : ((b.seat_class_price.raw > a.seat_class_price.raw) ? -1 : 0))
             break;
-            case 'highest_price':
-                mappedFlights.sort((a,b) => (b.seat_class_price.raw > a.seat_class_price.raw) ? 1 : ((a.seat_class_price.raw > b.seat_class_price.raw) ? -1 : 0))
-            break;
             case 'shortest_duration':
                 mappedFlights.sort((a,b) => (a.flight_duration.raw > b.flight_duration.raw) ? 1 : ((b.flight_duration.raw > a.flight_duration.raw) ? -1 : 0))
             break;

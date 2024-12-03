@@ -1,8 +1,8 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-const DateTimeUtils = require('../../libs/datetime');
-const Luxon = require('../../libs/luxon');
+const DateTimeUtils = require('../../../libs/datetime');
+const Luxon = require('../../../libs/luxon');
 
 async function getAirportTimezone(departure_airport, arrival_airport, flight_departure_date, returning_flight_departure_date){
     const departureAirportTz = await prisma.airports.findFirst(({
