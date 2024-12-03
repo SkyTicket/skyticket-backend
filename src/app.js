@@ -1,32 +1,43 @@
-const express = require('express');
+const express = require("express");
+const cors = require("cors");
+const dotenv = require("dotenv");
+const { PrismaClient } = require("@prisma/client");
+const passport = require("passport");
+require("./controllers/oauth.controller");
+const session = require("express-session");
+const authRoutes = require("./routes/auth.routes");
+const passwordRoutes = require("./routes/password.routes");
+const userRoutes = require("./routes/user.routes");
+const oauthRoutes = require("./routes/oauth.routes");
+
+dotenv.config();
+const prisma = new PrismaClient();
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-const dotenv = require('dotenv').config();
-const PORT = process.env.PORT;
-
-const router = require('./routes/router');
-
+app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({extended: false}));
 
-app.use(router);
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 
-app.use(function(req, res, next) {
-    return res.status(404).json({
-        status: 'error',
-        message: 'Not found'
-    })
-})
+app.use(passport.initialize());
+app.use(passport.session());
 
-app.use((err, req, res, next) => {
-    console.error(err.stack)
+app.use("/api/v1", authRoutes);
+app.use("/api/v1", passwordRoutes);
+app.use("/api/v1", userRoutes);
+app.use("/", oauthRoutes);
 
-    res.status(500).json({
-        status: 'error',
-        message: 'Internal server error'
-    })
-})
+app.get("/", (req, res) => {
+  res.send("E-Flight Ticket Platform Backend");
+});
 
 app.listen(PORT, () => {
-    console.log(`Listening to ${PORT}`)
-})
+  console.log(`aku cinta ${PORT}`);
+});
