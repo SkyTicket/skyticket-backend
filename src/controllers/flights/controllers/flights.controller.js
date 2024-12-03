@@ -1,3 +1,5 @@
+const dotenv = require('dotenv').config()
+
 const ErrorHandler = require('../utils/errorHandler');
 const FlightDataFilters = require('../services/filters.flights');
 const FlightSeatChecker = require('../helpers/flight_seat_checker.flights');
@@ -101,26 +103,45 @@ class FlightsController {
                 fullUrlWithoutPageAndLimit = `${url.origin}${url.pathname}?${params.toString()}&flight_departure_date=${encodedFlightDepartureDate}&departure_airport=${departure_airport}&arrival_airport=${arrival_airport}&is_round_trip=${is_round_trip}&returning_flight_departure_date=${encodedReturningFlightDepartureDate}`;
             }
 
+            const debugData = {
+                departingFlightSeatChecker: {
+                    bookedTicketsFlightIds: departingFlightSeatChecker.bookedTicketsFlightIds,
+                    bookedSeatsPerFlight: departingFlightSeatChecker.bookedSeatsPerFlight,
+                    flightSeatCapacities: departingFlightSeatChecker.flightSeatCapacities,
+                    filteredFlightsStatus: departingFlightSeatChecker.filteredFlightsStatus,
+                    departingFlightsTotal: flightQueriesResult.departingFlightsTotal
+                },
+                returningFlightSeatChecker: {
+                    bookedTicketsFlightIds: returningFlightSeatChecker.bookedTicketsFlightIds,
+                    bookedSeatsPerFlight: returningFlightSeatChecker.bookedSeatsPerFlight,
+                    flightSeatCapacities: returningFlightSeatChecker.flightSeatCapacities,
+                    filteredFlightsStatus: returningFlightSeatChecker.filteredFlightsStatus,
+                    returningFlightsTotal: flightQueriesResult.returningFlightsTotal
+                },
+                show_returning_flights: show_returning_flights
+            }
+
             return res.json({
                 status: 'success',
                 message: 'Berhasil menemukan penerbangan',
-                debug: {
-                    departingFlightSeatChecker: {
-                        bookedTicketsFlightIds: departingFlightSeatChecker.bookedTicketsFlightIds,
-                        bookedSeatsPerFlight: departingFlightSeatChecker.bookedSeatsPerFlight,
-                        flightSeatCapacities: departingFlightSeatChecker.flightSeatCapacities,
-                        filteredFlightsStatus: departingFlightSeatChecker.filteredFlightsStatus,
-                        departingFlightsTotal: flightQueriesResult.departingFlightsTotal
-                    },
-                    returningFlightSeatChecker: {
-                        bookedTicketsFlightIds: returningFlightSeatChecker.bookedTicketsFlightIds,
-                        bookedSeatsPerFlight: returningFlightSeatChecker.bookedSeatsPerFlight,
-                        flightSeatCapacities: returningFlightSeatChecker.flightSeatCapacities,
-                        filteredFlightsStatus: returningFlightSeatChecker.filteredFlightsStatus,
-                        returningFlightsTotal: flightQueriesResult.returningFlightsTotal
-                    },
-                    show_returning_flights: show_returning_flights
-                },
+                ...(process.env.NODE_ENV !== 'production' && { debug: debugData }),
+                // debug: {
+                //     departingFlightSeatChecker: {
+                //         bookedTicketsFlightIds: departingFlightSeatChecker.bookedTicketsFlightIds,
+                //         bookedSeatsPerFlight: departingFlightSeatChecker.bookedSeatsPerFlight,
+                //         flightSeatCapacities: departingFlightSeatChecker.flightSeatCapacities,
+                //         filteredFlightsStatus: departingFlightSeatChecker.filteredFlightsStatus,
+                //         departingFlightsTotal: flightQueriesResult.departingFlightsTotal
+                //     },
+                //     returningFlightSeatChecker: {
+                //         bookedTicketsFlightIds: returningFlightSeatChecker.bookedTicketsFlightIds,
+                //         bookedSeatsPerFlight: returningFlightSeatChecker.bookedSeatsPerFlight,
+                //         flightSeatCapacities: returningFlightSeatChecker.flightSeatCapacities,
+                //         filteredFlightsStatus: returningFlightSeatChecker.filteredFlightsStatus,
+                //         returningFlightsTotal: flightQueriesResult.returningFlightsTotal
+                //     },
+                //     show_returning_flights: show_returning_flights
+                // },
                 passengers: {
                     adult: adultPassengersTotal,
                     child: childPassengersTotal,
