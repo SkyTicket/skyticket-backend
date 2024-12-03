@@ -1,28 +1,34 @@
-require("dotenv").config(); 
 const express = require("express");
-const app = express();
 const cors = require("cors");
-const swaggerUi = require("swagger-ui-express");
-require("./controllers/auth/oauth.controller");
+const dotenv = require("dotenv");
+const { PrismaClient } = require("@prisma/client");
+const passport = require("passport");
+require("./controllers/oauth.controller");
 const session = require("express-session");
-const authRoutes = require("./routes/authRoute");
-const passwordRoutes = require("./routes/password.route");
-const userRoutes = require("./routes/user.route");
-const oauthRoutes = require("./routes/oauth.route");
-require("./services/removeJwt");
+const authRoutes = require("./routes/auth.routes");
+const passwordRoutes = require("./routes/password.routes");
+const userRoutes = require("./routes/user.routes");
+const oauthRoutes = require("./routes/oauth.routes");
 
-const PORT = 3003;
-const router = require("./routes/route");
+dotenv.config();
+const prisma = new PrismaClient();
+const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Middleware
+<<<<<<< HEAD
+const dotenv = require('dotenv').config();
+const PORT = process.env.PORT;
+
+const favDestinationRoutes = require('./routes/favDestination.routes');
+
+=======
 app.use(cors());
+>>>>>>> 11f579b (push auth)
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 
-// serve swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-
-// Session setup
+<<<<<<< HEAD
+app.use('/api/home', favDestinationRoutes);
+=======
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
@@ -30,31 +36,20 @@ app.use(
     saveUninitialized: true,
   })
 );
+>>>>>>> 11f579b (push auth)
 
-// Routes (Tambahkan routes lainnya jika diperlukan)
-app.use("/auth", authRoutes);
-app.use("/password", passwordRoutes);
-app.use("/user", userRoutes);
-app.use("/oauth", oauthRoutes);
-app.use(router);
+app.use(passport.initialize());
+app.use(passport.session());
 
-app.use(function(req, res, next) {
-    return res.status(404).json({
-        status: 'error',
-        message: 'Not found'
-    })
-})
+app.use("/api/v1", authRoutes);
+app.use("/api/v1", passwordRoutes);
+app.use("/api/v1", userRoutes);
+app.use("/", oauthRoutes);
 
-app.use((err, req, res, next) => {
-    console.error(err.stack)
+app.get("/", (req, res) => {
+  res.send("E-Flight Ticket Platform Backend");
+});
 
-    res.status(500).json({
-        status: 'error',
-        message: 'Internal server error'
-    })
-})
-
-// Start the server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`aku cinta ${PORT}`);
 });
