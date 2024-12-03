@@ -125,23 +125,6 @@ class FlightsController {
                 status: 'success',
                 message: 'Berhasil menemukan penerbangan',
                 ...(process.env.NODE_ENV !== 'production' && { debug: debugData }),
-                // debug: {
-                //     departingFlightSeatChecker: {
-                //         bookedTicketsFlightIds: departingFlightSeatChecker.bookedTicketsFlightIds,
-                //         bookedSeatsPerFlight: departingFlightSeatChecker.bookedSeatsPerFlight,
-                //         flightSeatCapacities: departingFlightSeatChecker.flightSeatCapacities,
-                //         filteredFlightsStatus: departingFlightSeatChecker.filteredFlightsStatus,
-                //         departingFlightsTotal: flightQueriesResult.departingFlightsTotal
-                //     },
-                //     returningFlightSeatChecker: {
-                //         bookedTicketsFlightIds: returningFlightSeatChecker.bookedTicketsFlightIds,
-                //         bookedSeatsPerFlight: returningFlightSeatChecker.bookedSeatsPerFlight,
-                //         flightSeatCapacities: returningFlightSeatChecker.flightSeatCapacities,
-                //         filteredFlightsStatus: returningFlightSeatChecker.filteredFlightsStatus,
-                //         returningFlightsTotal: flightQueriesResult.returningFlightsTotal
-                //     },
-                //     show_returning_flights: show_returning_flights
-                // },
                 passengers: {
                     adult: adultPassengersTotal,
                     child: childPassengersTotal,
