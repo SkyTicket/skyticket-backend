@@ -3,7 +3,21 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const axios = require("axios");
 const app = express();
+<<<<<<< HEAD
 app.use(express.json());
+=======
+const cors = require('cors');
+
+const dotenv = require('dotenv').config();
+// const PORT = process.env.PORT;
+const PORT = 3000;
+
+const router = require('./routes/router');
+
+app.use(express.json());
+app.use(express.urlencoded({extended: false}));
+app.use(cors())
+>>>>>>> 3-search-tiket
 
 const MIDTRANS_SERVER_KEY = "SB-Mid-server-zGyELu5cNq66AH9QyJxGHVAl";
 const MIDTRANS_API_URL =
