@@ -2,19 +2,21 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 class AirportsController {
-    static async airportMapping(airports){
-        airports.map((airport) => {
+    static airportMapping(airports){
+        return airports.map((airport) => {
             return {
-                airport: `${airport.airport_code} - ${airport.airport_city}`
+                airport: `${airport.airport_code} - ${airport.airport_city}`,
+                input_value: airport.airport_code
             }
-            // return `${airport.airport_code} - ${airport.airport_city}`
         })
     }
 
     static async searchAirports(req, res, next){
         const airport = req.query.airport
-        // const airports = [];
         try {
+            let mappedAirports;
+
+            // default result
             if(!airport){
                 const airports = await prisma.airports.findMany({
                     orderBy: {
@@ -23,14 +25,7 @@ class AirportsController {
                     take: 5
                 })
 
-                // const mappedAirports = AirportsController.airportMapping(airports);
-                const mappedAirports = airports.map((airport) => {
-                    return {
-                        airport: `${airport.airport_code} - ${airport.airport_city}`,
-                        input_value: airport.airport_code
-                    }
-                    // return `${airport.airport_code} - ${airport.airport_city}`
-                })
+                mappedAirports = AirportsController.airportMapping(airports)
             
                 return res.json({
                     status: 'success',
@@ -38,6 +33,7 @@ class AirportsController {
                 })
             }
 
+            // result by search
             const airports = await prisma.airports.findMany({
                 where: {
                     OR: [
@@ -61,16 +57,10 @@ class AirportsController {
                 }
             })
 
-            // const mappedAirports = AirportsController.airportMapping(airports);
-            const mappedAirports = airports.map((airport) => {
-                return {
-                    airport: `${airport.airport_code} - ${airport.airport_city}`,
-                    input_value: airport.airport_code
-                }
-                // return `${airport.airport_code} - ${airport.airport_city}`
-            })
+            mappedAirports = AirportsController.airportMapping(airports)
 
-            if(typeof airports !== 'undefined' && airports.length === 0){ // if no country or city not found based on the search
+            // if no country or city not found based on the search
+            if(typeof airports !== 'undefined' && airports.length === 0){
                 throw {
                     statusCode: 404,
                     message: 'Negara atau kota tidak ditemukan'
@@ -82,7 +72,7 @@ class AirportsController {
                 airports: mappedAirports
             })
         } catch(err) {
-            if(res.statusCode){
+            if(err.statusCode){
                 return res.status(err.statusCode).json({
                     status: 'error',
                     message: err.message
