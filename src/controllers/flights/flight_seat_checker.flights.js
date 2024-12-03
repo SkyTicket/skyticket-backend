@@ -31,11 +31,17 @@ async function flightSeatChecker(mappedFlights, adultPassengersTotal, childPasse
     // END OF TICKET COUNTING
 
     // delete flight data (mappedFlights' element) that have not enough seats
-    for(let i = 0; i <= fullFlightsStatus.length - 1; i++){
-        if(fullFlightsStatus[i] === true){
-            mappedFlights.splice(i, 1, {})
+    for(let i = 0; i <= filteredFlightsStatus.length - 1; i++){
+        if(filteredFlightsStatus[i] === true){
+            mappedFlights.forEach((flight, index) => {
+                flight.flight_seat_is_full = filteredFlightsStatus[index]
+            })
         }
-        // mappedFlights.splice(i, 1)
+        else if(filteredFlightsStatus[i] === false){
+            mappedFlights.forEach((flight, index) => {
+                flight.flight_seat_is_full = filteredFlightsStatus[index]
+            })
+        }
     } 
 
     return {
