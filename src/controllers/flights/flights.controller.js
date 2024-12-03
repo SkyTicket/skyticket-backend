@@ -1,15 +1,8 @@
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
-
-const DateTimeUtils = require('../../libs/datetime');
-const Moment = require('../../libs/moment');
-const Currency = require('../../libs/currency');
-
 const ErrorHandler = require('./error_handler.utils');
-const AirportTimezone = require('./airport_timezone.flights')
 const FlightDataFilters = require('./filters.flights');
 const FlightSeatChecker = require('./flight_seat_checker.flights');
 const FlightDataMapper = require('./mapper.flights');
+const FlightQueries = require('./queries.flights');
 
 class FlightsController {
     static async searchFlights(req, res, next){
@@ -55,136 +48,20 @@ class FlightsController {
             // validate maximum passenger total
             ErrorHandler.passengersTotalValidation(totalNoInfant, infantPassengersTotal, adultPassengersTotal)
 
-            const airportTimezone = await AirportTimezone(departure_airport, arrival_airport, flight_departure_date, returning_flight_departure_date)
-
-            const departingFlightsWhereClause = {
-                AND: [
-                    {
-                        departure_airport: {
-                            airport_code: departure_airport
-                        }
-                    },
-                    {
-                        arrival_airport: {
-                            airport_code: arrival_airport
-                        }
-                    },
-                    {
-                        flight_departure_date: {
-                            gte: airportTimezone.pickedDepartureDate.toISOString(),
-                            lt: DateTimeUtils.modifyHours(airportTimezone.pickedDepartureDate, 24).toISOString()
-                        },
-                    },
-                    {
-                        flight_seat_classes: {
-                            some: {
-                                seat_class: {
-                                    seat_class_type: seat_class_type
-                                }
-                            }
-                        }
-                    }
-                ],
-            }
-
-            const returningFlightsWhereClause = {
-                AND: [
-                    {
-                        departure_airport: {
-                            airport_code: returningDepartureAirport // flip between departure_aiport and arrival_airport
-                        }
-                    },
-                    {
-                        arrival_airport: {
-                            airport_code: returningArrivalAirport // flip between departure_aiport and arrival_airport
-                        }
-                    },
-                    {
-                        flight_departure_date: {
-                            gte: airportTimezone.pickedReturningDepartureDate.toISOString(),
-                            lt: DateTimeUtils.modifyHours(airportTimezone.pickedReturningDepartureDate, 24).toISOString()
-                        }
-                    },
-                    {
-                        flight_seat_classes: {
-                            some: {
-                                seat_class: {
-                                    seat_class_type: seat_class_type
-                                }
-                            }
-                        }
-                    }
-                ]
-            }
-
-            const selectFlightData = {
-                airline: {
-                    select: {
-                        Airline_logo: true,
-                        airline_name: true,
-                        airline_code: true
-                    }
-                },
-                departure_airport: {
-                    select: {
-                        airport_code: true,
-                        airport_time_zone: true,
-                        airport_name: true
-                    }
-                },
-                arrival_airport: {
-                    select: {
-                        airport_code: true,
-                        airport_time_zone: true,
-                        airport_name: true
-                    }
-                },
-                flight_seat_classes: {
-                    select: {
-                        seat_class_price: true,
-                        seat_class: true,
-                        seat_class_capacity: true
-                    },
-                },
-                flight_id: true,
-                flight_number: true,
-                flight_departure_date: true,
-                flight_arrival_date: true
-            }
-
-            const departingFlights = await prisma.flights.findMany({
-                skip: skip,
-                take: limit,
-                where: departingFlightsWhereClause,
-                select: selectFlightData
-            })
-
-            const returningFlights = await prisma.flights.findMany({
-                skip: skip,
-                take: limit,
-                where: returningFlightsWhereClause,
-                select: selectFlightData
-            })
-
-            
-            let departingFlightsTotal = await prisma.flights.count({
-                where: departingFlightsWhereClause
-            })
-            
-            let returningFlightsTotal = await prisma.flights.count({
-                where: returningFlightsWhereClause
-            })
+            // instantiate FlightQueries class object and its properties
+            const flightQueries = new FlightQueries(departure_airport, arrival_airport, returningDepartureAirport, returningArrivalAirport);
+            const flightQueriesResult = await flightQueries.findManyFlights(skip, limit, flight_departure_date, returning_flight_departure_date, seat_class_type)
             
             // if no flights record found
-            ErrorHandler.ifNoFlightsFound(departingFlights)
+            ErrorHandler.ifNoFlightsFound(flightQueriesResult.departingFlights)
 
-            if (show_returning_flights && returningFlights.length === 0) {
-                ErrorHandler.ifNoFlightsFound(returningFlights);
+            if (show_returning_flights && flightQueriesResult.returningFlights.length === 0) {
+                ErrorHandler.ifNoFlightsFound(flightQueriesResult.returningFlights);
             }
 
             // map departingFlights and returningFlights array respectively
-            const mappedDepartingFlights = FlightDataMapper.mapFlights(departingFlights, seat_class_type);
-            const mappedReturningFlights = FlightDataMapper.mapFlights(returningFlights, seat_class_type);
+            const mappedDepartingFlights = FlightDataMapper.mapFlights(flightQueriesResult.departingFlights, seat_class_type);
+            const mappedReturningFlights = FlightDataMapper.mapFlights(flightQueriesResult.returningFlights, seat_class_type);
 
             // sort mappedFlights by query parameter of sort_by
             FlightDataFilters.sortFlights(mappedDepartingFlights, sort_by)
@@ -233,14 +110,14 @@ class FlightsController {
                         bookedSeatsPerFlight: departingFlightSeatChecker.bookedSeatsPerFlight,
                         flightSeatCapacities: departingFlightSeatChecker.flightSeatCapacities,
                         filteredFlightsStatus: departingFlightSeatChecker.filteredFlightsStatus,
-                        departingFlightsTotal: departingFlightsTotal
+                        departingFlightsTotal: flightQueriesResult.departingFlightsTotal
                     },
                     returningFlightSeatChecker: {
                         bookedTicketsFlightIds: returningFlightSeatChecker.bookedTicketsFlightIds,
                         bookedSeatsPerFlight: returningFlightSeatChecker.bookedSeatsPerFlight,
                         flightSeatCapacities: returningFlightSeatChecker.flightSeatCapacities,
                         filteredFlightsStatus: returningFlightSeatChecker.filteredFlightsStatus,
-                        returningFlightsTotal: returningFlightsTotal
+                        returningFlightsTotal: flightQueriesResult.returningFlightsTotal
                     },
                     show_returning_flights: show_returning_flights
                 },
@@ -258,7 +135,7 @@ class FlightsController {
                         current_page: page,
                         limit: limit,
                         prev_url: page > 1 ? `${fullUrlWithoutPageAndLimit}&page=${page - 1}&limit=${limit}` : null,
-                        next_url: page >= Math.ceil(Number(departingFlightsTotal) / Number(limit)) ? null : `${fullUrlWithoutPageAndLimit}&page=${page + 1}&limit=${limit}`,
+                        next_url: page >= Math.ceil(Number(flightQueriesResult.departingFlightsTotal) / Number(limit)) ? null : `${fullUrlWithoutPageAndLimit}&page=${page + 1}&limit=${limit}`,
                     },
                 } : {
                     returning_flights: mappedReturningFlights,
@@ -266,7 +143,7 @@ class FlightsController {
                         current_page: page,
                         limit: limit,
                         prev_url: page > 1 ? `${fullUrlWithoutPageAndLimit}&page=${page - 1}&limit=${limit}` : null,
-                        next_url: page >= Math.ceil(Number(returningFlightsTotal) / Number(limit)) ? null : `${fullUrlWithoutPageAndLimit}&page=${page + 1}&limit=${limit}`,
+                        next_url: page >= Math.ceil(Number(flightQueriesResult.returningFlightsTotal) / Number(limit)) ? null : `${fullUrlWithoutPageAndLimit}&page=${page + 1}&limit=${limit}`,
                     }
                 },
             })

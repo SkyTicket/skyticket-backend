@@ -1,20 +1,4 @@
 class FlightDataFilters {
-    static returningFlights(mappedFlights, arrivalAirport){
-        return mappedFlights.filter((returningFlight) => {
-            if(returningFlight.departure_airport === arrivalAirport){
-                return returningFlight
-            }
-        })
-    }
-
-    static departingFlights(mappedFlights, departureAirport){
-        return mappedFlights.filter((departingFlight) => {
-            if(departingFlight.departure_airport === departureAirport){
-                return departingFlight
-            }
-        })
-    }
-
     static sortFlights(mappedFlights, sortBy){
         switch(sortBy){
             case 'lowest_price':
