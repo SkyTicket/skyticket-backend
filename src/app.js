@@ -1,62 +1,71 @@
-const express = require('express');
+const express = require("express");
+const axios = require("axios"); 
+const path = require("path");
 const app = express();
-const cors = require('cors');
+const cors = require("cors");
 
-const fs = require('fs');
-const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./docs/swagger.json');
+const fs = require("fs");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./docs/swagger.json");
 
-const dotenv = require('dotenv').config();
+const dotenv = require("dotenv").config();
 const PORT = process.env.PORT || 3000;
 
-const router = require('./routes/router');
+const router = require("./routes/route");
 
 app.use(express.json());
-app.use(express.urlencoded({extended: false}));
-app.use(cors())
+app.use(express.urlencoded({ extended: false }));
+app.use(cors());
 
-app.get('/swagger.json', (req, res) => {
-    const { protocol, headers } = req;
+app.get("/swagger.json", (req, res) => {
+  const { protocol, headers } = req;
 
-    // read swagger.json file
-    const swaggerTemplate = JSON.parse(fs.readFileSync('./src/docs/swagger.json', 'utf8'));
+  // read swagger.json file
+  const swaggerTemplate = JSON.parse(
+    fs.readFileSync("./src/docs/swagger.json", "utf8")
+  );
 
-    // add dynamic server
-    swaggerTemplate.servers = [
+  // add dynamic server
+  swaggerTemplate.servers = [
     {
-        url: `${protocol}://${req.get('host')}`,
-        description: "Current server"
-    }
-    ];
+      url: `${protocol}://${req.get("host")}`,
+      description: "Current server",
+    },
+  ];
 
-    res.json(swaggerTemplate);
+  res.json(swaggerTemplate);
 });
 
 // serve swagger UI
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(null, { 
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(null, {
     swaggerOptions: {
-        url: '/swagger.json' // Swagger JSON endpoint
-    }
-}));
+      url: "/swagger.json", // Swagger JSON endpoint
+    },
+  })
+);
 
 app.use(router);
 
-app.use(function(req, res, next) {
-    return res.status(404).json({
-        status: 'error',
-        message: 'Not found'
-    })
-})
+app.use(function (req, res, next) {
+  return res.status(404).json({
+    status: "error",
+    message: "Not found",
+  });
+});
 
 app.use((err, req, res, next) => {
-    console.error(err.stack)
+  console.error(err.stack);
 
-    res.status(500).json({
-        status: 'error',
-        message: 'Internal server error'
-    })
-})
+  res.status(500).json({
+    status: "error",
+    message: "Internal server error",
+  });
+});
+// Route untuk menampilkan form pencarian dan hasil pencarian di halaman yang sama
 
 app.listen(PORT, () => {
-    console.log(`Listening to ${PORT}`)
-})
+  console.log(`Listening to http://localhost:${PORT}`);
+});
