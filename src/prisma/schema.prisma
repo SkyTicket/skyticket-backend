@@ -66,6 +66,7 @@ model Bookings {
   booker_id String
   booking_date DateTime @default(now())
   booking_amount Decimal @db.Decimal(15, 2)
+  booking_code String
   booking_payment_status PaymentStatus
   booking_payment_method PaymentMethod
   booker Bookers @relation(fields: [booker_id], references: [booker_id])
@@ -137,6 +138,7 @@ model Flights {
   flight_number String
   airline Airlines @relation(fields: [airline_id], references: [airline_id])
   departure_airport Airports @relation("FlightDeparture",fields: [flight_departure_airport_id], references: [airport_id])
+  aircraft Aircrafts @relation(fields: [aircraft_id], references: [aircraft_id])
   arrival_airport Airports @relation("FlightArrival",fields: [flight_arrival_airport_id], references: [airport_id])
   flight_seat_classes Flight_seat_classes[]
   tickets Tickets[]
@@ -154,12 +156,15 @@ model Aircrafts {
   aircraft_id String @id @default(uuid())
   aircraft_manufacturer String
   aircraft_type String @db.Char(5)
+  flights Flights[]
+  aircraft_seats Aircraft_seats[]
 }
 
 model Aircraft_seats {
   aircraft_seat_id String @id @default(uuid())
   aircraft_id String
   aircraft_seat_position String @db.Char(3)
+  aircraft Aircrafts @relation(fields: [aircraft_id], references: [aircraft_id])
   Ticket Tickets?
 }
 
