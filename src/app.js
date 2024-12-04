@@ -1,14 +1,11 @@
 const express = require("express");
-const axios = require("axios"); 
-const path = require("path");
 const app = express();
 const cors = require("cors");
 
 const fs = require("fs");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./docs/swagger.json");
-
-const dotenv = require("dotenv").config();
+require("dotenv").config();
 const PORT = process.env.PORT || 3000;
 
 const router = require("./routes/route");
@@ -64,8 +61,7 @@ app.use((err, req, res, next) => {
     message: "Internal server error",
   });
 });
-// Route untuk menampilkan form pencarian dan hasil pencarian di halaman yang sama
 
 app.listen(PORT, () => {
-  console.log(`Listening to http://localhost:${PORT}`);
+  console.log(`Listening to ${PORT}`);
 });
