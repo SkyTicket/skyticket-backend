@@ -5,7 +5,16 @@
         "version": "1.0.0",
         "description": "API Back-End untuk Final Project BINAR Academy KM7"
     },
-    "servers": [],
+    "servers": [
+        {
+            "url": "http://localhost:3000",
+            "description": "Local Environment"
+        },
+        {
+            "url": "http://34.101.158.185",
+            "description": "Staging Environment"
+        }
+    ],
     "paths": {
         "/api/v1/airports": {
             "get": {
