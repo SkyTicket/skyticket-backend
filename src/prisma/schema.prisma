@@ -70,17 +70,17 @@ model Passengers {
 }
 
 
-  model Bookings {
-    booking_id String @id @default(uuid())
-    booking_date DateTime @default(now())
-    booking_amount Decimal @db.Decimal(15, 2)
-    booking_code String
-    tax Decimal @db.Decimal(10, 2) @default(0.00) 
-    booking_payment_status PaymentStatus
-    booking_payment_method String?
-    booking_details Booking_details[]
-    tickets Tickets[]
-  }
+model Bookings {
+  booking_id String @id @default(uuid())
+  booking_date DateTime @default(now())
+  booking_amount Decimal @db.Decimal(15, 2)
+  booking_code String
+  tax Decimal @db.Decimal(10, 2) @default(0.00) 
+  booking_payment_status PaymentStatus
+  booking_payment_method String?
+  booking_details Booking_details[]
+  tickets Tickets[]
+}
 
 model Booking_details {
   booking_detail_id String @id @default(uuid())
