@@ -10,7 +10,7 @@ async function countBookedSeats(flightIds) {
         flight_seat_assigment: {
           flight_seat_class: {
             flight: {
-              flight_id: flightIds[i], // Mengakses flight_id melalui relasi yang benar
+              flight_id: flightIds[i], 
             },
           },
         },

@@ -16,3 +16,9 @@ To-Do:
 
 - API Docs []
 
+
+
+PAYMENT
+User memilih kursi dan mengisi data penumpang → POST /ticket-order.
+User menekan tombol "Lanjut Bayar" → POST /create-payment untuk memulai pembayaran melalui Midtrans.
+User menyelesaikan pembayaran di UI Midtrans → Midtrans mengirimkan notifikasi ke POST /midtrans-notification untuk mengupdate status pembayaran.
