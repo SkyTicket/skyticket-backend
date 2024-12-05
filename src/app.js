@@ -9,6 +9,7 @@ const authRoutes = require("./routes/auth.routes");
 const passwordRoutes = require("./routes/password.routes");
 const userRoutes = require("./routes/user.routes");
 const oauthRoutes = require("./routes/oauth.routes");
+require("./services/removeJwt");
 
 dotenv.config();
 const prisma = new PrismaClient();

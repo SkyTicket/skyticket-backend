@@ -22,15 +22,15 @@ model Users {
   user_phone String
   Bookers Bookers[] // new
   notifications Notifications[]
-  passwordResetTokens PasswordResetToken[] @relation("UserPasswordResetTokens")
+  passwordResetTokens Password_reset_tokens[]
 }
 
-model PasswordResetToken {
-  id        Int      @id @default(autoincrement())
-  token     String   @unique
-  userId    String
-  createdAt DateTime @default(now())
-  user      Users     @relation("UserPasswordResetTokens", fields: [userId], references: [user_id])
+model Password_reset_tokens {
+  id String @id @default(uuid())
+  token String @unique
+  user_id String
+  created_at DateTime @default(now())
+  user Users @relation(fields: [user_id], references: [user_id])
 }
 
 model Notifications {
@@ -50,26 +50,34 @@ model Bookers { // new
   booker_email String
   booker_phone String
   user Users @relation(fields: [user_id], references: [user_id])
-  bookings Bookings[]
+  passangers Passengers[]
 }
-
 model Passengers {
   passenger_id String @id @default(uuid())
-  booking_id String
-  passenger_name String
-  passenger_type PassengerType
-  booking Bookings @relation(fields: [booking_id], references: [booking_id])
+  title Title @default(Mr) // Default to 'Mr' for title
+  name String @default("Unknown") // Default value for name
+  familyName String? // Nullable
+  dateOfBirth DateTime @default(now()) // Default to the current date
+  nationality String @default("Unknown") // Default value for nationality
+  identityNumber String @default("Unknown") // Default value
+  issuingCountry String @default("Unknown") // Default value
+  bookers_id String @default("Unknown")
+  category   PassengerCategory  @default(Adult)
+  validUntil DateTime?
+  deleteAt DateTime?
+  Tickets Tickets[]
+  booker Bookers @relation(fields: [bookers_id], references: [booker_id])
 }
+
 
 model Bookings {
   booking_id String @id @default(uuid())
-  booker_id String
   booking_date DateTime @default(now())
   booking_amount Decimal @db.Decimal(15, 2)
+  booking_code String
+  tax Decimal @db.Decimal(10, 2) @default(0.00) 
   booking_payment_status PaymentStatus
-  booking_payment_method PaymentMethod
-  booker Bookers @relation(fields: [booker_id], references: [booker_id])
-  passengers Passengers[]
+  booking_payment_method String?
   booking_details Booking_details[]
   tickets Tickets[]
 }
@@ -85,14 +93,13 @@ model Booking_details {
 
 model Tickets {
   ticket_id String @id @default(uuid())
-  flight_id String
   booking_id String
-  aircraft_seat_id String @unique
-  ticket_status TicketStatus
-  ticket_qr String
-  flight Flights @relation(fields: [flight_id], references: [flight_id])
+  passenger_id String @default("")
+  flight_seat_assigment_id Int @default(0)
+  category PassengerCategory  @default(Adult)
+  passanger Passengers @relation(fields: [passenger_id], references: [passenger_id])
+  flight_seat_assigment Flight_seat_assignments @relation(fields: [flight_seat_assigment_id], references: [id])
   booking Bookings @relation(fields: [booking_id], references: [booking_id])
-  aircraft_seat Aircraft_seats? @relation(fields: [aircraft_seat_id], references: [aircraft_seat_id]) // Kalau mungkin ada tiket tanpa seat (contoh tiket hold tanpa assign seat langsung), bisa jadi optional
   booking_details Booking_details[]
 }
 
@@ -122,6 +129,23 @@ model Flight_seat_classes {
   seat_class_capacity Int
   seat_class Seat_classes @relation(fields: [seat_class_id], references: [seat_class_id])
   flight Flights @relation(fields: [flight_id], references: [flight_id])
+  seats                Flight_seat_assignments[] // Relasi many-to-many ke Seats
+}
+model Flight_seat_assignments {
+  id                     Int      @id @default(autoincrement()) // ID unik untuk hubungan ini
+  seat_id                Int      // FK ke Seats
+  flight_seat_class_id   String   // FK ke Flight_seat_classes
+  available              Boolean  @default(true) // Status ketersediaan kursi
+  price                  Decimal  @db.Decimal(15, 2)  // Harga kursi di penerbangan dan kelas tertentu
+  seat                   Seat     @relation(fields: [seat_id], references: [id])
+  flight_seat_class      Flight_seat_classes @relation(fields: [flight_seat_class_id], references: [flight_seat_class_id])
+  tickets Tickets[]
+}
+
+model Seat {
+  id          Int    @id @default(autoincrement()) // ID unik kursi
+  seat_number String // Nomor kursi (misalnya: "12A", "12B")
+  seat_classes Flight_seat_assignments[] // Relasi many-to-many dengan Flight_seat_classes
 }
 
 model Flights {
@@ -132,14 +156,12 @@ model Flights {
   aircraft_id String // new
   flight_departure_date DateTime
   flight_arrival_date DateTime
-  // flight_price Float
-  // flight_available_seats Int
   flight_number String
   airline Airlines @relation(fields: [airline_id], references: [airline_id])
   departure_airport Airports @relation("FlightDeparture",fields: [flight_departure_airport_id], references: [airport_id])
+  aircraft Aircrafts @relation(fields: [aircraft_id], references: [aircraft_id])
   arrival_airport Airports @relation("FlightArrival",fields: [flight_arrival_airport_id], references: [airport_id])
   flight_seat_classes Flight_seat_classes[]
-  tickets Tickets[]
 }
 
 model Airlines {
@@ -154,24 +176,36 @@ model Aircrafts {
   aircraft_id String @id @default(uuid())
   aircraft_manufacturer String
   aircraft_type String @db.Char(5)
+  flights Flights[]
+  aircraft_seats Aircraft_seats[]
 }
 
 model Aircraft_seats {
   aircraft_seat_id String @id @default(uuid())
   aircraft_id String
   aircraft_seat_position String @db.Char(3)
-  Ticket Tickets?
+  aircraft Aircrafts @relation(fields: [aircraft_id], references: [aircraft_id])
+}
+
+model TokenBlacklist {
+  id        Int      @id @default(autoincrement())
+  token     String
+  createdAt DateTime @default(now())
+  expiredAt DateTime
 }
 
 enum UserRole {
   buyer
   admin
 }
-
-enum PassengerType {
-  Infant
-  Child
-  Adult
+enum PassengerCategory {
+    Adult
+    Child
+    Baby
+}
+enum Title {
+  Mr
+  Mrs
 }
 
 enum NotificationType {
@@ -180,20 +214,9 @@ enum NotificationType {
 }
 
 enum PaymentStatus {
-  PENDING
-  COMPLETED
-  FAILED
-}
-
-enum PaymentMethod {
-  CREDIT_CARD
-  DEBIT_CARD
-}
-
-enum TicketStatus {
-  BOOKED
-  CONFIRMED
-  CANCELLED
+  Issued
+  Unpaid
+  Cancelled
 }
 
 enum SeatClass {
