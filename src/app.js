@@ -6,7 +6,7 @@ const fs = require("fs");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./docs/swagger.json");
 require("dotenv").config();
-const PORT = process.env.PORT || 3000;
+const PORT = 3003;
 
 const router = require("./routes/route");
 
@@ -61,7 +61,6 @@ app.use((err, req, res, next) => {
     message: "Internal server error",
   });
 });
-
 app.listen(PORT, () => {
-  console.log(`Listening to ${PORT}`);
+  console.log(`http://localhost:${PORT}`);
 });

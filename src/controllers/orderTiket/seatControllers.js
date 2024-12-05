@@ -1,6 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
-const response = require("../utils/response");
+const response = require("./utils/response");
 
 class SeatController {
   static async getDetailFlight(req, res) {
