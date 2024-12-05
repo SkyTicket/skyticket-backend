@@ -62,6 +62,7 @@ model Passengers {
   identityNumber String @default("Unknown") // Default value
   issuingCountry String @default("Unknown") // Default value
   bookers_id String @default("Unknown")
+  category   PassengerCategory  @default(Adult)
   validUntil DateTime?
   deleteAt DateTime?
   Tickets Tickets[]

@@ -4,17 +4,29 @@ const prisma = new PrismaClient();
 const response = require("./utils/response");
 
 class TicketController {
+  static getCategoryByAge(dateOfBirth) {
+    const today = new Date();
+    const birthDate = new Date(dateOfBirth);
+    let age = today.getFullYear() - birthDate.getFullYear();
+    const month = today.getMonth() - birthDate.getMonth();
+
+    if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+
+    // Menentukan kategori berdasarkan usia
+    if (age < 2) {
+      return "Infant"; // Kategori bayi
+    } else if (age >= 2 && age < 18) {
+      return "Child"; // Kategori anak-anak
+    } else {
+      return "Adult"; // Kategori dewasa
+    }
+  }
   // Fungsi untuk membuat order tiket
   static async createTicketOrder(req, res) {
-    const {
-      seats,
-      passengers,
-      totalPrice,
-      userId,
-      bookerName,
-      bookerEmail,
-      bookerPhone,
-    } = req.body;
+    const { seats, passengers, userId, bookerName, bookerEmail, bookerPhone } =
+      req.body;
 
     if (
       !seats ||
@@ -36,16 +48,42 @@ class TicketController {
 
     // Membuat booking code
     const bookingCode = crypto.randomBytes(4).toString("hex");
+    // Menyusun query untuk mendapatkan harga kursi dari database
+    const seatData = await prisma.flight_seat_assignments.findMany({
+      where: {
+        id: { in: seats.map((seat) => seat.id) }, // Ambil harga untuk kursi yang dipilih
+      },
+      select: {
+        price: true, // Ambil harga kursi
+      },
+    });
+
+    // Memastikan harga kursi yang diambil sesuai dengan kursi yang dipilih
+    if (seatData.length !== seats.length) {
+      return response(
+        400,
+        "failed",
+        null,
+        "Some seats are invalid or not found.",
+        res
+      );
+    }
+
+    // Menghitung total harga kursi berdasarkan jumlah kursi yang dipilih
+    const totalPrice = seatData.reduce(
+      (total, seat) => total + parseInt(seat.price),
+      0
+    );
 
     // Menghitung tax
-    const tax = 0.11 * parseInt(totalPrice);
+    const tax = 0.11 * totalPrice;
 
     // Membuat transaksi
     const transaction = await prisma.bookings.create({
       data: {
         booking_code: bookingCode,
         tax: tax,
-        booking_amount: parseInt(totalPrice) + tax,
+        booking_amount: totalPrice + tax,
         booking_payment_status: "Unpaid", // Status pembayaran
         booking_payment_method: "Credit Card", // Metode pembayaran
       },
@@ -74,17 +112,23 @@ class TicketController {
     });
 
     // Menambahkan data penumpang
-    const passengerData = passengers.map((passenger) => ({
-      title: passenger.title,
-      name: passenger.name,
-      familyName: passenger.familyName || null,
-      dateOfBirth: new Date(passenger.dateOfBirth),
-      nationality: passenger.nationality,
-      identityNumber: passenger.identityNumber,
-      issuingCountry: passenger.issuingCountry,
-      validUntil: passenger.validUntil ? new Date(passenger.validUntil) : null,
-      bookers_id: booker.booker_id, // Relasi ke booker
-    }));
+    const passengerData = passengers.map((passenger) => {
+      const category = TicketController.getCategoryByAge(passenger.dateOfBirth);
+      return {
+        title: passenger.title,
+        name: passenger.name,
+        familyName: passenger.familyName || null,
+        dateOfBirth: new Date(passenger.dateOfBirth),
+        nationality: passenger.nationality,
+        identityNumber: passenger.identityNumber,
+        issuingCountry: passenger.issuingCountry,
+        validUntil: passenger.validUntil
+          ? new Date(passenger.validUntil)
+          : null,
+        category: category, // Menambahkan kategori
+        bookers_id: booker.booker_id, // Relasi ke booker
+      };
+    });
 
     // Menyimpan data penumpang ke database
     const createdPassengers = await prisma.passengers.createMany({
@@ -115,7 +159,7 @@ class TicketController {
       booking_id: transaction.booking_id,
       flight_seat_assigment_id: seat.id,
       passenger_id: passengerIds[index].passenger_id,
-      category: passengers[index].category,
+      category: passengerData[index].category,
     }));
 
     // Membuat tiket di database
