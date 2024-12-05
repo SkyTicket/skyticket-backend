@@ -41,6 +41,34 @@ class AuthController {
     }
   }
 
+  async logout(req, res) {
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      return res
+        .status(400)
+        .json({ message: "Token diperlukan untuk logout." });
+    }
+
+    try {
+      const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
+      // Simpan token ke dalam tabel blacklist dengan waktu kedaluwarsa
+      await prisma.tokenBlacklist.create({
+        data: {
+          token,
+          expiredAt: new Date(decodedToken.exp * 1000), // Konversi UNIX timestamp ke Date
+        },
+      });
+
+      res
+        .status(200)
+        .json({ message: "Logout berhasil. Token telah di-blacklist." });
+    } catch (error) {
+      res.status(400).json({ message: "Token tidak valid.", error });
+    }
+  }
+
   async registerCustomer(req, res) {
     const { user_name, user_email, user_password, user_phone, profilePicture } =
       req.body;
