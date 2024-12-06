@@ -2,7 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-const { sendForgotPasswordEmail } = require("../controllers/mailer.controller");
+const { sendForgotPasswordEmail } = require("../auth/mailer.controller");
 
 class PasswordController {
   static async forgetPassword(req, res) {

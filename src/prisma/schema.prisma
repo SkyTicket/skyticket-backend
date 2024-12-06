@@ -52,6 +52,7 @@ model Bookers { // new
   user Users @relation(fields: [user_id], references: [user_id])
   passangers Passengers[]
 }
+
 model Passengers {
   passenger_id String @id @default(uuid())
   title Title @default(Mr) // Default to 'Mr' for title
@@ -62,13 +63,12 @@ model Passengers {
   identityNumber String @default("Unknown") // Default value
   issuingCountry String @default("Unknown") // Default value
   bookers_id String @default("Unknown")
-  category   PassengerCategory  @default(Adult)
+  category PassengerCategory  @default(Adult)
   validUntil DateTime?
   deleteAt DateTime?
   Tickets Tickets[]
   booker Bookers @relation(fields: [bookers_id], references: [booker_id])
 }
-
 
 model Bookings {
   booking_id String @id @default(uuid())
@@ -129,21 +129,22 @@ model Flight_seat_classes {
   seat_class_capacity Int
   seat_class Seat_classes @relation(fields: [seat_class_id], references: [seat_class_id])
   flight Flights @relation(fields: [flight_id], references: [flight_id])
-  seats                Flight_seat_assignments[] // Relasi many-to-many ke Seats
+  seats Flight_seat_assignments[] // Relasi many-to-many ke Seats
 }
+
 model Flight_seat_assignments {
-  id                     Int      @id @default(autoincrement()) // ID unik untuk hubungan ini
-  seat_id                Int      // FK ke Seats
-  flight_seat_class_id   String   // FK ke Flight_seat_classes
-  available              Boolean  @default(true) // Status ketersediaan kursi
-  price                  Decimal  @db.Decimal(15, 2)  // Harga kursi di penerbangan dan kelas tertentu
-  seat                   Seat     @relation(fields: [seat_id], references: [id])
-  flight_seat_class      Flight_seat_classes @relation(fields: [flight_seat_class_id], references: [flight_seat_class_id])
+  id Int @id @default(autoincrement()) // ID unik untuk hubungan ini
+  seat_id Int // FK ke Seats
+  flight_seat_class_id String // FK ke Flight_seat_classes
+  available Boolean @default(true) // Status ketersediaan kursi
+  price Decimal @db.Decimal(15, 2)  // Harga kursi di penerbangan dan kelas tertentu
+  seat Seat @relation(fields: [seat_id], references: [id])
+  flight_seat_class Flight_seat_classes @relation(fields: [flight_seat_class_id], references: [flight_seat_class_id])
   tickets Tickets[]
 }
 
 model Seat {
-  id          Int    @id @default(autoincrement()) // ID unik kursi
+  id Int @id @default(autoincrement()) // ID unik kursi
   seat_number String // Nomor kursi (misalnya: "12A", "12B")
   seat_classes Flight_seat_assignments[] // Relasi many-to-many dengan Flight_seat_classes
 }
@@ -188,8 +189,8 @@ model Aircraft_seats {
 }
 
 model TokenBlacklist {
-  id        Int      @id @default(autoincrement())
-  token     String
+  id Int @id @default(autoincrement())
+  token String
   createdAt DateTime @default(now())
   expiredAt DateTime
 }
@@ -198,11 +199,13 @@ enum UserRole {
   buyer
   admin
 }
+
 enum PassengerCategory {
-    Adult
-    Child
-    Baby
+  Adult
+  Child
+  Baby
 }
+
 enum Title {
   Mr
   Mrs

@@ -3,7 +3,7 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const { PrismaClient } = require("@prisma/client");
 const passport = require("passport");
-require("./controllers/oauth.controller");
+require("./controllers/auth/oauth.controller");
 const session = require("express-session");
 const authRoutes = require("./routes/auth.routes");
 const passwordRoutes = require("./routes/password.routes");
@@ -14,10 +14,23 @@ require("./services/removeJwt");
 dotenv.config();
 const prisma = new PrismaClient();
 const app = express();
+
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./docs/swagger.json");
+
+const router = require("./routes/router");
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
+app.use(cors());
+
+// serve swagger UI
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.use(
   session({
