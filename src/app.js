@@ -2,7 +2,6 @@ require("dotenv").config(); // Memanggil dotenv hanya sekali
 const express = require("express");
 const app = express();
 const cors = require("cors");
-const fs = require("fs");
 const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./docs/swagger.json");
 const { PrismaClient } = require("@prisma/client");
@@ -23,36 +22,8 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Serve swagger.json endpoint
-app.get("/swagger.json", (req, res) => {
-  const { protocol, headers } = req;
-
-  // Read swagger.json file
-  const swaggerTemplate = JSON.parse(
-    fs.readFileSync("./src/docs/swagger.json", "utf8")
-  );
-
-  // Add dynamic server
-  swaggerTemplate.servers = [
-    {
-      url: `${protocol}://${req.get("host")}`,
-      description: "Current server",
-    },
-  ];
-
-  res.json(swaggerTemplate);
-});
-
-// Serve Swagger UI
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(null, {
-    swaggerOptions: {
-      url: "/swagger.json", // Swagger JSON endpoint
-    },
-  })
-);
+// serve swagger UI
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Session setup
 app.use(
@@ -69,6 +40,22 @@ app.use("/password", passwordRoutes);
 app.use("/user", userRoutes);
 app.use("/oauth", oauthRoutes);
 app.use(router);
+
+app.use(function(req, res, next) {
+    return res.status(404).json({
+        status: 'error',
+        message: 'Not found'
+    })
+})
+
+app.use((err, req, res, next) => {
+    console.error(err.stack)
+
+    res.status(500).json({
+        status: 'error',
+        message: 'Internal server error'
+    })
+})
 
 // Start the server
 app.listen(PORT, () => {
