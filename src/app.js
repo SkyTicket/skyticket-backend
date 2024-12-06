@@ -1,14 +1,11 @@
-require("dotenv").config(); // Memanggil dotenv hanya sekali
+require("dotenv").config(); 
 const express = require("express");
 const app = express();
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
-const swaggerDocument = require("./docs/swagger.json");
-const { PrismaClient } = require("@prisma/client");
-const passport = require("passport");
 require("./controllers/auth/oauth.controller");
 const session = require("express-session");
-const authRoutes = require("./routes/auth.route");
+const authRoutes = require("./routes/authRoute");
 const passwordRoutes = require("./routes/password.route");
 const userRoutes = require("./routes/user.route");
 const oauthRoutes = require("./routes/oauth.route");
