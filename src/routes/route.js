@@ -1,7 +1,7 @@
 const express = require("express");
 const app = express();
 
-const IndexController = require("../controllers/index.controller");
+const IndexController = require("../controllers/flights/index.controller");
 const AirportsController = require("../controllers/flights/controllers/airports.controller");
 const FlightsController = require("../controllers/flights/controllers/flights.controller");
 const SeatController = require("../controllers/orderTiket/seatControllers");

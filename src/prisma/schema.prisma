@@ -94,8 +94,8 @@ model Booking_details {
 model Tickets {
   ticket_id String @id @default(uuid())
   booking_id String
-  passenger_id String @default("")
-  flight_seat_assigment_id Int @default(0)
+  passenger_id String 
+  flight_seat_assigment_id Int
   category PassengerCategory  @default(Adult)
   passanger Passengers @relation(fields: [passenger_id], references: [passenger_id])
   flight_seat_assigment Flight_seat_assignments @relation(fields: [flight_seat_assigment_id], references: [id])
@@ -129,10 +129,11 @@ model Flight_seat_classes {
   seat_class_capacity Int
   seat_class Seat_classes @relation(fields: [seat_class_id], references: [seat_class_id])
   flight Flights @relation(fields: [flight_id], references: [flight_id])
+
   seats                Flight_seat_assignments[] // Relasi many-to-many ke Seats
 }
 model Flight_seat_assignments {
-  id                     Int      @id @default(autoincrement()) // ID unik untuk hubungan ini
+  id                     Int   @id @default(autoincrement())// ID unik untuk hubungan ini
   seat_id                Int      // FK ke Seats
   flight_seat_class_id   String   // FK ke Flight_seat_classes
   available              Boolean  @default(true) // Status ketersediaan kursi
@@ -143,7 +144,8 @@ model Flight_seat_assignments {
 }
 
 model Seat {
-  id          Int    @id @default(autoincrement()) // ID unik kursi
+
+  id          Int   @id @default(autoincrement()) // ID unik kursi
   seat_number String // Nomor kursi (misalnya: "12A", "12B")
   seat_classes Flight_seat_assignments[] // Relasi many-to-many dengan Flight_seat_classes
 }
@@ -185,16 +187,28 @@ model Aircraft_seats {
   aircraft_id String
   aircraft_seat_position String @db.Char(3)
   aircraft Aircrafts @relation(fields: [aircraft_id], references: [aircraft_id])
+
+
+}
+
+model TokenBlacklist {
+  id String @id @default(uuid())
+  token String
+  createdAt DateTime @default(now())
+  expiredAt DateTime
+
 }
 
 enum UserRole {
   buyer
   admin
 }
+
+
 enum PassengerCategory {
-    Adult
-    Child
-    Baby
+  Adult
+  Child
+  Baby
 }
 enum Title {
   Mr
