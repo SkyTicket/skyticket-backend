@@ -67,7 +67,7 @@ app.use(
 app.use("/auth", authRoutes);
 app.use("/password", passwordRoutes);
 app.use("/user", userRoutes);
-app.use("/oauth", oauthRoutes);
+app.use("/api/v1", oauthRoutes);
 app.use(router);
 
 // Start the server
