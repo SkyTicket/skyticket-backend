@@ -7,19 +7,18 @@ class SeatController {
     try {
       const { flightId, seatClass, adult, child, baby } = req.query;
 
-      // Mengambil data kursi dari Flight_seat_assignments yang menghubungkan Seat dan Flight_seat_classes
       const seatAssignments = await prisma.flight_seat_assignments.findMany({
         where: {
           flight_seat_class: {
-            flight_id: flightId, // Filter berdasarkan flightId
+            flight_id: flightId,
           },
         },
         include: {
-          seat: true, // Menyertakan data Seat yang terhubung
+          seat: true,
           flight_seat_class: {
             include: {
-              flight: true, // Menyertakan informasi penerbangan
-              seat_class: true, // Menyertakan informasi kelas kursi
+              flight: true,
+              seat_class: true,
             },
           },
         },
@@ -36,7 +35,6 @@ class SeatController {
         return;
       }
 
-      // Filter seat berdasarkan kelas jika ada
       const filteredAssignments = seatClass
         ? seatAssignments.filter(
             (assignment) =>
@@ -63,9 +61,7 @@ class SeatController {
       };
 
       const seatPrice =
-        filteredAssignments.length > 0
-          ? filteredAssignments[0].price // Menggunakan harga yang ada pada Flight_seat_assignments
-          : 0;
+        filteredAssignments.length > 0 ? filteredAssignments[0].price : 0;
 
       const subTotalPrice = {
         adult: passengerCounts.adult * seatPrice,

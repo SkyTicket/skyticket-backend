@@ -14,16 +14,15 @@ class TicketController {
       age--;
     }
 
-    // Menentukan kategori berdasarkan usia
     if (age < 2) {
-      return "Infant"; // Kategori bayi
+      return "Infant";
     } else if (age >= 2 && age < 18) {
-      return "Child"; // Kategori anak-anak
+      return "Child";
     } else {
-      return "Adult"; // Kategori dewasa
+      return "Adult";
     }
   }
-  // Fungsi untuk membuat order tiket
+
   static async createTicketOrder(req, res) {
     const { seats, passengers, userId, bookerName, bookerEmail, bookerPhone } =
       req.body;
@@ -46,19 +45,17 @@ class TicketController {
     const expiredAt = new Date();
     expiredAt.setHours(expiredAt.getHours() + 1);
 
-    // Membuat booking code
     const bookingCode = crypto.randomBytes(4).toString("hex");
-    // Menyusun query untuk mendapatkan harga kursi dari database
+
     const seatData = await prisma.flight_seat_assignments.findMany({
       where: {
-        id: { in: seats.map((seat) => seat.id) }, // Ambil harga untuk kursi yang dipilih
+        id: { in: seats.map((seat) => seat.id) },
       },
       select: {
-        price: true, // Ambil harga kursi
+        price: true,
       },
     });
 
-    // Memastikan harga kursi yang diambil sesuai dengan kursi yang dipilih
     if (seatData.length !== seats.length) {
       return response(
         400,
@@ -69,27 +66,23 @@ class TicketController {
       );
     }
 
-    // Menghitung total harga kursi berdasarkan jumlah kursi yang dipilih
     const totalPrice = seatData.reduce(
       (total, seat) => total + parseInt(seat.price),
       0
     );
 
-    // Menghitung tax
     const tax = 0.11 * totalPrice;
 
-    // Membuat transaksi
     const transaction = await prisma.bookings.create({
       data: {
         booking_code: bookingCode,
         tax: tax,
         booking_amount: totalPrice + tax,
-        booking_payment_status: "Unpaid", // Status pembayaran
-        booking_payment_method: "Credit Card", // Metode pembayaran
+        booking_payment_status: "Unpaid",
+        booking_payment_method: "Credit Card",
       },
     });
 
-    // Mencari user
     const user = await prisma.users.findUnique({
       where: { user_id: userId },
     });
@@ -98,7 +91,6 @@ class TicketController {
       return res.status(400).json({ error: "User not found" });
     }
 
-    // Membuat objek booker terpisah
     const bookerData = {
       user_id: userId,
       booker_name: bookerName,
@@ -106,12 +98,10 @@ class TicketController {
       booker_phone: bookerPhone,
     };
 
-    // Menambahkan data booker
     const booker = await prisma.bookers.create({
       data: bookerData,
     });
 
-    // Menambahkan data penumpang
     const passengerData = passengers.map((passenger) => {
       const category = TicketController.getCategoryByAge(passenger.dateOfBirth);
       return {
@@ -125,23 +115,20 @@ class TicketController {
         validUntil: passenger.validUntil
           ? new Date(passenger.validUntil)
           : null,
-        category: category, // Menambahkan kategori
-        bookers_id: booker.booker_id, // Relasi ke booker
+        category: category,
+        bookers_id: booker.booker_id,
       };
     });
 
-    // Menyimpan data penumpang ke database
     const createdPassengers = await prisma.passengers.createMany({
       data: passengerData,
     });
 
-    // Mengambil ID penumpang yang baru saja dibuat
     const passengerIds = await prisma.passengers.findMany({
       where: { name: { in: passengers.map((p) => p.name) } },
       select: { passenger_id: true },
     });
 
-    // Mengecek seat yang valid
     const validSeats = await prisma.flight_seat_assignments.findMany({
       where: {
         id: { in: seats.map((seat) => seat.id) },
@@ -154,7 +141,6 @@ class TicketController {
         .json({ error: "Some seats are invalid or not found" });
     }
 
-    // Menambahkan tiket untuk setiap seat dan passenger
     const ticketData = seats.map((seat, index) => ({
       booking_id: transaction.booking_id,
       flight_seat_assigment_id: seat.id,
@@ -162,18 +148,15 @@ class TicketController {
       category: passengerData[index].category,
     }));
 
-    // Membuat tiket di database
     await prisma.tickets.createMany({
       data: ticketData,
     });
 
-    // Update status seat menjadi tidak tersedia
     await prisma.flight_seat_assignments.updateMany({
       where: { id: { in: seats.map((seat) => seat.id) } },
       data: { available: false },
     });
 
-    // Kirimkan response sukses
     response(200, "success", bookingCode, "Tickets successfully created", res);
   }
 }
