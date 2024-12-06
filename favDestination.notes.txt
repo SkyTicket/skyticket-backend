@@ -1,0 +1,185 @@
+Kriteria diskon
+    - Harga < 1000000 = Limited
+    - Harga <= 5000000 = 50% OFF
+    - Harga > 5000000 = null
+
+Endpoints
+    - Non filtering
+    GET /api/home/favorite-destination
+        - Output
+            {
+                "success": true,
+                "currentPage": 1,
+                "totalPages": 3,
+                "totalFlights": 12,
+                "limit": 5,
+                "data": [
+                    {
+                        "route": "Surabaya -> Kediri",
+                        "airline": "Citilink",
+                        "travel_date": "09 - 10 Desember 2024",
+                        "price": "IDR 750.000",
+                        "promo": "Limited!",
+                        "city_image": "dhoho_image.jpg"
+                    },
+                    {
+                        "route": "Jakarta -> Denpasar",
+                        "airline": "Lion Air",
+                        "travel_date": "07 - 08 Desember 2024",
+                        "price": "IDR 800.000",
+                        "promo": "Limited!",
+                        "city_image": "ngurah-rai_image.jpg"
+                    },
+                    {
+                        "route": "Saint Petersburg -> Beijing",
+                        "airline": "Enter Air",
+                        "travel_date": "21 - 22 Desember 2024",
+                        "price": "IDR 1.500.000",
+                        "promo": "50% OFF",
+                        "city_image": "beijing_image.jpg"
+                    },
+                    {
+                        "route": "Katowice -> Andenes",
+                        "airline": "Enter Air",
+                        "travel_date": "31 Desember 2024 - 01 Januari 2025",
+                        "price": "IDR 1.750.000",
+                        "promo": "50% OFF",
+                        "city_image": "alta_image.jpg"
+                    },
+                    {
+                        "route": "Katowice -> Osijek",
+                        "airline": "Enter Air",
+                        "travel_date": "31 Desember 2024 - 01 Januari 2025",
+                        "price": "IDR 1.750.000",
+                        "promo": "50% OFF",
+                        "city_image": "osijek_image.jpg"
+                    }
+                ]
+            }
+
+    - Go to another page
+    GET /api/home/favorite-destination?page=2
+        - Output
+            {
+                "success": true,
+                "currentPage": 2,
+                "totalPages": 3,
+                "totalFlights": 12,
+                "limit": 5,
+                "data": [
+                    {
+                        "route": "Narita -> Kediri",
+                        "airline": "Wings Air",
+                        "travel_date": "20 - 21 Desember 2024",
+                        "price": "IDR 4.500.000",
+                        "promo": "50% OFF",
+                        "city_image": "dhoho_image.jpg"
+                    },
+                    {
+                        "route": "Surabaya -> Narita",
+                        "airline": "Batik Air",
+                        "travel_date": "10 - 11 Desember 2024",
+                        "price": "IDR 5.500.000",
+                        "promo": null,
+                        "city_image": "narita_image.jpg"
+                    },
+                    {
+                        "route": "Narita -> Surabaya",
+                        "airline": "Citilink",
+                        "travel_date": "06 - 07 Desember 2024",
+                        "price": "IDR 7.000.000",
+                        "promo": null,
+                        "city_image": "juanda_image.jpg"
+                    },
+                    {
+                        "route": "Jakarta -> Narita",
+                        "airline": "Garuda Indonesia",
+                        "travel_date": "07 - 08 Desember 2024",
+                        "price": "IDR 8.750.000",
+                        "promo": null,
+                        "city_image": "narita_image.jpg"
+                    }
+                ]
+            }
+
+    - Filter by continent
+    GET /api/home/favorite-destination?continent=asia
+        - Output
+            {
+                "success": true,
+                "currentPage": 1,
+                "totalPages": 3,
+                "totalFlights": 12,
+                "limit": 5,
+                "data": [
+                    {
+                        "route": "Surabaya -> Kediri",
+                        "airline": "Citilink",
+                        "travel_date": "09 - 10 Desember 2024",
+                        "price": "IDR 750.000",
+                        "promo": "Limited!",
+                        "city_image": "dhoho_image.jpg"
+                    },
+                    {
+                        "route": "Jakarta -> Denpasar",
+                        "airline": "Lion Air",
+                        "travel_date": "07 - 08 Desember 2024",
+                        "price": "IDR 800.000",
+                        "promo": "Limited!",
+                        "city_image": "ngurah-rai_image.jpg"
+                    },
+                    {
+                        "route": "Saint Petersburg -> Beijing",
+                        "airline": "Enter Air",
+                        "travel_date": "21 - 22 Desember 2024",
+                        "price": "IDR 1.500.000",
+                        "promo": "50% OFF",
+                        "city_image": "beijing_image.jpg"
+                    }
+                ]
+            }
+
+    - Filter by page and continent
+    GET /api/home/favorite-destination?page=2&continent=asia
+        - Output
+                {
+                "success": true,
+                "currentPage": 2,
+                "totalPages": 3,
+                "totalFlights": 12,
+                "limit": 5,
+                "data": [
+                    {
+                        "route": "Narita -> Kediri",
+                        "airline": "Wings Air",
+                        "travel_date": "20 - 21 Desember 2024",
+                        "price": "IDR 4.500.000",
+                        "promo": "50% OFF",
+                        "city_image": "dhoho_image.jpg"
+                    },
+                    {
+                        "route": "Surabaya -> Narita",
+                        "airline": "Batik Air",
+                        "travel_date": "10 - 11 Desember 2024",
+                        "price": "IDR 5.500.000",
+                        "promo": null,
+                        "city_image": "narita_image.jpg"
+                    },
+                    {
+                        "route": "Narita -> Surabaya",
+                        "airline": "Citilink",
+                        "travel_date": "06 - 07 Desember 2024",
+                        "price": "IDR 7.000.000",
+                        "promo": null,
+                        "city_image": "juanda_image.jpg"
+                    },
+                    {
+                        "route": "Jakarta -> Narita",
+                        "airline": "Garuda Indonesia",
+                        "travel_date": "07 - 08 Desember 2024",
+                        "price": "IDR 8.750.000",
+                        "promo": null,
+                        "city_image": "narita_image.jpg"
+                    }
+                ]
+            }
