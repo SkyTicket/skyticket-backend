@@ -49,7 +49,7 @@ app.use("/api/v1", passwordRoutes);
 app.use("/api/v1", userRoutes);
 app.use("/", oauthRoutes);
 
-app.use("/api/home", favDestinationRoutes);
+app.use("/api/v1", favDestinationRoutes);
 
 app.get("/", (req, res) => {
   res.send("E-Flight Ticket Platform Backend");

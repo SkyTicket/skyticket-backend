@@ -5,7 +5,7 @@ Kriteria diskon
 
 Endpoints
     - Non filtering
-    GET /api/home/favorite-destination
+    GET /api/v1/favorite-destination
         - Output
             {
                 "success": true,
@@ -58,7 +58,7 @@ Endpoints
             }
 
     - Go to another page
-    GET /api/home/favorite-destination?page=2
+    GET /api/v1/favorite-destination?page=2
         - Output
             {
                 "success": true,
@@ -103,7 +103,7 @@ Endpoints
             }
 
     - Filter by continent
-    GET /api/home/favorite-destination?continent=asia
+    GET /api/v1/favorite-destination?continent=asia
         - Output
             {
                 "success": true,
@@ -140,7 +140,7 @@ Endpoints
             }
 
     - Filter by page and continent
-    GET /api/home/favorite-destination?page=2&continent=asia
+    GET /api/v1/favorite-destination?page=2&continent=asia
         - Output
                 {
                 "success": true,
