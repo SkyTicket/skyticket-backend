@@ -51,13 +51,26 @@ class AuthController {
     }
 
     try {
-      const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+      const decodedToken = jwt.verify(token, SECRET_KEY);
 
-      // Simpan token ke dalam tabel blacklist dengan waktu kedaluwarsa
+      // Check if token is already blacklisted or expired
+      const blacklistedToken = await prisma.tokenBlacklist.findUnique({
+        where: {
+          token: token,
+        },
+      });
+
+      if (blacklistedToken) {
+        return res
+          .status(400)
+          .json({ message: "Token sudah diblacklist atau kedaluwarsa." });
+      }
+
+      // Add token to the blacklist with expiry time
       await prisma.tokenBlacklist.create({
         data: {
           token,
-          expiredAt: new Date(decodedToken.exp * 1000), // Konversi UNIX timestamp ke Date
+          expiredAt: new Date(decodedToken.exp * 1000), // Convert UNIX timestamp to Date
         },
       });
 
@@ -65,12 +78,16 @@ class AuthController {
         .status(200)
         .json({ message: "Logout berhasil. Token telah di-blacklist." });
     } catch (error) {
-      res.status(400).json({ message: "Token tidak valid.", error });
+      console.error(error); // Logging error for debugging
+      return res.status(500).json({
+        message: "Terjadi kesalahan saat proses logout.",
+        error: error.message || error,
+      });
     }
   }
 
-  async registerCustomer(req, res) {
-    const { user_name, user_email, user_password, user_phone, profilePicture } =
+  async register(req, res) {
+    const { user_name, user_email, user_password, user_phone } =
       req.body;
 
     const hashedPassword = await bcrypt.hash(user_password, 10);
@@ -81,7 +98,6 @@ class AuthController {
           user_name,
           user_email,
           user_password: hashedPassword,
-          user_role: "buyer", // Role ditentukan berdasarkan enum UserRole
           user_phone,
         },
       });
@@ -90,31 +106,6 @@ class AuthController {
       res
         .status(500)
         .json({ error: "Gagal mendaftarkan customer", detail: error });
-      console.log(error);
-    }
-  }
-
-  async registerAdmin(req, res) {
-    const { user_name, user_email, user_password, user_phone, profilePicture } =
-      req.body;
-
-    const hashedPassword = await bcrypt.hash(user_password, 10);
-
-    try {
-      const newAdmin = await prisma.users.create({
-        data: {
-          user_name,
-          user_email,
-          user_password: hashedPassword,
-          user_role: "admin", // Role ditentukan berdasarkan enum UserRole
-          user_phone,
-        },
-      });
-      res.status(201).json(newAdmin);
-    } catch (error) {
-      res
-        .status(500)
-        .json({ error: "Gagal mendaftarkan admin", detail: error });
       console.log(error);
     }
   }

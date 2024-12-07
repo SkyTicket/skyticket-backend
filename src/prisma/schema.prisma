@@ -18,7 +18,7 @@ model Users {
   user_name String
   user_email String @unique
   user_password String
-  user_role UserRole
+  user_role UserRole @default(buyer)
   user_phone String
   Bookers Bookers[] // new
   notifications Notifications[]
@@ -193,7 +193,7 @@ model Aircraft_seats {
 
 model TokenBlacklist {
   id String @id @default(uuid())
-  token String
+  token String  @unique
   createdAt DateTime @default(now())
   expiredAt DateTime
 
