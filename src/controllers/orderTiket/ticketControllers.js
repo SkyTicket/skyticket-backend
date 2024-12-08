@@ -1,7 +1,6 @@
 const { PrismaClient } = require("@prisma/client");
 const crypto = require("crypto");
 const prisma = new PrismaClient();
-const response = require("./utils/response");
 
 class TicketController {
   static getCategoryByAge(dateOfBirth) {
@@ -76,6 +75,11 @@ class TicketController {
         booking_amount: totalPrice + tax,
         booking_payment_status: "Unpaid",
         booking_payment_method: "Credit Card",
+        user: {
+          connect: {
+            user_id: userId,
+          },
+        },
       },
     });
 

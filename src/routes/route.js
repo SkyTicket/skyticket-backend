@@ -16,8 +16,19 @@ app.get("/api/v1/airports", AirportsController.searchAirports);
 
 //order-tiket
 app.get("/api/v1/seat", authMiddleware, SeatController.getDetailFlight);
-app.post("/ticket-order", authMiddleware, TiketController.createTicketOrder);
-app.post("/create-payment", PaymentController.createPayment);
-app.post("/midtrans-notification", PaymentController.paymentNotification);
+
+//transaksi
+app.get("/api/v1/transaksi", PaymentController.showTransaksi);
+app.get("/api/v1/transaksi/:userId", PaymentController.showTransaksiByIdUser);
+app.post(
+  "/api/v1/ticket-order",
+  authMiddleware,
+  TiketController.createTicketOrder
+);
+app.post("/api/v1/create-payment", PaymentController.createPayment);
+app.post(
+  "/api/v1/midtrans-notification",
+  PaymentController.paymentNotification
+);
 
 module.exports = app;
