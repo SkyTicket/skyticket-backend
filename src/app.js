@@ -10,6 +10,7 @@ const passwordRoutes = require("./routes/password.route");
 const userRoutes = require("./routes/user.route");
 const oauthRoutes = require("./routes/oauth.route");
 require("./services/removeJwt");
+const favDestinationRoutes = require("./routes/fav.destination.routes");
 
 const PORT = 3003;
 const router = require("./routes/route");
@@ -36,6 +37,7 @@ app.use("/auth", authRoutes);
 app.use("/password", passwordRoutes);
 app.use("/user", userRoutes);
 app.use("/oauth", oauthRoutes);
+app.use("/api/v1", favDestinationRoutes);
 app.use(router);
 
 app.use(function(req, res, next) {

@@ -420,6 +420,88 @@
                     }
                 }
             }
+        },
+        "/api/v1/favorite-destination": {
+            "get": {
+                "tags": [
+                    "Favorite"
+                ],
+                "summary": "Menampilkan destinasi penerbangan favorit",
+                "description": "Menampilkan destinasi penerbangan favorit dengan memfilter berdasarkan continent dan paginasi",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "Nomor halaman",
+                        "required": "false",
+                        "schema": {
+                            "type": "integer",
+                            "example": 2
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "continent",
+                        "description": "Filter destinasi berdasarkan continent",
+                        "required": "false",
+                        "schema": {
+                            "type": "string",
+                            "example": "asia"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil menampilkan destinasi penerbangan favorit",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "content": {
+                                        "application/json": {
+                                            "example": {
+                                                "success": true,
+                                                "currentPage": 2,
+                                                "totalPages": 3,
+                                                "totalFlights": 11,
+                                                "limit": 5,
+                                                "data": {
+                                                    "route": "Chongqing -> Kediri",
+                                                    "airline": "Hainan Airlines",
+                                                    "travel_date": "21 - 22 Desember 2024",
+                                                    "price": "IDR 1.000.000",
+                                                    "promo": "50% OFF",
+                                                    "city_image": "d14.jpg"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Data tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "success": false,
+                                    "message": "Data tidak ditemukan"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Gagal menampilkan destinasi favorit",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Kesalahan pada server"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
