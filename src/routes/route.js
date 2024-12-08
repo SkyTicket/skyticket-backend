@@ -18,16 +18,25 @@ app.get("/api/v1/airports", AirportsController.searchAirports);
 app.get("/api/v1/seat", authMiddleware, SeatController.getDetailFlight);
 
 //transaksi
-app.get("/api/v1/transaksi", PaymentController.showTransaksi);
-app.get("/api/v1/transaksi/:userId", PaymentController.showTransaksiByIdUser);
+app.get("/api/v1/transaksi", authMiddleware, PaymentController.showTransaksi);
+app.get(
+  "/api/v1/transaksi/:userId",
+  authMiddleware,
+  PaymentController.showTransaksiByIdUser
+);
 app.post(
   "/api/v1/ticket-order",
   authMiddleware,
   TiketController.createTicketOrder
 );
-app.post("/api/v1/create-payment", PaymentController.createPayment);
+app.post(
+  "/api/v1/create-payment",
+  authMiddleware,
+  PaymentController.createPayment
+);
 app.post(
   "/api/v1/midtrans-notification",
+  authMiddleware,
   PaymentController.paymentNotification
 );
 
