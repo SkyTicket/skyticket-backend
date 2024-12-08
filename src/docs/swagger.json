@@ -420,6 +420,83 @@
                     }
                 }
             }
+        },
+        "/api/v1/favorite-destination": {
+            "get": {
+                "tags": [
+                    "Favorite"
+                ],
+                "summary": "Menampilkan destinasi penerbangan favorit berdasarkan harga tiket termurah",
+                "description": "Menampilkan destinasi penerbangan favorit berdasarkan harga tiket termurah beserta pagination dan tampilkan berdasarkan continent",
+                "parameters": [
+                    {
+                        "success": true,
+                        "currentPage": 2,
+                        "totalPages": 3,
+                        "totalFlights": 11,
+                        "limit": 5,
+                        "data": {
+                            "route": "Chongqing -> Kediri",
+                            "airline": "Hainan Airlines",
+                            "travel_date": "21 - 22 Desember 2024",
+                            "price": "IDR 1.000.000",
+                            "promo": "50% OFF",
+                            "city_image": "d14.jpg"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Berhasil menampilkan destinasi penerbangan favorit",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "content": {
+                                        "application/json": {
+                                            "example": {
+                                                "success": true,
+                                                "currentPage": 2,
+                                                "totalPages": 3,
+                                                "totalFlights": 11,
+                                                "limit": 5,
+                                                "data": {
+                                                    "route": "Chongqing -> Kediri",
+                                                    "airline": "Hainan Airlines",
+                                                    "travel_date": "21 - 22 Desember 2024",
+                                                    "price": "IDR 1.000.000",
+                                                    "promo": "50% OFF",
+                                                    "city_image": "d14.jpg"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Data tidak ditemukan",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "success": false,
+                                    "message": "Data tidak ditemukan"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Gagal menampilkan destinasi favorit",
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Kesalahan pada server"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
