@@ -417,6 +417,11 @@
         "tags": ["Flights"],
         "summary": "Mendapatkan detail penerbangan",
         "description": "Mengambil detail penerbangan berdasarkan ID penerbangan, kelas kursi, dan jumlah penumpang",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "flightId",
@@ -528,6 +533,831 @@
             "data": []
           }
         }
+      }
+    },
+    "/api/v1/ticket-order": {
+      "post": {
+        "tags": ["Transaction"],
+        "summary": "Membuat tiket pesanan",
+        "description": "API untuk membuat pemesanan tiket pesawat",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "seats": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "string",
+                          "example": "1"
+                        }
+                      }
+                    }
+                  },
+                  "passengers": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "example": "Mr."
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "John"
+                        },
+                        "familyName": {
+                          "type": "string",
+                          "example": "Doe"
+                        },
+                        "dateOfBirth": {
+                          "type": "string",
+                          "format": "date",
+                          "example": "1990-01-01"
+                        },
+                        "nationality": {
+                          "type": "string",
+                          "example": "ID"
+                        },
+                        "identityNumber": {
+                          "type": "string",
+                          "example": "1234567890123456"
+                        },
+                        "issuingCountry": {
+                          "type": "string",
+                          "example": "ID"
+                        },
+                        "validUntil": {
+                          "type": "string",
+                          "format": "date",
+                          "example": "2030-01-01"
+                        }
+                      }
+                    }
+                  },
+                  "userId": {
+                    "type": "string",
+                    "example": "fae5e2e7-264c-490d-9896-df3bea9920b5"
+                  },
+                  "bookerName": {
+                    "type": "string",
+                    "example": "Jane Doe"
+                  },
+                  "bookerEmail": {
+                    "type": "string",
+                    "example": "jane.doe@example.com"
+                  },
+                  "bookerPhone": {
+                    "type": "string",
+                    "example": "+62123456789"
+                  }
+                },
+                "required": [
+                  "seats",
+                  "passengers",
+                  "userId",
+                  "bookerName",
+                  "bookerEmail",
+                  "bookerPhone"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created ticket order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Berhasil membuat Tiket"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "booking_id": {
+                            "type": "string",
+                            "example": "5bb68854-a9db-4909-af7f-dfb72d76858f"
+                          },
+                          "flight_seat_assigment_id": {
+                            "type": "string",
+                            "example": "1"
+                          },
+                          "passenger_id": {
+                            "type": "string",
+                            "example": "1"
+                          },
+                          "category": {
+                            "type": "string",
+                            "example": "Adult"
+                          }
+                        }
+                      }
+                    },
+                    "bookingCode": {
+                      "type": "string",
+                      "example": "fea8798c"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode ": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "Failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "data kursi dan penumpang wajib ada"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400_invalid_seat": {
+            "description": "Some seats are invalid or not available",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "Failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Beberapa kursi tidak valid atau tidak tersedia"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400_seat_passenger_mismatch": {
+            "description": "Number of seats must match the number of passengers",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "Failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Jumlah kursi harus sama dengan jumlah penumpang"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 500
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "Failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Terjadi kesalahan saat pada server"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transaksi": {
+      "get": {
+        "tags": ["Transaction"],
+        "summary": "Menampilkan List Transaksi",
+        "description": "Mengambil data dari tabel bookings",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Menampilkan list transaksi",
+            "content": {
+              "application/json": {
+                "example": {
+                  "type": "object",
+                  "statusCode": 200,
+                  "status": "success",
+                  "message": "Transaction details retrieved successfully",
+                  "data": {
+                    "transactionId": "TX123456",
+                    "booking_id": "5bb68854-a9db-4909-af7f-dfb72d76858f",
+                    "booking_date": "2024-12-08T08:09:03.726Z",
+                    "booking_amount": "166.5",
+                    "booking_code": "fea8798c",
+                    "user_id": "fae5e2e7-264c-490d-9896-df3bea9920b5",
+                    "tax": "16.5",
+                    "booking_payment_status": "Unpaid",
+                    "booking_payment_method": "Midtrans"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No transactions found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Tidak ada transaksi ditemukan"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400_Kesalahan dalam permintaan ke database": {
+            "description": "Bad request due to database error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Kesalahan dalam permintaan ke database"
+                    },
+                    "details": {
+                      "type": "string",
+                      "example": "Detailed error message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable due to database connection error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 503
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Kesalahan koneksi ke database"
+                    },
+                    "details": {
+                      "type": "string",
+                      "example": "Detailed error message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 500
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Terjadi kesalahan pada server"
+                    },
+                    "details": {
+                      "type": "string",
+                      "example": "Detailed error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "api/v1/transaksi/{userId}": {
+      "get": {
+        "tags": ["Transaction"],
+        "summary": "Mengambil transaksi berdasarkan ID pengguna",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "showTransaksiByIdUser ",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "description": "ID pengguna untuk mengambil transaksi",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Menampilkan list transaksi",
+            "content": {
+              "application/json": {
+                "example": {
+                  "type": "object",
+                  "statusCode": 200,
+                  "status": "success",
+                  "message": "Transaction details retrieved successfully",
+                  "data": {
+                    "transactionId": "TX123456",
+                    "booking_id": "5bb68854-a9db-4909-af7f-dfb72d76858f",
+                    "booking_date": "2024-12-08T08:09:03.726Z",
+                    "booking_amount": "166.5",
+                    "booking_code": "fea8798c",
+                    "user_id": "fae5e2e7-264c-490d-9896-df3bea9920b5",
+                    "tax": "16.5",
+                    "booking_payment_status": "Unpaid",
+                    "booking_payment_method": "Midtrans"
+                  }
+                }
+              }
+            }
+          },
+          "400_idPengguna": {
+            "description": "ID pengguna tidak valid atau tidak ada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User  ID is required"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Tidak ada transaksi ditemukan untuk pengguna ini",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "No transactions found for this user"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to database error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Kesalahan dalam permintaan ke database"
+                    },
+                    "details": {
+                      "type": "string",
+                      "example": "Detailed error message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 500
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Terjadi kesalahan pada server"
+                    },
+                    "details": {
+                      "type": "string",
+                      "example": "Detailed error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payment": {
+      "post": {
+        "tags": ["Transaction"],
+        "summary": "Membuat pembayaran untuk pemesanan",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "createPayment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bookingId": {
+                    "type": "string",
+                    "example": "5bb68854-a9db-4909-af7f-dfb72d76858f",
+                    "description": "ID pemesanan yang akan dibayar"
+                  },
+                  "totalPrice": {
+                    "type": "string",
+                    "example": "11100.00",
+                    "description": "Total harga yang harus dibayar"
+                  },
+                  "userId": {
+                    "type": "string",
+                    "example": "fae5e2e7-264c-490d-9896-df3bea9920b5",
+                    "description": "ID pengguna yang melakukan pembayaran"
+                  }
+                },
+                "required": ["bookingId", "totalPrice", "userId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Pembayaran berhasil dibuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Berhasil membuat pembayaran"
+                    },
+                    "redirect_url": {
+                      "type": "string",
+                      "description": "URL untuk mengarahkan pengguna ke halaman pembayaran",
+                      "example": "https://app.sandbox.midtrans.com/snap/v4/redirection/6b26bdb6-a3ad-47ca-924f-827d30c5e3db"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Permintaan tidak valid, beberapa field tidak lengkap",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Lengkapi field"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400_field_detail_pengguna": {
+            "description": "Detail pengguna tidak lengkap. Nama, email, dan telepon wajib diisi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Detail pengguna tidak lengkap. Nama, email, dan telepon wajib diisi"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404_idBookings": {
+            "description": "Id bookings tidak ditemukan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "id booking tidak ada"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "ID pemesanan atau pengguna tidak ditemukan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "user tidak ada"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Kesalahan server atau kesalahan dari API Midtrans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payment/notification": {
+      "post": {
+        "tags": ["Transaction"],
+        "summary": "Menerima notifikasi pembayaran dari Midtrans",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "paymentNotification",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "order_id": {
+                    "type": "string",
+                    "description": "ID pemesanan yang terkait dengan notifikasi",
+                    "example": "04898891-d202-4285-b3d3-8e9ce1ae9b31"
+                  },
+                  "transaction_status": {
+                    "type": "string",
+                    "description": "Status transaksi dari Midtrans",
+                    "example": "settlement"
+                  },
+                  "payment_type": {
+                    "type": "string",
+                    "description": "Tipe pembayaran yang digunakan",
+                    "example": "credit_card"
+                  }
+                },
+                "required": ["order_id", "transaction_status", "payment_type"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status transaksi berhasil diperbarui",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Transaction status updated"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "ID pemesanan tidak ditemukan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Booking not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Kesalahan server saat memperbarui status transaksi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Failed to update transaction status"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "Authorization",
+        "description": "JWT token"
       }
     }
   }
