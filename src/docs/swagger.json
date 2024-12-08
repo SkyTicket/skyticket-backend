@@ -426,22 +426,27 @@
                 "tags": [
                     "Favorite"
                 ],
-                "summary": "Menampilkan destinasi penerbangan favorit berdasarkan harga tiket termurah",
-                "description": "Menampilkan destinasi penerbangan favorit berdasarkan harga tiket termurah beserta pagination dan tampilkan berdasarkan continent",
+                "summary": "Menampilkan destinasi penerbangan favorit",
+                "description": "Menampilkan destinasi penerbangan favorit dengan memfilter berdasarkan continent dan paginasi",
                 "parameters": [
                     {
-                        "success": true,
-                        "currentPage": 2,
-                        "totalPages": 3,
-                        "totalFlights": 11,
-                        "limit": 5,
-                        "data": {
-                            "route": "Chongqing -> Kediri",
-                            "airline": "Hainan Airlines",
-                            "travel_date": "21 - 22 Desember 2024",
-                            "price": "IDR 1.000.000",
-                            "promo": "50% OFF",
-                            "city_image": "d14.jpg"
+                        "in": "query",
+                        "name": "continent",
+                        "description": "Filter destinasi berdasarkan continent",
+                        "required": "false",
+                        "schema": {
+                            "type": "String",
+                            "example": "asia"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "page",
+                        "description": "Nomor halaman",
+                        "required": "false",
+                        "schema": {
+                            "type": "integer",
+                            "example": 2
                         }
                     }
                 ],
