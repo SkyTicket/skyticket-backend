@@ -209,7 +209,7 @@ class favDestination {
                 const arrivalContinent = getContinent(flight.arrival_airport.airport_country);
 
                 return {
-                    route: `${flight.departure_airport.airport_city} -> ${flight.arrival_airport.airport_city}`,
+                    route: `${flight.departure_airport.airport_city} → ${flight.arrival_airport.airport_city}`,
                     airline: flight.airline.airline_name,
                     travel_date: formattedDate(flight.flight_departure_date, flight.flight_arrival_date),
                     price: flight.flight_price ? Currency.format(flight.flight_price) : null,

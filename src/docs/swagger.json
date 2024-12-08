@@ -431,22 +431,22 @@
                 "parameters": [
                     {
                         "in": "query",
-                        "name": "continent",
-                        "description": "Filter destinasi berdasarkan continent",
-                        "required": "false",
-                        "schema": {
-                            "type": "String",
-                            "example": "asia"
-                        }
-                    },
-                    {
-                        "in": "query",
                         "name": "page",
                         "description": "Nomor halaman",
                         "required": "false",
                         "schema": {
                             "type": "integer",
                             "example": 2
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "continent",
+                        "description": "Filter destinasi berdasarkan continent",
+                        "required": "false",
+                        "schema": {
+                            "type": "string",
+                            "example": "asia"
                         }
                     }
                 ],
