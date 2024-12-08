@@ -33,23 +33,20 @@ class TicketController {
       seats.length === 0 ||
       passengers.length === 0
     ) {
-      return response(
-        400,
-        "failed",
-        null,
-        "Seats and passengers data are required.",
-        res
-      );
+      return res.status(400).json({
+        statusCode: 400,
+        status: "Failed",
+        message: "data kursi dan penumpang wajib ada",
+        data: [],
+      });
     }
-
-    const expiredAt = new Date();
-    expiredAt.setHours(expiredAt.getHours() + 1);
 
     const bookingCode = crypto.randomBytes(4).toString("hex");
 
     const seatData = await prisma.flight_seat_assignments.findMany({
       where: {
         id: { in: seats.map((seat) => seat.id) },
+        available: true,
       },
       select: {
         price: true,
@@ -57,13 +54,12 @@ class TicketController {
     });
 
     if (seatData.length !== seats.length) {
-      return response(
-        400,
-        "failed",
-        null,
-        "Some seats are invalid or not found.",
-        res
-      );
+      return res.status(400).json({
+        statusCode: 400,
+        status: "Failed",
+        message: "Beberapa kursi tidak valid atau tidak tersedia",
+        data: [],
+      });
     }
 
     const totalPrice = seatData.reduce(
@@ -120,7 +116,7 @@ class TicketController {
       };
     });
 
-    const createdPassengers = await prisma.passengers.createMany({
+    await prisma.passengers.createMany({
       data: passengerData,
     });
 
@@ -128,17 +124,13 @@ class TicketController {
       where: { name: { in: passengers.map((p) => p.name) } },
       select: { passenger_id: true },
     });
-
-    const validSeats = await prisma.flight_seat_assignments.findMany({
-      where: {
-        id: { in: seats.map((seat) => seat.id) },
-      },
-    });
-
-    if (validSeats.length !== seats.length) {
-      return res
-        .status(400)
-        .json({ error: "Some seats are invalid or not found" });
+    if (seats.length !== passengers.length) {
+      return res.status(400).json({
+        statusCode: 400,
+        status: "Failed",
+        message: "Jumlah kursi harus sama dengan jumlah penumpang",
+        data: [],
+      });
     }
 
     const ticketData = seats.map((seat, index) => ({
@@ -157,7 +149,13 @@ class TicketController {
       data: { available: false },
     });
 
-    response(200, "success", bookingCode, "Tickets successfully created", res);
+    return res.status(200).json({
+      statusCode: 200,
+      status: "Success",
+      message: "Berhasil membuat Tiket",
+      data: ticketData,
+      bookingCode,
+    });
   }
 }
 

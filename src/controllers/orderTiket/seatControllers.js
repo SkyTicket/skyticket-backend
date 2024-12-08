@@ -67,7 +67,6 @@ class SeatController {
         });
       }
 
-      // Menghitung jumlah penumpang
       const passengerCounts = {
         adult: parseInt(adult) || 0,
         child: parseInt(child) || 0,
@@ -84,6 +83,42 @@ class SeatController {
         child: passengerCounts.child * seatPrice,
         baby: passengerCounts.baby * seatPrice,
       };
+      const totalPrice =
+        subTotalPrice.adult + subTotalPrice.child + subTotalPrice.baby;
+
+      const tax = 0.11 * parseInt(totalPrice);
+      const total = totalPrice + tax;
+
+      // Menghitung waktu mulai
+      const startTime = Date.now();
+
+      // Fungsi untuk memeriksa apakah waktu habis
+      const checkTimeout = () => {
+        if (Date.now() - startTime > 60000) {
+          // 1 menit = 60000 ms
+          return true;
+        }
+        return false;
+      };
+
+      // Menunda respons selama 1 menit atau hingga waktu habis
+      setTimeout(() => {
+        if (checkTimeout()) {
+          return res.status(408).json({
+            statusCode: 408,
+            status: "Failed",
+            message: "Waktu habis",
+            data: [],
+          });
+        } else {
+          return res.status(200).json({
+            statusCode: 200,
+            status: "Success",
+            message: "Data berhasil diambil.",
+            data: seatAssignments,
+          });
+        }
+      }, 60000); // Tunggu selama 1 menit
 
       // Menampilkan hasil ke pengguna
       return res.status(200).json({
@@ -94,10 +129,11 @@ class SeatController {
           flightClass,
           seatAssignments,
           subTotalPrice,
+          tax,
+          total,
         },
       });
     } catch (error) {
-      // Menangani error yang terjadi pada query atau logika lain
       console.error(error);
       return res.status(500).json({
         statusCode: 500,

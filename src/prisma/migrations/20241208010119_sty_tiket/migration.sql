@@ -22,7 +22,7 @@ CREATE TABLE "Users" (
     "user_name" TEXT NOT NULL,
     "user_email" TEXT NOT NULL,
     "user_password" TEXT NOT NULL,
-    "user_role" "UserRole" NOT NULL,
+    "user_role" "UserRole" NOT NULL DEFAULT 'buyer',
     "user_phone" TEXT NOT NULL,
 
     CONSTRAINT "Users_pkey" PRIMARY KEY ("user_id")
