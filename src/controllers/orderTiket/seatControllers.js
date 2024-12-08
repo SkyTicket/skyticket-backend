@@ -4,8 +4,6 @@ class SeatController {
   static async getDetailFlight(req, res) {
     try {
       const { flightId, seatClass, adult, child, baby } = req.query;
-
-      // Validasi input
       if (
         !flightId ||
         !seatClass ||

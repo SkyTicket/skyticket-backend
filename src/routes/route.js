@@ -13,9 +13,9 @@ const { authMiddleware } = require("../middleware/auth");
 app.get("/", IndexController.index);
 app.get("/api/v1/flights", FlightsController.searchFlights);
 app.get("/api/v1/airports", AirportsController.searchAirports);
+app.get("/api/v1/flights", authMiddleware, SeatController.getDetailFlight);
 
 //order-tiket
-app.get("/api/v1/seat", authMiddleware, SeatController.getDetailFlight);
 
 //transaksi
 app.get("/api/v1/transaksi", authMiddleware, PaymentController.showTransaksi);
