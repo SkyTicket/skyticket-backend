@@ -12,8 +12,21 @@ class AuthMiddleware {
     }
 
     try {
+      // Periksa apakah token sudah ada di blacklist
+      const blacklistedToken = await prisma.tokenBlacklist.findUnique({
+        where: { token: token },
+      });
+
+      if (blacklistedToken) {
+        return res
+          .status(401)
+          .json({ message: "Token ini sudah diblacklist." });
+      }
+
+      // Verifikasi token
       const decoded = jwt.verify(token, SECRET_KEY);
 
+      // Periksa apakah user terkait masih ada
       const user = await prisma.users.findUnique({
         where: { user_id: decoded.userID },
       });

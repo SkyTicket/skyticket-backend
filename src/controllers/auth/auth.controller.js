@@ -30,7 +30,7 @@ class AuthController {
         user.user_password
       );
       if (!isPasswordValid) {
-        return res.status(401).json({ message: "Password salah." });
+        return res.status(401).json({ message: "Email atau Password salah." });
       }
 
       const token = jwt.sign(
@@ -40,7 +40,7 @@ class AuthController {
           role: user.user_role,
         },
         SECRET_KEY,
-        { expiresIn: "1h" }
+        { expiresIn: "5h" }
       );
 
       res.status(200).json({ message: "Login berhasil.", token });

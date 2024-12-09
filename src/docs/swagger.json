@@ -615,15 +615,9 @@
         "summary": "Logout",
         "description": "Logout dan blacklist token JWT.",
         "tags": ["Auth"],
-        "parameters": [
+        "security": [
           {
-            "in": "header",
-            "name": "Authorization",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "Bearer <your_jwt_token>"
-            }
+            "BearerAuth": []
           }
         ],
         "responses": {
