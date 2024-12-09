@@ -43,6 +43,8 @@ class SeatController {
         });
       }
 
+      const seatPrice = flightClass.seat_class_price;
+
       // Mencari data seat assignments
       const seatAssignments = await prisma.flight_seat_assignments.findMany({
         where: {
@@ -70,10 +72,6 @@ class SeatController {
         child: parseInt(child) || 0,
         baby: parseInt(baby) || 0,
       };
-
-      // Menentukan harga kursi (menggunakan harga kursi pertama sebagai contoh)
-      const seatPrice =
-        seatAssignments.length > 0 ? parseFloat(seatAssignments[0].price) : 0;
 
       // Menghitung harga total untuk penumpang
       const subTotalPrice = {

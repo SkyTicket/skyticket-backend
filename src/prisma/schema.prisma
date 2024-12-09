@@ -76,7 +76,7 @@ model Bookings {
   booking_id String @id @default(uuid())
   booking_date DateTime @default(now())
   booking_amount Decimal @db.Decimal(15, 2)
-  booking_code String
+  booking_code String @unique
   user_id String
   tax Decimal @db.Decimal(10, 2) @default(0.00) 
   booking_payment_status PaymentStatus
@@ -132,7 +132,6 @@ model Flight_seat_assignments {
   seat_id                Int      // FK ke Seats
   flight_seat_class_id   String   // FK ke Flight_seat_classes
   available              Boolean  @default(true) // Status ketersediaan kursi
-  price                  Decimal  @db.Decimal(15, 2)  // Harga kursi di penerbangan dan kelas tertentu
   seat                   Seat     @relation(fields: [seat_id], references: [id])
   flight_seat_class      Flight_seat_classes @relation(fields: [flight_seat_class_id], references: [flight_seat_class_id])
   tickets Tickets[]

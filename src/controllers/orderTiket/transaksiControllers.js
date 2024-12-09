@@ -166,6 +166,7 @@ class PaymentController {
         },
       });
       const redirectUrl = response.data.redirect_url;
+      const token = response.data.token;
       await prisma.bookings.update({
         where: { booking_id: bookingId },
         data: {
@@ -176,6 +177,7 @@ class PaymentController {
 
       res.status(201).json({
         message: "Berhasil membuat pembayaran",
+        token: token,
         redirect_url: redirectUrl,
       });
     } catch (error) {
@@ -198,7 +200,7 @@ class PaymentController {
 
     try {
       const booking = await prisma.bookings.findUnique({
-        where: { booking_id: order_id },
+        where: { booking_code: order_id },
       });
 
       if (!booking) {
@@ -218,7 +220,7 @@ class PaymentController {
           newStatus = "Cancelled";
           break;
         default:
-          newStatus = "Pending";
+          newStatus = "Unpaid";
       }
 
       await prisma.bookings.update({

@@ -48,7 +48,14 @@ class TicketController {
           available: true,
         },
         select: {
-          price: true,
+          id: true,
+          seat_id: true,
+          available: true,
+          flight_seat_class: {
+            select: {
+              seat_class_price: true,
+            },
+          },
         },
       });
 
@@ -62,9 +69,10 @@ class TicketController {
       }
 
       const totalPrice = seatData.reduce(
-        (total, seat) => total + parseInt(seat.price),
+        (total, seat) => total + parseInt(seat.flight_seat_class.seat_class_price),
         0
       );
+     
 
       const tax = 0.11 * totalPrice;
 
