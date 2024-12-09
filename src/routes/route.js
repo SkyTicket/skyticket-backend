@@ -3,6 +3,7 @@ const app = express();
 
 const IndexController = require("../controllers/flights/index.controller");
 const passport = require("passport");
+const AuthMiddleware = require("../middleware/auth");
 const authController = require("../controllers/auth/auth.controller");
 const PasswordController = require("../controllers/auth/password.controller");
 const UserController = require("../controllers/auth/user.controller");
@@ -16,6 +17,8 @@ app.get("/", IndexController.index);
 
 //auth & reset password
 app.post("/api/v1/auth/register", authController.register);
+app.post("/api/v1/auth/verify-otp", authController.verifyOtp);
+app.post("/api/v1/auth/resend-otp", authController.resendOtp);
 app.post("/api/v1/auth/login", authController.login);
 app.post("/api/v1/auth/logout", authController.logout);
 app.post("/api/v1/auth/forget-password", PasswordController.forgetPassword);
@@ -38,10 +41,26 @@ app.get(
 );
 
 //user
-app.get("/api/v1/user/all-users", UserController.getAllUsers);
-app.get("/api/v1/user/get-user/:id", UserController.getUserById);
-app.put("/api/v1/user/update-user/:id", UserController.editUser);
-app.delete("/api/v1/user/delete-user/:id", UserController.deleteUser);
+app.get(
+  "/api/v1/user/all-users",
+  AuthMiddleware.authenticateUser,
+  UserController.getAllUsers
+);
+app.get(
+  "/api/v1/user/get-user",
+  AuthMiddleware.authenticateUser,
+  UserController.getUserById
+);
+app.put(
+  "/api/v1/user/update-user",
+  AuthMiddleware.authenticateUser,
+  UserController.editUser
+);
+app.delete(
+  "/api/v1/user/delete-user",
+  AuthMiddleware.authenticateUser,
+  UserController.deleteUser
+);
 
 //flight
 app.get("/api/v1/flights", FlightsController.searchFlights);

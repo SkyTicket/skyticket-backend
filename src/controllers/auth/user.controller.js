@@ -18,11 +18,12 @@ class UserController {
   }
 
   static async getUserById(req, res) {
-    const { id } = req.params;
+    // Mengambil user_id dari request yang sudah di-set pada middleware
+    const userId = req.user.user_id;
 
     try {
       const user = await prisma.users.findUnique({
-        where: { user_id: id },
+        where: { user_id: userId }, // Menggunakan user_id yang diambil dari token
       });
 
       if (!user) {
@@ -40,8 +41,9 @@ class UserController {
       res.status(500).json({ message: "Gagal mengambil data pengguna" });
     }
   }
+
   static async editUser(req, res) {
-    const { id } = req.params;
+    const userId = req.user.user_id; // Mengambil user_id dari payload JWT
     const { user_name, user_email, user_phone, user_password } = req.body;
 
     try {
@@ -57,7 +59,7 @@ class UserController {
       }
 
       const updatedUser = await prisma.users.update({
-        where: { user_id: id },
+        where: { user_id: userId }, // Menggunakan user_id dari payload JWT
         data: updateData,
       });
 
@@ -72,11 +74,12 @@ class UserController {
   }
 
   static async deleteUser(req, res) {
-    const { id } = req.params;
+    const userId = req.user.user_id; // Mengambil user_id dari payload JWT
 
     try {
+      // Menghapus pengguna berdasarkan user_id yang diambil dari JWT
       await prisma.users.delete({
-        where: { user_id: id },
+        where: { user_id: userId }, // Menggunakan user_id dari token
       });
 
       res.status(200).json({ message: "User berhasil dihapus" });

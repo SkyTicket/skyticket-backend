@@ -18,8 +18,8 @@
   "paths": {
     "/api/v1/auth/login": {
       "post": {
-        "summary": "Login",
-        "description": "Autentikasi pengguna untuk mendapatkan token JWT.",
+        "summary": "Login pengguna",
+        "description": "Melakukan login pengguna dengan email dan password. Jika akun belum diverifikasi, akan ada respon khusus.",
         "tags": ["Auth"],
         "requestBody": {
           "required": true,
@@ -36,7 +36,8 @@
                     "type": "string",
                     "example": "password123"
                   }
-                }
+                },
+                "required": ["email", "user_password"]
               }
             }
           }
@@ -49,17 +50,13 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
                     "message": {
                       "type": "string",
                       "example": "Login berhasil."
                     },
                     "token": {
                       "type": "string",
-                      "example": "eyJhbGciOiJIUzI1..."
+                      "example": "jwt_token_here"
                     }
                   }
                 }
@@ -67,19 +64,47 @@
             }
           },
           "400": {
-            "description": "Kesalahan saat login, kredensial tidak valid.",
+            "description": "Akun belum diverifikasi. Harap verifikasi melalui OTP terlebih dahulu.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "error"
-                    },
                     "message": {
                       "type": "string",
-                      "example": "Kredensial tidak valid."
+                      "example": "Akun belum diverifikasi. Harap verifikasi melalui OTP terlebih dahulu."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Password salah",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Password salah."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Email tidak ditemukan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Email tidak ditemukan."
                     }
                   }
                 }
@@ -87,19 +112,19 @@
             }
           },
           "500": {
-            "description": "Terjadi kesalahan pada server",
+            "description": "Terjadi kesalahan saat login",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "error"
-                    },
                     "message": {
                       "type": "string",
-                      "example": "Internal server error."
+                      "example": "Terjadi kesalahan saat login."
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Error detail here"
                     }
                   }
                 }
@@ -191,8 +216,8 @@
     },
     "/api/v1/auth/register": {
       "post": {
-        "summary": "Register Customer",
-        "description": "Mendaftarkan pengguna baru dengan peran \"buyer\".",
+        "summary": "Registrasi pengguna",
+        "description": "Melakukan registrasi pengguna baru dengan email dan password. OTP akan dikirim untuk verifikasi.",
         "tags": ["Auth"],
         "requestBody": {
           "required": true,
@@ -207,7 +232,7 @@
                   },
                   "user_email": {
                     "type": "string",
-                    "example": "john@example.com"
+                    "example": "john.doe@example.com"
                   },
                   "user_password": {
                     "type": "string",
@@ -215,73 +240,30 @@
                   },
                   "user_phone": {
                     "type": "string",
-                    "example": "081234567890"
-                  },
-                  "profilePicture": {
-                    "type": "string",
-                    "nullable": true,
-                    "example": "null"
+                    "example": "+6281234567890"
                   }
-                }
+                },
+                "required": [
+                  "user_name",
+                  "user_email",
+                  "user_password",
+                  "user_phone"
+                ]
               }
             }
           }
         },
         "responses": {
           "201": {
-            "description": "Registrasi berhasil",
+            "description": "Registrasi berhasil, kode OTP telah dikirim ke email pengguna.",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
                     "message": {
                       "type": "string",
-                      "example": "Registrasi berhasil."
-                    },
-                    "user_id": {
-                      "type": "integer",
-                      "example": 1
-                    },
-                    "user_name": {
-                      "type": "string",
-                      "example": "John Doe"
-                    },
-                    "user_email": {
-                      "type": "string",
-                      "example": "john@example.com"
-                    },
-                    "user_role": {
-                      "type": "string",
-                      "example": "buyer"
-                    },
-                    "user_phone": {
-                      "type": "string",
-                      "example": "081234567890"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Request tidak valid.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "error"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Data yang dimasukkan tidak valid."
+                      "example": "Registrasi berhasil. Kode OTP telah dikirim ke email Anda."
                     }
                   }
                 }
@@ -289,19 +271,195 @@
             }
           },
           "500": {
-            "description": "Terjadi kesalahan pada server.",
+            "description": "Gagal mendaftarkan user",
             "content": {
               "application/json": {
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "status": {
+                    "error": {
                       "type": "string",
-                      "example": "error"
+                      "example": "Gagal mendaftarkan user."
                     },
+                    "detail": {
+                      "type": "string",
+                      "example": "Error detail here"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/verify-otp": {
+      "post": {
+        "summary": "Verifikasi OTP",
+        "tags": ["Auth"],
+        "description": "Verifikasi OTP yang dikirimkan ke email pengguna untuk aktivasi akun.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                  },
+                  "otp_code": {
+                    "type": "string",
+                    "example": "123456"
+                  }
+                },
+                "required": ["user_email", "otp_code"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verifikasi OTP berhasil.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
                     "message": {
                       "type": "string",
-                      "example": "Internal server error."
+                      "example": "Verifikasi berhasil."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Kode OTP salah atau sudah kedaluwarsa.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Kode OTP salah atau sudah kedaluwarsa."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pengguna tidak ditemukan.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Pengguna tidak ditemukan."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Terjadi kesalahan saat verifikasi OTP.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Terjadi kesalahan saat verifikasi OTP."
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Error detail here"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/resend-otp": {
+      "post": {
+        "summary": "Resend OTP",
+        "description": "Mengirim ulang kode OTP ke email pengguna yang terdaftar jika kode OTP sebelumnya tidak diterima atau sudah kedaluwarsa.",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                  }
+                },
+                "required": ["user_email"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP berhasil dikirim ulang.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Kode OTP baru telah dikirim ke email Anda."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email tidak terdaftar atau pengguna belum mendaftar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Email tidak terdaftar atau pengguna belum mendaftar."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Terjadi kesalahan saat mengirim OTP.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Terjadi kesalahan saat mengirim OTP."
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Error detail here"
                     }
                   }
                 }
@@ -498,6 +656,11 @@
         "summary": "Get All Users",
         "description": "Menampilkan semua data pengguna.",
         "tags": ["User"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "responses": {
           "200": {
             "description": "Menampilkan semua pengguna",
@@ -553,21 +716,14 @@
         }
       }
     },
-    "/api/v1/user/get-user/{id}": {
+    "/api/v1/user/get-user": {
       "get": {
         "summary": "Get User by ID",
-        "description": "Menampilkan data pengguna berdasarkan ID.",
+        "description": "Mengambil data pengguna berdasarkan ID yang ada di dalam JWT.",
         "tags": ["User"],
-        "parameters": [
+        "security": [
           {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "12345"
-            },
-            "description": "ID pengguna yang akan ditampilkan"
+            "BearerAuth": []
           }
         ],
         "responses": {
@@ -578,21 +734,30 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "user_id": {
+                    "message": {
                       "type": "string",
-                      "example": "12345"
+                      "example": "Pengguna ditemukan"
                     },
-                    "user_name": {
-                      "type": "string",
-                      "example": "John Doe"
-                    },
-                    "user_email": {
-                      "type": "string",
-                      "example": "john.doe@example.com"
-                    },
-                    "user_phone": {
-                      "type": "string",
-                      "example": "+6281234567890"
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user_id": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "user_name": {
+                          "type": "string",
+                          "example": "John Doe"
+                        },
+                        "user_email": {
+                          "type": "string",
+                          "example": "john.doe@example.com"
+                        },
+                        "user_phone": {
+                          "type": "string",
+                          "example": "+6281234567890"
+                        }
+                      }
                     }
                   }
                 }
@@ -606,13 +771,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "error"
-                    },
                     "message": {
                       "type": "string",
-                      "example": "Pengguna dengan ID tersebut tidak ditemukan."
+                      "example": "Pengguna tidak ditemukan"
                     }
                   }
                 }
@@ -626,13 +787,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "error"
-                    },
                     "message": {
                       "type": "string",
-                      "example": "Internal server error."
+                      "example": "Gagal mengambil data pengguna"
                     }
                   }
                 }
@@ -642,21 +799,14 @@
         }
       }
     },
-    "/api/v1/user/update-user/{id}": {
+    "/api/v1/user/update-user": {
       "put": {
         "summary": "Update User",
-        "description": "Melakukan pembaruan data pengguna berdasarkan ID.",
+        "description": "Memperbarui data pengguna berdasarkan user_id yang ada di JWT.",
         "tags": ["User"],
-        "parameters": [
+        "security": [
           {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "12345"
-            },
-            "description": "ID pengguna yang akan diperbarui"
+            "BearerAuth": []
           }
         ],
         "requestBody": {
@@ -670,10 +820,6 @@
                     "type": "string",
                     "example": "John Doe"
                   },
-                  "user_password": {
-                    "type": "string",
-                    "example": "password123"
-                  },
                   "user_email": {
                     "type": "string",
                     "example": "john.doe@example.com"
@@ -681,6 +827,10 @@
                   "user_phone": {
                     "type": "string",
                     "example": "+6281234567890"
+                  },
+                  "user_password": {
+                    "type": "string",
+                    "example": "newpassword123"
                   }
                 }
               }
@@ -695,13 +845,30 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
                     "message": {
                       "type": "string",
-                      "example": "Pengguna berhasil diperbarui."
+                      "example": "User berhasil diperbarui"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user_id": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "user_name": {
+                          "type": "string",
+                          "example": "John Doe"
+                        },
+                        "user_email": {
+                          "type": "string",
+                          "example": "john.doe@example.com"
+                        },
+                        "user_phone": {
+                          "type": "string",
+                          "example": "+6281234567890"
+                        }
+                      }
                     }
                   }
                 }
@@ -715,33 +882,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "error"
-                    },
                     "message": {
                       "type": "string",
-                      "example": "Data tidak valid atau tidak lengkap."
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "Pengguna tidak ditemukan",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "error"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Pengguna dengan ID tersebut tidak ditemukan."
+                      "example": "Data tidak valid"
                     }
                   }
                 }
@@ -755,13 +898,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "error"
-                    },
                     "message": {
                       "type": "string",
-                      "example": "Internal server error."
+                      "example": "Gagal memperbarui user"
                     }
                   }
                 }
@@ -771,21 +910,14 @@
         }
       }
     },
-    "/api/v1/user/delete-user/{id}": {
+    "/api/v1/user/delete-user": {
       "delete": {
         "summary": "Delete User",
-        "description": "Menghapus pengguna berdasarkan ID.",
+        "description": "Menghapus pengguna berdasarkan user_id yang ada di JWT.",
         "tags": ["User"],
-        "parameters": [
+        "security": [
           {
-            "in": "path",
-            "name": "id",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "12345"
-            },
-            "description": "ID pengguna yang akan dihapus"
+            "BearerAuth": []
           }
         ],
         "responses": {
@@ -796,13 +928,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "success"
-                    },
                     "message": {
                       "type": "string",
-                      "example": "Pengguna berhasil dihapus."
+                      "example": "User berhasil dihapus"
                     }
                   }
                 }
@@ -816,13 +944,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "error"
-                    },
                     "message": {
                       "type": "string",
-                      "example": "Pengguna dengan ID tersebut tidak ditemukan."
+                      "example": "Pengguna tidak ditemukan"
                     }
                   }
                 }
@@ -836,13 +960,9 @@
                 "schema": {
                   "type": "object",
                   "properties": {
-                    "status": {
-                      "type": "string",
-                      "example": "error"
-                    },
                     "message": {
                       "type": "string",
-                      "example": "Internal server error."
+                      "example": "Gagal menghapus user"
                     }
                   }
                 }

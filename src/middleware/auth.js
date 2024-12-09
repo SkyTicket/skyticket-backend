@@ -1,38 +1,33 @@
 const jwt = require("jsonwebtoken");
+const { PrismaClient } = require("@prisma/client");
+const prisma = new PrismaClient();
 const SECRET_KEY = process.env.JWT_SECRET;
 
-function authMiddleware(req, res, next) {
-  const authHeader = req.headers.authorization;
+class AuthMiddleware {
+  static async authenticateUser(req, res, next) {
+    const token = req.headers.authorization?.split(" ")[1];
 
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    return res
-      .status(401)
-      .json({ message: "Token tidak ditemukan atau tidak valid." });
-  }
-
-  const token = authHeader.split(" ")[1];
-
-  try {
-    const decoded = jwt.verify(token, SECRET_KEY);
-    req.user = decoded;
-    next();
-  } catch (error) {
-    res.status(403).json({ message: "Token tidak valid." });
-  }
-}
-
-function authorizeRoles(roles) {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return res
-        .status(403)
-        .json({ message: "Akses ditolak. Anda tidak memiliki izin." });
+    if (!token) {
+      return res.status(401).json({ message: "Token diperlukan untuk akses." });
     }
-    next();
-  };
+
+    try {
+      const decoded = jwt.verify(token, SECRET_KEY);
+
+      const user = await prisma.users.findUnique({
+        where: { user_id: decoded.userID },
+      });
+
+      if (!user) {
+        return res.status(401).json({ message: "User tidak ditemukan." });
+      }
+
+      req.user = user;
+      next();
+    } catch (error) {
+      return res.status(401).json({ message: "Token tidak valid.", error });
+    }
+  }
 }
 
-module.exports = {
-  authMiddleware,
-  authorizeRoles,
-};
+module.exports = AuthMiddleware;
