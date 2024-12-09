@@ -12,8 +12,9 @@ const FlightsController = require("../controllers/flights/controllers/flights.co
 const SeatController = require("../controllers/orderTiket/seatControllers");
 const TiketController = require("../controllers/orderTiket/ticketControllers");
 const PaymentController = require("../controllers/orderTiket/transaksiControllers");
-const FavDestinationController = require('../controllers/favorite/fav.destination.controller');
+const FavDestinationController = require("../controllers/favorite/fav.destination.controller");
 
+//search & list tiket
 app.get("/", IndexController.index);
 
 //auth & reset password
@@ -64,16 +65,38 @@ app.delete(
 );
 
 //fav destination
-app.get("/api/v1/favorite-destination", FavDestinationController.favDestination);
+app.get(
+  "/api/v1/favorite-destination",
+  FavDestinationController.favDestination
+);
 
 //flight
 app.get("/api/v1/flights", FlightsController.searchFlights);
 app.get("/api/v1/airports", AirportsController.searchAirports);
-app.get("/api/v1/seat", SeatController.getDetailFlight);
 
-//ticket
-app.post("/ticket-order", TiketController.createTicketOrder);
-app.post("/create-payment", PaymentController.createPayment);
-app.post("/midtrans-notification", PaymentController.paymentNotification);
+app.get(
+  "/api/v1/flights/detail",
+  AuthMiddleware,
+  SeatController.getDetailFlight
+);
+
+//transaksi
+app.get("/api/v1/transaksi", AuthMiddleware, PaymentController.showTransaksi);
+app.get(
+  "/api/v1/transaksi/:userId",
+  AuthMiddleware,
+  PaymentController.showTransaksiByIdUser
+);
+app.post(
+  "/api/v1/ticket-order",
+  AuthMiddleware,
+  TiketController.createTicketOrder
+);
+app.post("/api/v1/payment", AuthMiddleware, PaymentController.createPayment);
+app.post(
+  "/api/v1/payment/notification",
+  AuthMiddleware,
+  PaymentController.paymentNotification
+);
 
 module.exports = app;

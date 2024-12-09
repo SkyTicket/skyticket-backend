@@ -3,7 +3,7 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
-const swaggerDocument = require("./docs/swagger.json"); // Ubah path sesuai lokasi file Swagger Anda
+const swaggerDocument = require("./docs/swagger.json");
 require("./controllers/auth/oauth.controller");
 const session = require("express-session");
 // const authRoutes = require("./routes/authRoute");
@@ -32,12 +32,7 @@ app.use(
   })
 );
 
-// Routes (Tambahkan routes lainnya jika diperlukan)
 
-// app.use("/auth", authRoutes);
-// app.use("/password", passwordRoutes);
-// app.use("/user", userRoutes);
-// app.use("/api/v1", oauthRoutes);
 
 app.use(router);
 

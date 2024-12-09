@@ -22,7 +22,7 @@ CREATE TABLE "Users" (
     "user_name" TEXT NOT NULL,
     "user_email" TEXT NOT NULL,
     "user_password" TEXT NOT NULL,
-    "user_role" "UserRole" NOT NULL,
+    "user_role" "UserRole" NOT NULL DEFAULT 'buyer',
     "user_phone" TEXT NOT NULL,
 
     CONSTRAINT "Users_pkey" PRIMARY KEY ("user_id")
@@ -85,21 +85,12 @@ CREATE TABLE "Bookings" (
     "booking_date" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "booking_amount" DECIMAL(15,2) NOT NULL,
     "booking_code" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
     "tax" DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     "booking_payment_status" "PaymentStatus" NOT NULL,
     "booking_payment_method" TEXT,
 
     CONSTRAINT "Bookings_pkey" PRIMARY KEY ("booking_id")
-);
-
--- CreateTable
-CREATE TABLE "Booking_details" (
-    "booking_detail_id" TEXT NOT NULL,
-    "booking_id" TEXT NOT NULL,
-    "ticket_id" TEXT NOT NULL,
-    "transaction_detail_quantity" INTEGER NOT NULL,
-
-    CONSTRAINT "Booking_details_pkey" PRIMARY KEY ("booking_detail_id")
 );
 
 -- CreateTable
@@ -238,10 +229,7 @@ ALTER TABLE "Bookers" ADD CONSTRAINT "Bookers_user_id_fkey" FOREIGN KEY ("user_i
 ALTER TABLE "Passengers" ADD CONSTRAINT "Passengers_bookers_id_fkey" FOREIGN KEY ("bookers_id") REFERENCES "Bookers"("booker_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Booking_details" ADD CONSTRAINT "Booking_details_booking_id_fkey" FOREIGN KEY ("booking_id") REFERENCES "Bookings"("booking_id") ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE "Booking_details" ADD CONSTRAINT "Booking_details_ticket_id_fkey" FOREIGN KEY ("ticket_id") REFERENCES "Tickets"("ticket_id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Bookings" ADD CONSTRAINT "Bookings_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "Users"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Tickets" ADD CONSTRAINT "Tickets_passenger_id_fkey" FOREIGN KEY ("passenger_id") REFERENCES "Passengers"("passenger_id") ON DELETE RESTRICT ON UPDATE CASCADE;
