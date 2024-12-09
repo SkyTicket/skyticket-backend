@@ -20,9 +20,20 @@ model Users {
   user_password String
   user_role UserRole @default(buyer)
   user_phone String
+  user_is_active UserStatus @default(unverified) // Enum untuk status verifikasi
   Bookers Bookers[] // new
   notifications Notifications[]
   passwordResetTokens Password_reset_tokens[]
+  otps                 Otp[]                // Relasi ke tabel Otp
+}
+
+model Otp {
+  otp_id         String   @id @default(uuid()) // Primary Key
+  user_id        String   @unique              // Foreign Key
+  otp_code       String                         // OTP yang di-hash
+  otp_expires_at DateTime                      // Tanggal kedaluwarsa OTP
+  otp_is_used    Boolean  @default(false)      // Status OTP
+ user           Users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 }
 
 model Password_reset_tokens {
@@ -193,7 +204,7 @@ model Aircraft_seats {
 
 model TokenBlacklist {
   id String @id @default(uuid())
-  token String
+  token String  @unique
   createdAt DateTime @default(now())
   expiredAt DateTime
 
@@ -231,4 +242,9 @@ enum SeatClass {
   PremiumEconomy
   Business
   FirstClass
+}
+
+enum UserStatus {
+  unverified
+  verified
 }
