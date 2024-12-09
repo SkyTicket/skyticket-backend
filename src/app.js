@@ -11,6 +11,7 @@ const session = require("express-session");
 // const userRoutes = require("./routes/user.route");
 // const oauthRoutes = require("./routes/oauth.route");
 require("./services/removeJwt");
+const favDestinationRoutes = require("./routes/fav.destination.routes");
 
 const PORT = 3000;
 const router = require("./routes/route");
@@ -33,10 +34,12 @@ app.use(
 );
 
 // Routes (Tambahkan routes lainnya jika diperlukan)
+
 // app.use("/auth", authRoutes);
 // app.use("/password", passwordRoutes);
 // app.use("/user", userRoutes);
 // app.use("/api/v1", oauthRoutes);
+
 app.use(router);
 
 app.use(function (req, res, next) {
