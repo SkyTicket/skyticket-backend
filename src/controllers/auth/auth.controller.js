@@ -15,7 +15,7 @@ class AuthController {
       });
 
       if (!user) {
-        return res.status(404).json({ message: "Email tidak ditemukan." });
+        return res.status(404).json({ message: "Email atau Password salah." });
       }
 
       if (user.user_is_active === "unverified") {
