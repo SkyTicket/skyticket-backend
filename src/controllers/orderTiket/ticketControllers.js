@@ -69,10 +69,10 @@ class TicketController {
       }
 
       const totalPrice = seatData.reduce(
-        (total, seat) => total + parseInt(seat.flight_seat_class.seat_class_price),
+        (total, seat) =>
+          total + parseInt(seat.flight_seat_class.seat_class_price),
         0
       );
-     
 
       const tax = 0.11 * totalPrice;
 

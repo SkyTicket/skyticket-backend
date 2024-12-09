@@ -6,6 +6,10 @@ const prisma = new PrismaClient();
 const MIDTRANS_API_URL =
   "https://app.sandbox.midtrans.com/snap/v1/transactions";
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
+function calculateTotalPrice(booking) {
+  // Pastikan booking_amount adalah integer
+  return Math.floor(booking.booking_amount); // Atau gunakan Math.round() jika perlu
+}
 
 class PaymentController {
   static async showTransaksi(req, res) {
@@ -116,8 +120,8 @@ class PaymentController {
 
   static async createPayment(req, res) {
     try {
-      const { bookingId, totalPrice, userId } = req.body;
-      if (!bookingId || !totalPrice || !userId) {
+      const { bookingId, userId } = req.body;
+      if (!bookingId || !userId) {
         return res.status(400).json({ error: "lengkapi fields" });
       }
       const booking = await prisma.bookings.findUnique({
@@ -139,6 +143,8 @@ class PaymentController {
             "Detail pengguna tidak lengkap. Nama, email, dan telepon wajib diisi",
         });
       }
+      const totalPrice = calculateTotalPrice(booking);
+
       const snapPayload = {
         transaction_details: {
           order_id: booking.booking_code,
@@ -167,6 +173,7 @@ class PaymentController {
       });
       const redirectUrl = response.data.redirect_url;
       const token = response.data.token;
+
       await prisma.bookings.update({
         where: { booking_id: bookingId },
         data: {

@@ -571,7 +571,7 @@
                       "properties": {
                         "title": {
                           "type": "string",
-                          "example": "Mr."
+                          "example": "Mr"
                         },
                         "name": {
                           "type": "string",
@@ -1136,18 +1136,13 @@
                     "example": "5bb68854-a9db-4909-af7f-dfb72d76858f",
                     "description": "ID pemesanan yang akan dibayar"
                   },
-                  "totalPrice": {
-                    "type": "string",
-                    "example": "11100.00",
-                    "description": "Total harga yang harus dibayar"
-                  },
                   "userId": {
                     "type": "string",
                     "example": "fae5e2e7-264c-490d-9896-df3bea9920b5",
                     "description": "ID pengguna yang melakukan pembayaran"
                   }
                 },
-                "required": ["bookingId", "totalPrice", "userId"]
+                "required": ["bookingId", "userId"]
               }
             }
           }
@@ -1163,6 +1158,10 @@
                     "message": {
                       "type": "string",
                       "example": "Berhasil membuat pembayaran"
+                    },
+                    "token": {
+                      "type": "string",
+                      "example": "1ee4c66a-ae6f-4a2c-9310-f76c8cf2f8f6"
                     },
                     "redirect_url": {
                       "type": "string",
@@ -1280,7 +1279,7 @@
                   "order_id": {
                     "type": "string",
                     "description": "ID pemesanan yang terkait dengan notifikasi",
-                    "example": "04898891-d202-4285-b3d3-8e9ce1ae9b31"
+                    "example": "08c7d800"
                   },
                   "transaction_status": {
                     "type": "string",
