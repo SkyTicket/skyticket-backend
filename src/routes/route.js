@@ -12,6 +12,7 @@ const FlightsController = require("../controllers/flights/controllers/flights.co
 const SeatController = require("../controllers/orderTiket/seatControllers");
 const TiketController = require("../controllers/orderTiket/ticketControllers");
 const PaymentController = require("../controllers/orderTiket/transaksiControllers");
+const FavDestinationController = require('../controllers/favorite/fav.destination.controller');
 
 app.get("/", IndexController.index);
 
@@ -61,6 +62,9 @@ app.delete(
   AuthMiddleware.authenticateUser,
   UserController.deleteUser
 );
+
+//fav destination
+app.get("/api/v1/favorite-destination", FavDestinationController.favDestination);
 
 //flight
 app.get("/api/v1/flights", FlightsController.searchFlights);
