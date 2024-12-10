@@ -8,8 +8,7 @@ const MIDTRANS_API_URL =
   "https://app.sandbox.midtrans.com/snap/v1/transactions";
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 function calculateTotalPrice(booking) {
-  // Pastikan booking_amount adalah integer
-  return Math.floor(booking.booking_amount); // Atau gunakan Math.round() jika perlu
+  return Math.floor(booking.booking_amount); 
 }
 
 class PaymentController {
@@ -76,7 +75,7 @@ class PaymentController {
       const decoded = jwt.verify(authToken, process.env.JWT_SECRET);
       console.log(decoded);
       const userId = decoded.userID;
-      
+
       if (!userId) {
         return res.status(400).json({
           statusCode: 400,
@@ -175,7 +174,7 @@ class PaymentController {
         });
       }
       const totalPrice = calculateTotalPrice(booking);
-
+      console.log("Total Price:", totalPrice)
       const snapPayload = {
         transaction_details: {
           order_id: booking.booking_code,
