@@ -1609,8 +1609,8 @@
                         },
                         "dateOfBirth": {
                           "type": "string",
-                          "format": "date-time",
-                          "example": "1990-01-01T00:00:00.000Z"
+                          "format": "date",
+                          "example": "01-01-1990"
                         },
                         "nationality": {
                           "type": "string",
@@ -1623,11 +1623,6 @@
                         "issuingCountry": {
                           "type": "string",
                           "example": "ID"
-                        },
-                        "dateOfBirth": {
-                          "type": "string",
-                          "format": "date",
-                          "example": "01-01-1990"
                         }
                       }
                     }
