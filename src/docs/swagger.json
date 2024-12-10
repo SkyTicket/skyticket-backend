@@ -7,12 +7,14 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000",
-      "description": "Local Environment"
+      "url": "http://34.101.115.143:3000",
+      "description": "Staging Environment (HTTP/No SSL)"
     },
     {
       "url": "https://34.101.115.143",
-      "description": "Staging Environment"
+      "description": "Staging Environment",
+
+      "description": "Staging Environment (HTTPS/With SSL)"
     }
   ],
   "paths": {
