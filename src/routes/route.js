@@ -73,7 +73,6 @@ app.get(
 //flight
 app.get("/api/v1/flights", FlightsController.searchFlights);
 app.get("/api/v1/airports", AirportsController.searchAirports);
-
 app.get(
   "/api/v1/flights/detail",
   AuthMiddleware.authenticateUser,
