@@ -54,13 +54,9 @@ class TicketController {
 
     const bookingCode = crypto.randomBytes(4).toString("hex");
     try {
-      seats = seats.map((seat) => ({
-        ...seat,
-        id: parseInt(seat.id, 10),
-      }));
       const seatData = await prisma.flight_seat_assignments.findMany({
         where: {
-          id: { in: seats.map((seat) => seat.id) },
+          id: { in: seats.map((seat) => parseInt(seat.id, 10)) },
           available: true,
         },
         select: {
