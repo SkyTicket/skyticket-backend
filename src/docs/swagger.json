@@ -1583,7 +1583,7 @@
                       "type": "object",
                       "properties": {
                         "id": {
-                          "type": "string",
+                          "type": "integer",
                           "example": "1"
                         }
                       }
@@ -1596,6 +1596,7 @@
                       "properties": {
                         "title": {
                           "type": "string",
+                          "enum": ["Mr", "Mrs"],
                           "example": "Mr"
                         },
                         "name": {
@@ -1608,8 +1609,8 @@
                         },
                         "dateOfBirth": {
                           "type": "string",
-                          "format": "date",
-                          "example": "1990-01-01"
+                          "format": "date-time",
+                          "example": "1990-01-01T00:00:00.000Z"
                         },
                         "nationality": {
                           "type": "string",
@@ -1623,10 +1624,10 @@
                           "type": "string",
                           "example": "ID"
                         },
-                        "validUntil": {
+                        "dateOfBirth": {
                           "type": "string",
                           "format": "date",
-                          "example": "2030-01-01"
+                          "example": "01-01-1990"
                         }
                       }
                     }
@@ -1685,7 +1686,7 @@
                             "example": "5bb68854-a9db-4909-af7f-dfb72d76858f"
                           },
                           "flight_seat_assigment_id": {
-                            "type": "string",
+                            "type": "integer",
                             "example": "1"
                           },
                           "passenger_id": {
