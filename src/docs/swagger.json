@@ -12,8 +12,6 @@
     },
     {
       "url": "https://34.101.115.143",
-      "description": "Staging Environment",
-
       "description": "Staging Environment (HTTPS/With SSL)"
     }
   ],
