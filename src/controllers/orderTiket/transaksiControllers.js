@@ -2,6 +2,7 @@ require("dotenv").config();
 const axios = require("axios");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
+const jwt = require("jsonwebtoken");
 
 const MIDTRANS_API_URL =
   "https://app.sandbox.midtrans.com/snap/v1/transactions";
@@ -60,9 +61,22 @@ class PaymentController {
     }
   }
   static async showTransaksiByIdUser(req, res) {
-    const { userId } = req.params;
-
+    // const { userId } = req.params;
     try {
+      const authToken = req.headers.authorization?.split(" ")[1];
+
+      if (!authToken) {
+        return res.status(401).json({
+          statusCode: 401,
+          status: "Failed",
+          message: "Token tidak ditemukan",
+          data: [],
+        });
+      }
+      const decoded = jwt.verify(authToken, process.env.JWT_SECRET);
+      console.log(decoded);
+      const userId = decoded.userID;
+      
       if (!userId) {
         return res.status(400).json({
           statusCode: 400,
@@ -120,8 +134,20 @@ class PaymentController {
 
   static async createPayment(req, res) {
     try {
-      const { bookingId, userId } = req.body;
-      if (!bookingId || !userId) {
+      const { bookingId } = req.body;
+
+      const authToken = req.headers.authorization?.split(" ")[1];
+
+      if (!authToken) {
+        return res.status(401).json({
+          statusCode: 401,
+          status: "Failed",
+          message: "Token tidak ditemukan",
+          data: [],
+        });
+      }
+
+      if (!bookingId) {
         return res.status(400).json({ error: "lengkapi fields" });
       }
       const booking = await prisma.bookings.findUnique({
@@ -130,6 +156,11 @@ class PaymentController {
       if (!booking) {
         return res.status(404).json({ error: "id booking tidak ada" });
       }
+
+      const decoded = jwt.verify(authToken, process.env.JWT_SECRET);
+      console.log(decoded);
+      const userId = decoded.userID;
+
       const user = await prisma.users.findUnique({
         where: { user_id: userId },
       });

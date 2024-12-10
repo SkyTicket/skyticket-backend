@@ -1,6 +1,8 @@
+require("dotenv").config();
 const { PrismaClient } = require("@prisma/client");
 const crypto = require("crypto");
 const prisma = new PrismaClient();
+const jwt = require("jsonwebtoken");
 
 class TicketController {
   static getCategoryByAge(dateOfBirth) {
@@ -23,9 +25,19 @@ class TicketController {
   }
 
   static async createTicketOrder(req, res) {
-    const { seats, passengers, userId, bookerName, bookerEmail, bookerPhone } =
+    const { seats, passengers, bookerName, bookerEmail, bookerPhone } =
       req.body;
 
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({
+        statusCode: 401,
+        status: "Failed",
+        message: "Token tidak ditemukan",
+        data: [],
+      });
+    }
     if (
       !seats ||
       !passengers ||
@@ -75,8 +87,20 @@ class TicketController {
       );
 
       const tax = 0.11 * totalPrice;
-      const decoded = jwt.verify(token, process.env.JWT_SECRET); 
-      const userId = decoded.userId;
+
+      // Dekode token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      console.log(decoded);
+      const userId = decoded.userID;
+
+      if (!userId) {
+        return res.status(401).json({
+          statusCode: 401,
+          status: "Failed",
+          message: "User  ID tidak ditemukan dalam token.",
+          data: [],
+        });
+      }
       const transaction = await prisma.bookings.create({
         data: {
           booking_code: bookingCode,

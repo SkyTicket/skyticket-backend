@@ -12,8 +12,6 @@
     },
     {
       "url": "https://34.101.115.143",
-      "description": "Staging Environment",
-
       "description": "Staging Environment (HTTPS/With SSL)"
     }
   ],
@@ -1633,10 +1631,6 @@
                       }
                     }
                   },
-                  "userId": {
-                    "type": "string",
-                    "example": "fae5e2e7-264c-490d-9896-df3bea9920b5"
-                  },
                   "bookerName": {
                     "type": "string",
                     "example": "Jane Doe"
@@ -1653,7 +1647,6 @@
                 "required": [
                   "seats",
                   "passengers",
-                  "userId",
                   "bookerName",
                   "bookerEmail",
                   "bookerPhone"
@@ -1968,7 +1961,7 @@
         }
       }
     },
-    "/api/v1/transaksi/{userId}": {
+    "/api/v1/transaksi/user": {
       "get": {
         "tags": ["Transaction"],
         "summary": "Mengambil transaksi berdasarkan ID pengguna",
@@ -1978,17 +1971,6 @@
           }
         ],
         "operationId": "showTransaksiByIdUser ",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "description": "ID pengguna untuk mengambil transaksi",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Menampilkan list transaksi",
@@ -1998,9 +1980,8 @@
                   "type": "object",
                   "statusCode": 200,
                   "status": "success",
-                  "message": "Transaction details retrieved successfully",
+                  "message": "Successfully retrieved transactions",
                   "data": {
-                    "transactionId": "TX123456",
                     "booking_id": "5bb68854-a9db-4909-af7f-dfb72d76858f",
                     "booking_date": "2024-12-08T08:09:03.726Z",
                     "booking_amount": "166.5",
@@ -2008,7 +1989,16 @@
                     "user_id": "fae5e2e7-264c-490d-9896-df3bea9920b5",
                     "tax": "16.5",
                     "booking_payment_status": "Unpaid",
-                    "booking_payment_method": "Midtrans"
+                    "booking_payment_method": "Midtrans",
+                    "tickets": [
+                      {
+                        "ticket_id": "0280aa10-7274-49b2-82cc-2f8a13c65bdc",
+                        "booking_id": "3b9b170b-5842-48f1-879a-d7cca4a6da93",
+                        "passenger_id": "0a258423-bef1-4d92-aae5-f196aa5ed835",
+                        "flight_seat_assigment_id": 5,
+                        "category": "Adult"
+                      }
+                    ]
                   }
                 }
               }
@@ -2150,14 +2140,9 @@
                     "type": "string",
                     "example": "5bb68854-a9db-4909-af7f-dfb72d76858f",
                     "description": "ID pemesanan yang akan dibayar"
-                  },
-                  "userId": {
-                    "type": "string",
-                    "example": "fae5e2e7-264c-490d-9896-df3bea9920b5",
-                    "description": "ID pengguna yang melakukan pembayaran"
                   }
                 },
-                "required": ["bookingId", "userId"]
+                "required": ["bookingId"]
               }
             }
           }
