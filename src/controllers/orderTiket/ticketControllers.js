@@ -75,7 +75,8 @@ class TicketController {
       );
 
       const tax = 0.11 * totalPrice;
-
+      const decoded = jwt.verify(token, process.env.JWT_SECRET); 
+      const userId = decoded.userId;
       const transaction = await prisma.bookings.create({
         data: {
           booking_code: bookingCode,
