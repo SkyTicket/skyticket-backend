@@ -87,7 +87,7 @@ app.get(
   PaymentController.showTransaksi
 );
 app.get(
-  "/api/v1/transaksi/:userId",
+  "/api/v1/transaksi/user",
   AuthMiddleware.authenticateUser,
   PaymentController.showTransaksiByIdUser
 );

@@ -1633,10 +1633,6 @@
                       }
                     }
                   },
-                  "userId": {
-                    "type": "string",
-                    "example": "fae5e2e7-264c-490d-9896-df3bea9920b5"
-                  },
                   "bookerName": {
                     "type": "string",
                     "example": "Jane Doe"
@@ -1968,7 +1964,7 @@
         }
       }
     },
-    "/api/v1/transaksi/{userId}": {
+    "/api/v1/transaksi/user": {
       "get": {
         "tags": ["Transaction"],
         "summary": "Mengambil transaksi berdasarkan ID pengguna",
@@ -1978,17 +1974,6 @@
           }
         ],
         "operationId": "showTransaksiByIdUser ",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "description": "ID pengguna untuk mengambil transaksi",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
         "responses": {
           "200": {
             "description": "Menampilkan list transaksi",
@@ -2150,11 +2135,6 @@
                     "type": "string",
                     "example": "5bb68854-a9db-4909-af7f-dfb72d76858f",
                     "description": "ID pemesanan yang akan dibayar"
-                  },
-                  "userId": {
-                    "type": "string",
-                    "example": "fae5e2e7-264c-490d-9896-df3bea9920b5",
-                    "description": "ID pengguna yang melakukan pembayaran"
                   }
                 },
                 "required": ["bookingId", "userId"]
