@@ -5,19 +5,22 @@ async function countBookedSeats(flightIds) {
   let bookedSeatsOnFlightsBySeatClassCount = [];
 
   for (let i = 0; i <= flightIds.length - 1; i++) {
-    const tickets = await prisma.tickets.count({
+    const bookedSeats = await prisma.flight_seat_assignments.count({
       where: {
-        flight_seat_assigment: {
-          flight_seat_class: {
-            flight: {
-              flight_id: flightIds[i], 
-            },
+        AND: [
+          {
+            flight_seat_class: {
+              flight_id: flightIds[i]
+            }
           },
-        },
+          {
+            available: false
+          }
+        ]
       },
     });
 
-    bookedSeatsOnFlightsBySeatClassCount.push(tickets);
+    bookedSeatsOnFlightsBySeatClassCount.push(bookedSeats);
   }
 
   return bookedSeatsOnFlightsBySeatClassCount;
