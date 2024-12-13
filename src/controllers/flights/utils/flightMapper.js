@@ -33,6 +33,11 @@ class FlightDataMapper {
                     airline_name_and_class: `${flight.airline.airline_name} - ${findBySeatClassType.seat_class.seat_class_type}`,
                     flight_number: `${flight.airline.airline_code} - ${flight.flight_number}`,
                     airline_logo: flight.airline.Airline_logo,
+                    facilities: {
+                        baggage: 'Baggage 20 kg',
+                        cabin_baggage: 'Cabin baggage 7 kg',
+                        ife: 'In Flight Entertainment',
+                    },
                     arrival_time: DateTimeUtils.formatHoursByTimezone(flight.flight_arrival_date, flight.arrival_airport.airport_time_zone),
                     arrival_date: DateTimeUtils.formatDateByTimezone(flight.flight_arrival_date, flight.arrival_airport.airport_time_zone),
                     arrival_airport_name: flight.arrival_airport.airport_name,
