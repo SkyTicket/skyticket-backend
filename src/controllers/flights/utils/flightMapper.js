@@ -27,6 +27,7 @@ class FlightDataMapper {
                 arrival_airport: flight.arrival_airport.airport_code,
                 arrival_time: DateTimeUtils.formatHoursByTimezone(flight.flight_arrival_date, flight.arrival_airport.airport_time_zone),
                 flight_details: {
+                    departure_and_arrival_city: `${flight.departure_airport.airport_city} → ${flight.arrival_airport.airport_city}`,
                     departure_time: DateTimeUtils.formatHoursByTimezone(flight.flight_departure_date, flight.departure_airport.airport_time_zone),
                     departure_date: DateTimeUtils.formatDateByTimezone(flight.flight_departure_date, flight.departure_airport.airport_time_zone),
                     departure_airport_name: flight.departure_airport.airport_name,
