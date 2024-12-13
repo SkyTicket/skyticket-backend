@@ -215,7 +215,7 @@ class favDestination {
                     price: flight.flight_price ? Currency.format(flight.flight_price) : null,
                     promo: flight.promo || null,
                     city_image: flight.arrival_airport.airport_city_image || "default-image.jpg",
-                    url: `${req.protocol}://${req.get('host')}/api/v1/flights?sort_by=lowest_price&departure_airport=${flight.departure_airport}&arrival_airport=${flight.arrival_airport}&is_round_trip=false&flight_departure_date=${(flight.flight_departure_date).toISOString()}&seat_class_type=economy&total_adult_passengers=1`,
+                    url: `${req.protocol}://${req.get('host')}/api/v1/flights?departure_airport=${flight.departure_airport.airport_city}&arrival_airport=${flight.arrival_airport.airport_city}&is_round_trip=false&flight_departure_date=${(flight.flight_departure_date).toISOString()}&seat_class_type=economy&total_adult_passengers=1`,
                 }
             })
 
