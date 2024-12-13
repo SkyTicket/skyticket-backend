@@ -1,507 +1,2383 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-        "title": "API SkyTicket - BINAR KM7 Kelompok 7",
-        "version": "1.0.0",
-        "description": "API Back-End untuk Final Project BINAR Academy KM7"
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API SkyTicket - BINAR KM7 Kelompok 7",
+    "version": "1.0.0",
+    "description": "API Back-End untuk Final Project BINAR Academy KM7"
+  },
+  "servers": [
+    {
+      "url": "http://34.101.115.143:3000",
+      "description": "Staging Environment (HTTP/No SSL)"
     },
-    "servers": [
-        {
-            "url": "http://localhost:3000",
-            "description": "Local Environment"
-        },
-        {
-            "url": "http://34.101.158.185",
-            "description": "Staging Environment"
-        }
-    ],
-    "paths": {
-        "/api/v1/airports": {
-            "get": {
-                "tags": [
-                    "Flights"
-                ],
-                "summary": "Mencari bandara",
-                "description": "Endpoint ini digunakan untuk mencari daftar bandara berdasarkan negara atau kota yang selanjutnya digunakan sebagai input pencarian bandara asal dan tujuan. Jika tidak ada parameter pencarian, maka akan ditampilkan 5 bandara pertama secara default.",
-                "parameters": [
-                    {
-                        "name": "airport",
-                        "in": "query",
-                        "description": "Nama negara atau kota yang ingin dicari.",
-                        "required": false,
-                        "schema": {
-                            "type": "string",
-                            "example": "Indonesia"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Berhasil menampilkan daftar bandara.",
-                        "content": {
-                            "application/json": {
-                                "examples": {
-                                    "success": {
-                                        "summary": "Respons sukses",
-                                        "value": {
-                                            "status": "success",
-                                            "airports": [
-                                                {
-                                                    "airport": "CGK - Jakarta",
-                                                    "input_value": "CGK"
-                                                },
-                                                {
-                                                    "airport": "DPS - Bali",
-                                                    "input_value": "DPS"
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Negara atau kota tidak ditemukan.",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "status": "error",
-                                    "message": "Negara atau kota tidak ditemukan"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Kesalahan pada server",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "status": "error",
-                                    "message": "Internal server error"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/flights": {
-            "get": {
-                "tags": [
-                    "Flights"
-                ],
-                "summary": "Pencarian penerbangan",
-                "description": "Mencari dan mem-filter penerbangan berdasarkan bandara asal, bandara tujuan, tanggal, jumlah penumpang, dan parameter lainnya.",
-                "parameters": [
-                    {
-                        "name": "departure_airport",
-                        "in": "query",
-                        "required": true,
-                        "description": "Kode IATA (SUB, CGK, HLP, dll) bandara asal",
-                        "schema": {
-                            "type": "string",
-                            "default": "SUB"
-                        }
-                    },
-                    {
-                        "name": "arrival_airport",
-                        "in": "query",
-                        "required": true,
-                        "description": "Kode IATA (SUB, CGK, HLP, dll) bandara tujuan",
-                        "schema": {
-                            "type": "string",
-                            "default": "CGK"
-                        }
-                    },
-                    {
-                        "name": "flight_departure_date",
-                        "in": "query",
-                        "required": true,
-                        "description": "Tanggal keberangkatan (YYYY-MM-DD 00:00:00)",
-                        "schema": {
-                            "type": "string",
-                            "format": "date",
-                            "default": "2024-12-25 00:00:00"
-                        }
-                    },
-                    {
-                        "name": "returning_flight_departure_date",
-                        "in": "query",
-                        "required": false,
-                        "description": "Tanggal kedatangan (YYYY-MM-DD 00:00:00) jika round-trip",
-                        "schema": {
-                            "type": "string",
-                            "format": "date"
-                        }
-                    },
-                    {
-                        "name": "is_round_trip",
-                        "in": "query",
-                        "required": false,
-                        "description": "Apakah perjalanan round-trip (true atau false)",
-                        "schema": {
-                            "type": "boolean",
-                            "default": "false"
-                        }
-                    },
-                    {
-                        "name": "total_adult_passengers",
-                        "in": "query",
-                        "required": true,
-                        "description": "Jumlah penumpang dewasa",
-                        "schema": {
-                            "type": "integer",
-                            "minimum": 1,
-                            "default": 1
-                        }
-                    },
-                    {
-                        "name": "total_child_passengers",
-                        "in": "query",
-                        "required": false,
-                        "description": "Jumlah penumpang anak-anak",
-                        "schema": {
-                            "type": "integer",
-                            "minimum": 0
-                        }
-                    },
-                    {
-                        "name": "total_infant_passengers",
-                        "in": "query",
-                        "required": false,
-                        "description": "Jumlah penumpang bayi",
-                        "schema": {
-                            "type": "integer",
-                            "minimum": 0
-                        }
-                    },
-                    {
-                        "name": "seat_class_type",
-                        "in": "query",
-                        "required": true,
-                        "description": "Jenis kelas kursi (Economy, Business, First Class, Premium Economy)",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "Economy",
-                                "Business",
-                                "FirstClass",
-                                "PremiumEconomy"
-                            ],
-                            "default": "Economy"
-                        }
-                    },
-                    {
-                        "name": "sort_by",
-                        "in": "query",
-                        "required": false,
-                        "description": "Filter penerbangan berdasarkan harga, durasi, atau lainnya",
-                        "schema": {
-                            "enum": [
-                                "lowest_price",
-                                "shortest_duration",
-                                "earliest_departure",
-                                "latest_departure",
-                                "earliest_arrival",
-                                "latest_arrival"
-                            ],
-                            "default": "lowest_price"
-                        }
-                    },
-                    {
-                        "name": "page",
-                        "in": "query",
-                        "required": false,
-                        "description": "Halaman yang dituju",
-                        "schema": {
-                            "type": "integer",
-                            "default": 1
-                        }
-                    },
-                    {
-                        "name": "limit",
-                        "in": "query",
-                        "required": false,
-                        "description": "Jumlah hasil pencarian per halaman",
-                        "schema": {
-                            "type": "integer",
-                            "default": 5
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Menampilkan semua penerbangan beserta pagination dan URL penerbangan kepulangan (karena round-trip)",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "status": "success",
-                                    "message": "Berhasil menemukan penerbangan",
-                                    "passengers": {
-                                        "adult": 1,
-                                        "child": null,
-                                        "infant": null,
-                                        "total_no_infant": null,
-                                        "total": null
-                                    },
-                                    "flights": {
-                                        "flights_data": [
-                                            {
-                                                "flight_id": "261e0a2d-b44c-4098-afc0-031ad36aa153",
-                                                "flight_seat_class_capacity": 180,
-                                                "airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/LNI.png",
-                                                "airline_name_and_class": "Lion Air Indonesia - Economy",
-                                                "seat_class_price": {
-                                                    "raw": 1200000,
-                                                    "formatted": "IDR 1.200.000"
-                                                },
-                                                "departure_airport": "SUB",
-                                                "departure_time": "08.15",
-                                                "flight_duration": {
-                                                    "raw": 75,
-                                                    "formatted": "1h 15m"
-                                                },
-                                                "arrival_airport": "CGK",
-                                                "arrival_time": "09.30",
-                                                "flight_details": {
-                                                    "departure_time": "08.15",
-                                                    "departure_date": "25 Desember 2024",
-                                                    "departure_airport_name": "Bandara Internasional Juanda",
-                                                    "airline_name_and_class": "Lion Air Indonesia - Economy",
-                                                    "flight_number": "JT - 380",
-                                                    "airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/LNI.png",
-                                                    "arrival_time": "09.30",
-                                                    "arrival_date": "25 Desember 2024",
-                                                    "arrival_airport_name": "Bandara Internasional Soekarno-Hatta",
-                                                    "raw_departure_datetime": "2024-12-25T01:15:00.000Z",
-                                                    "raw_arrival_datetime": "2024-12-25T02:30:00.000Z"
-                                                },
-                                                "flight_seat_is_full": false
-                                            },
-                                            {
-                                                "flight_id": "3df97800-a11b-48b4-a2ee-f70df48ab126",
-                                                "flight_seat_class_capacity": 150,
-                                                "airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/GIA.png",
-                                                "airline_name_and_class": "Garuda Indonesia - Economy",
-                                                "seat_class_price": {
-                                                    "raw": 1500000,
-                                                    "formatted": "IDR 1.500.000"
-                                                },
-                                                "departure_airport": "SUB",
-                                                "departure_time": "07.00",
-                                                "flight_duration": {
-                                                    "raw": 80,
-                                                    "formatted": "1h 20m"
-                                                },
-                                                "arrival_airport": "CGK",
-                                                "arrival_time": "08.20",
-                                                "flight_details": {
-                                                    "departure_time": "07.00",
-                                                    "departure_date": "25 Desember 2024",
-                                                    "departure_airport_name": "Bandara Internasional Juanda",
-                                                    "airline_name_and_class": "Garuda Indonesia - Economy",
-                                                    "flight_number": "GA - 226",
-                                                    "airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/GIA.png",
-                                                    "arrival_time": "08.20",
-                                                    "arrival_date": "25 Desember 2024",
-                                                    "arrival_airport_name": "Bandara Internasional Soekarno-Hatta",
-                                                    "raw_departure_datetime": "2024-12-25T00:00:00.000Z",
-                                                    "raw_arrival_datetime": "2024-12-25T01:20:00.000Z"
-                                                },
-                                                "flight_seat_is_full": false
-                                            }
-                                        ],
-                                        "returning_flights_url": "http://localhost:3000/api/v1/flights?total_adult_passengers=1&seat_class_type=Economy&sort_by=lowest_price&show_returning_flights=false&flight_departure_date=2024-12-25%2000%3A00%3A00&departure_airport=CGK&arrival_airport=SUB&show_returning_flights=false",
-                                        "pagination": {
-                                            "current_page": 1,
-                                            "limit": 2,
-                                            "prev_url": null,
-                                            "next_url": "http://localhost:3000/api/v1/flights?departure_airport=SUB&arrival_airport=CGK&flight_departure_date=2024-12-25+00%3A00%3A00&is_round_trip=false&total_adult_passengers=1&seat_class_type=Economy&sort_by=lowest_price&show_returning_flights=false&page=2&limit=2"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Kesalahan validasi data yang dikirimkan oleh pengguna.",
-                        "content": {
-                            "application/json": {
-                                "examples": {
-                                    "invalidReturnDate": {
-                                        "summary": "Tanggal kepulangan lebih awal dari tanggal keberangkatan",
-                                        "value": {
-                                            "status": "error",
-                                            "messages": {
-                                                "line_1": "Tanggal kepulangan harus setelah tanggal keberangkatan"
-                                            }
-                                        }
-                                    },
-                                    "tooManyPassengers": {
-                                        "summary": "Jumlah penumpang melebihi batas maksimum",
-                                        "value": {
-                                            "status": "error",
-                                            "messages": {
-                                                "line_1": "Maksimal 7 penumpang (dewasa dan anak-anak)"
-                                            }
-                                        }
-                                    },
-                                    "infantExceedsAdults": {
-                                        "summary": "Jumlah bayi melebihi jumlah dewasa",
-                                        "value": {
-                                            "status": "error",
-                                            "messages": {
-                                                "line_1": "Jumlah penumpang bayi tidak boleh melebihi jumlah penumpang dewasa"
-                                            }
-                                        }
-                                    },
-                                    "noAdultPassengers": {
-                                        "summary": "Tidak ada penumpang dewasa",
-                                        "value": {
-                                            "status": "error",
-                                            "messages": {
-                                                "line_1": "Minimal 1 penumpang dewasa"
-                                            }
-                                        }
-                                    },
-                                    "missingReturningDate": {
-                                        "summary": "Tanggal penerbangan pulang belum diisi (untuk penerbangan PP)",
-                                        "value": {
-                                            "status": "error",
-                                            "messages": {
-                                                "line_1": "Tanggal penerbangan pulang belum diisi",
-                                                "line_2": "Mohon isi tanggal penerbangan pulang"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Tidak ada penerbangan yang memenuhi kriteria pencarian (search)",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "status": "error",
-                                    "messages": {
-                                        "line_1": "Maaf, pencarian Anda tidak ditemukan",
-                                        "line_2": "Coba cari perjalanan lainnya!"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "Penerbangan yang dicari penuh semua",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "status": "error",
-                                    "messages": {
-                                        "line_1": "Maaf, Tiket terjual habis!",
-                                        "line_2": "Coba cari perjalanan lainnya!"
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Kesalahan pada server",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "status": "error",
-                                    "message": "Internal server error"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/favorite-destination": {
-            "get": {
-                "tags": [
-                    "Favorite"
-                ],
-                "summary": "Menampilkan destinasi penerbangan favorit",
-                "description": "Menampilkan destinasi penerbangan favorit dengan memfilter berdasarkan continent dan paginasi",
-                "parameters": [
-                    {
-                        "in": "query",
-                        "name": "page",
-                        "description": "Nomor halaman",
-                        "required": "false",
-                        "schema": {
-                            "type": "integer",
-                            "example": 2
-                        }
-                    },
-                    {
-                        "in": "query",
-                        "name": "continent",
-                        "description": "Filter destinasi berdasarkan continent",
-                        "required": "false",
-                        "schema": {
-                            "type": "string",
-                            "example": "asia"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Berhasil menampilkan destinasi penerbangan favorit",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "content": {
-                                        "application/json": {
-                                            "example": {
-                                                "success": true,
-                                                "currentPage": 2,
-                                                "totalPages": 3,
-                                                "totalFlights": 11,
-                                                "limit": 5,
-                                                "data": {
-                                                    "route": "Chongqing -> Kediri",
-                                                    "airline": "Hainan Airlines",
-                                                    "travel_date": "21 - 22 Desember 2024",
-                                                    "price": "IDR 1.000.000",
-                                                    "promo": "50% OFF",
-                                                    "city_image": "d14.jpg"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "Data tidak ditemukan",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "success": false,
-                                    "message": "Data tidak ditemukan"
-                                }
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Gagal menampilkan destinasi favorit",
-                        "content": {
-                            "application/json": {
-                                "example": {
-                                    "message": "Kesalahan pada server"
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
+    {
+      "url": "https://34.101.115.143",
+      "description": "Staging Environment (HTTPS/With SSL)"
     }
+  ],
+  "paths": {
+    "/api/v1/auth/login": {
+      "post": {
+        "summary": "Login pengguna",
+        "description": "Melakukan login pengguna dengan email dan password. Jika akun belum diverifikasi, akan ada respon khusus.",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                  },
+                  "user_password": {
+                    "type": "string",
+                    "example": "password123"
+                  }
+                },
+                "required": ["email", "user_password"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login berhasil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Login berhasil."
+                    },
+                    "token": {
+                      "type": "string",
+                      "example": "jwt_token_here"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Akun belum diverifikasi. Harap verifikasi melalui OTP terlebih dahulu.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Akun belum diverifikasi. Harap verifikasi melalui OTP terlebih dahulu."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Password salah",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Password salah."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Email tidak ditemukan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Email tidak ditemukan."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Terjadi kesalahan saat login",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Terjadi kesalahan saat login."
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Error detail here"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "summary": "Logout",
+        "description": "Logout dan blacklist token JWT.",
+        "tags": ["Auth"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logout berhasil",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Logout berhasil. Token telah di-blacklist."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Token tidak valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Token tidak valid atau sudah kadaluarsa."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Kesalahan pada server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Internal server error."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "summary": "Registrasi pengguna",
+        "description": "Melakukan registrasi pengguna baru dengan email dan password. OTP akan dikirim untuk verifikasi.",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_name": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "user_email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                  },
+                  "user_password": {
+                    "type": "string",
+                    "example": "password123"
+                  },
+                  "user_phone": {
+                    "type": "string",
+                    "example": "+6281234567890"
+                  }
+                },
+                "required": [
+                  "user_name",
+                  "user_email",
+                  "user_password",
+                  "user_phone"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Registrasi berhasil, kode OTP telah dikirim ke email pengguna.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Registrasi berhasil. Kode OTP telah dikirim ke email Anda."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Gagal mendaftarkan user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Gagal mendaftarkan user."
+                    },
+                    "detail": {
+                      "type": "string",
+                      "example": "Error detail here"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/api/v1/auth/verify-otp": {
+      "post": {
+        "summary": "Verifikasi OTP",
+        "tags": ["Auth"],
+        "description": "Verifikasi OTP yang dikirimkan ke email pengguna untuk aktivasi akun.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                  },
+                  "otp_code": {
+                    "type": "string",
+                    "example": "123456"
+                  }
+                },
+                "required": ["user_email", "otp_code"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Verifikasi OTP berhasil.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Verifikasi berhasil."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Kode OTP salah atau sudah kedaluwarsa.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Kode OTP salah atau sudah kedaluwarsa."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pengguna tidak ditemukan.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Pengguna tidak ditemukan."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Terjadi kesalahan saat verifikasi OTP.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Terjadi kesalahan saat verifikasi OTP."
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Error detail here"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/resend-otp": {
+      "post": {
+        "summary": "Resend OTP",
+        "description": "Mengirim ulang kode OTP ke email pengguna yang terdaftar jika kode OTP sebelumnya tidak diterima atau sudah kedaluwarsa.",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                  }
+                },
+                "required": ["user_email"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP berhasil dikirim ulang.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Kode OTP baru telah dikirim ke email Anda."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email tidak terdaftar atau pengguna belum mendaftar.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Email tidak terdaftar atau pengguna belum mendaftar."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Terjadi kesalahan saat mengirim OTP.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Terjadi kesalahan saat mengirim OTP."
+                    },
+                    "error": {
+                      "type": "string",
+                      "example": "Error detail here"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/forget-password": {
+      "post": {
+        "summary": "Lupa Password",
+        "description": "Mengirim link reset password ke email pengguna.",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "example": "user@example.com"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Link reset password berhasil dikirim",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Link reset password telah dikirim ke email."
+                    },
+                    "resetLink": {
+                      "type": "string",
+                      "example": "http://localhost:3000/password/reset-password?token=eyJhbGciOiJIUzI1NiIsIn..."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Email tidak ditemukan.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Email tidak terdaftar."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Kesalahan pada server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Internal server error."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/reset-password": {
+      "post": {
+        "summary": "Reset Password",
+        "description": "Reset password pengguna dengan token yang valid.",
+        "tags": ["Auth"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "token": {
+                    "type": "string",
+                    "example": "<reset_password_token>"
+                  },
+                  "password": {
+                    "type": "string",
+                    "example": "newPassword123"
+                  },
+                  "confirmPassword": {
+                    "type": "string",
+                    "example": "newPassword123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Password berhasil direset",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Password berhasil direset! Silakan login."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Password dan konfirmasi tidak cocok.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Password dan konfirmasi tidak cocok."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Kesalahan pada server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Internal server error."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/user/all-users": {
+      "get": {
+        "summary": "Get All Users",
+        "description": "Menampilkan semua data pengguna.",
+        "tags": ["User"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Menampilkan semua pengguna",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "user_id": {
+                        "type": "string",
+                        "example": "12345"
+                      },
+                      "user_name": {
+                        "type": "string",
+                        "example": "John Doe"
+                      },
+                      "user_email": {
+                        "type": "string",
+                        "example": "john.doe@example.com"
+                      },
+                      "user_phone": {
+                        "type": "string",
+                        "example": "+6281234567890"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Kesalahan pada server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Internal server error."
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/user/get-user": {
+      "get": {
+        "summary": "Get User by ID",
+        "description": "Mengambil data pengguna berdasarkan ID yang ada di dalam JWT.",
+        "tags": ["User"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Menampilkan pengguna berdasarkan ID",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Pengguna ditemukan"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user_id": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "user_name": {
+                          "type": "string",
+                          "example": "John Doe"
+                        },
+                        "user_email": {
+                          "type": "string",
+                          "example": "john.doe@example.com"
+                        },
+                        "user_phone": {
+                          "type": "string",
+                          "example": "+6281234567890"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pengguna tidak ditemukan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Pengguna tidak ditemukan"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Kesalahan pada server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Gagal mengambil data pengguna"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "/api/v1/user/update-user": {
+      "put": {
+        "summary": "Update User",
+        "description": "Memperbarui data pengguna berdasarkan user_id yang ada di JWT.",
+        "tags": ["User"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_name": {
+                    "type": "string",
+                    "example": "John Doe"
+                  },
+                  "user_email": {
+                    "type": "string",
+                    "example": "john.doe@example.com"
+                  },
+                  "user_phone": {
+                    "type": "string",
+                    "example": "+6281234567890"
+                  },
+                  "user_password": {
+                    "type": "string",
+                    "example": "newpassword123"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User berhasil diperbarui",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "User berhasil diperbarui"
+                    },
+                    "data": {
+                      "type": "object",
+                      "properties": {
+                        "user_id": {
+                          "type": "string",
+                          "example": "12345"
+                        },
+                        "user_name": {
+                          "type": "string",
+                          "example": "John Doe"
+                        },
+                        "user_email": {
+                          "type": "string",
+                          "example": "john.doe@example.com"
+                        },
+                        "user_phone": {
+                          "type": "string",
+                          "example": "+6281234567890"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request, data tidak valid",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Data tidak valid"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Kesalahan pada server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Gagal memperbarui user"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/user/delete-user": {
+      "delete": {
+        "summary": "Delete User",
+        "description": "Menghapus pengguna berdasarkan user_id yang ada di JWT.",
+        "tags": ["User"],
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "User berhasil dihapus",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "User berhasil dihapus"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pengguna tidak ditemukan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Pengguna tidak ditemukan"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Kesalahan pada server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Gagal menghapus user"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/favorite-destination": {
+      "get": {
+        "tags": ["Favorite"],
+        "summary": "Menampilkan destinasi penerbangan favorit",
+        "description": "Menampilkan destinasi penerbangan favorit dengan memfilter berdasarkan continent dan paginasi",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "description": "Nomor halaman",
+            "required": "false",
+            "schema": {
+              "type": "integer",
+              "example": 2
+            }
+          },
+          {
+            "in": "query",
+            "name": "continent",
+            "description": "Filter destinasi berdasarkan continent",
+            "required": "false",
+            "schema": {
+              "type": "string",
+              "example": "asia"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Berhasil menampilkan destinasi penerbangan favorit",
+            "content": {
+              "application/json": {
+                "example": {
+                  "content": {
+                    "application/json": {
+                      "example": {
+                        "success": true,
+                        "currentPage": 2,
+                        "totalPages": 3,
+                        "totalFlights": 11,
+                        "limit": 5,
+                        "data": {
+                          "route": "Chongqing -> Kediri",
+                          "airline": "Hainan Airlines",
+                          "travel_date": "21 - 22 Desember 2024",
+                          "price": "IDR 1.000.000",
+                          "promo": "50% OFF",
+                          "city_image": "d14.jpg"
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Data tidak ditemukan",
+            "content": {
+              "application/json": {
+                "example": {
+                  "success": false,
+                  "message": "Data tidak ditemukan"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Gagal menampilkan destinasi favorit",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Kesalahan pada server"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/airports": {
+      "get": {
+        "tags": ["Flights"],
+        "summary": "Mencari bandara",
+        "description": "Endpoint ini digunakan untuk mencari daftar bandara berdasarkan negara atau kota yang selanjutnya digunakan sebagai input pencarian bandara asal dan tujuan. Jika tidak ada parameter pencarian, maka akan ditampilkan 5 bandara pertama secara default.",
+        "parameters": [
+          {
+            "name": "airport",
+            "in": "query",
+            "description": "Nama negara atau kota yang ingin dicari.",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "example": "Indonesia"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Berhasil menampilkan daftar bandara.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "success": {
+                    "summary": "Respons sukses",
+                    "value": {
+                      "status": "success",
+                      "airports": [
+                        {
+                          "airport": "CGK - Jakarta",
+                          "input_value": "CGK"
+                        },
+                        {
+                          "airport": "DPS - Bali",
+                          "input_value": "DPS"
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Negara atau kota tidak ditemukan.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "message": "Negara atau kota tidak ditemukan"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Kesalahan pada server",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/flights": {
+      "get": {
+        "tags": ["Flights"],
+        "summary": "Pencarian penerbangan",
+        "description": "Mencari dan mem-filter penerbangan berdasarkan bandara asal, bandara tujuan, tanggal, jumlah penumpang, dan parameter lainnya.",
+        "parameters": [
+          {
+            "name": "departure_airport",
+            "in": "query",
+            "required": true,
+            "description": "Kode IATA (SUB, CGK, HLP, dll) bandara asal",
+            "schema": {
+              "type": "string",
+              "default": "SUB"
+            }
+          },
+          {
+            "name": "arrival_airport",
+            "in": "query",
+            "required": true,
+            "description": "Kode IATA (SUB, CGK, HLP, dll) bandara tujuan",
+            "schema": {
+              "type": "string",
+              "default": "CGK"
+            }
+          },
+          {
+            "name": "flight_departure_date",
+            "in": "query",
+            "required": true,
+            "description": "Tanggal keberangkatan (YYYY-MM-DD 00:00:00)",
+            "schema": {
+              "type": "string",
+              "format": "date",
+              "default": "2024-12-25 00:00:00"
+            }
+          },
+          {
+            "name": "returning_flight_departure_date",
+            "in": "query",
+            "required": false,
+            "description": "Tanggal kedatangan (YYYY-MM-DD 00:00:00) jika round-trip",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "is_round_trip",
+            "in": "query",
+            "required": false,
+            "description": "Apakah perjalanan round-trip (true atau false)",
+            "schema": {
+              "type": "boolean",
+              "default": "false"
+            }
+          },
+          {
+            "name": "total_adult_passengers",
+            "in": "query",
+            "required": true,
+            "description": "Jumlah penumpang dewasa",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            }
+          },
+          {
+            "name": "total_child_passengers",
+            "in": "query",
+            "required": false,
+            "description": "Jumlah penumpang anak-anak",
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "total_infant_passengers",
+            "in": "query",
+            "required": false,
+            "description": "Jumlah penumpang bayi",
+            "schema": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          {
+            "name": "seat_class_type",
+            "in": "query",
+            "required": true,
+            "description": "Jenis kelas kursi (Economy, Business, First Class, Premium Economy)",
+            "schema": {
+              "type": "string",
+              "enum": ["Economy", "Business", "FirstClass", "PremiumEconomy"],
+              "default": "Economy"
+            }
+          },
+          {
+            "name": "sort_by",
+            "in": "query",
+            "required": false,
+            "description": "Filter penerbangan berdasarkan harga, durasi, atau lainnya",
+            "schema": {
+              "enum": [
+                "lowest_price",
+                "shortest_duration",
+                "earliest_departure",
+                "latest_departure",
+                "earliest_arrival",
+                "latest_arrival"
+              ],
+              "default": "lowest_price"
+            }
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "required": false,
+            "description": "Halaman yang dituju",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "required": false,
+            "description": "Jumlah hasil pencarian per halaman",
+            "schema": {
+              "type": "integer",
+              "default": 5
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Menampilkan semua penerbangan beserta pagination dan URL penerbangan kepulangan (karena round-trip)",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "success",
+                  "message": "Berhasil menemukan penerbangan",
+                  "passengers": {
+                    "adult": 1,
+                    "child": null,
+                    "infant": null,
+                    "total_no_infant": null,
+                    "total": null
+                  },
+                  "flights": {
+                    "flights_data": [
+                      {
+                        "flight_id": "261e0a2d-b44c-4098-afc0-031ad36aa153",
+                        "flight_seat_class_capacity": 180,
+                        "airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/LNI.png",
+                        "airline_name_and_class": "Lion Air Indonesia - Economy",
+                        "seat_class_price": {
+                          "raw": 1200000,
+                          "formatted": "IDR 1.200.000"
+                        },
+                        "departure_airport": "SUB",
+                        "departure_time": "08.15",
+                        "flight_duration": {
+                          "raw": 75,
+                          "formatted": "1h 15m"
+                        },
+                        "arrival_airport": "CGK",
+                        "arrival_time": "09.30",
+                        "flight_details": {
+                          "departure_time": "08.15",
+                          "departure_date": "25 Desember 2024",
+                          "departure_airport_name": "Bandara Internasional Juanda",
+                          "airline_name_and_class": "Lion Air Indonesia - Economy",
+                          "flight_number": "JT - 380",
+                          "airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/LNI.png",
+                          "arrival_time": "09.30",
+                          "arrival_date": "25 Desember 2024",
+                          "arrival_airport_name": "Bandara Internasional Soekarno-Hatta",
+                          "raw_departure_datetime": "2024-12-25T01:15:00.000Z",
+                          "raw_arrival_datetime": "2024-12-25T02:30:00.000Z"
+                        },
+                        "flight_seat_is_full": false
+                      },
+                      {
+                        "flight_id": "3df97800-a11b-48b4-a2ee-f70df48ab126",
+                        "flight_seat_class_capacity": 150,
+                        "airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/GIA.png",
+                        "airline_name_and_class": "Garuda Indonesia - Economy",
+                        "seat_class_price": {
+                          "raw": 1500000,
+                          "formatted": "IDR 1.500.000"
+                        },
+                        "departure_airport": "SUB",
+                        "departure_time": "07.00",
+                        "flight_duration": {
+                          "raw": 80,
+                          "formatted": "1h 20m"
+                        },
+                        "arrival_airport": "CGK",
+                        "arrival_time": "08.20",
+                        "flight_details": {
+                          "departure_time": "07.00",
+                          "departure_date": "25 Desember 2024",
+                          "departure_airport_name": "Bandara Internasional Juanda",
+                          "airline_name_and_class": "Garuda Indonesia - Economy",
+                          "flight_number": "GA - 226",
+                          "airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/GIA.png",
+                          "arrival_time": "08.20",
+                          "arrival_date": "25 Desember 2024",
+                          "arrival_airport_name": "Bandara Internasional Soekarno-Hatta",
+                          "raw_departure_datetime": "2024-12-25T00:00:00.000Z",
+                          "raw_arrival_datetime": "2024-12-25T01:20:00.000Z"
+                        },
+                        "flight_seat_is_full": false
+                      }
+                    ],
+                    "returning_flights_url": "http://localhost:3000/api/v1/flights?total_adult_passengers=1&seat_class_type=Economy&sort_by=lowest_price&show_returning_flights=false&flight_departure_date=2024-12-25%2000%3A00%3A00&departure_airport=CGK&arrival_airport=SUB&show_returning_flights=false",
+                    "pagination": {
+                      "current_page": 1,
+                      "limit": 2,
+                      "prev_url": null,
+                      "next_url": "http://localhost:3000/api/v1/flights?departure_airport=SUB&arrival_airport=CGK&flight_departure_date=2024-12-25+00%3A00%3A00&is_round_trip=false&total_adult_passengers=1&seat_class_type=Economy&sort_by=lowest_price&show_returning_flights=false&page=2&limit=2"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Kesalahan validasi data yang dikirimkan oleh pengguna.",
+            "content": {
+              "application/json": {
+                "examples": {
+                  "invalidReturnDate": {
+                    "summary": "Tanggal kepulangan lebih awal dari tanggal keberangkatan",
+                    "value": {
+                      "status": "error",
+                      "messages": {
+                        "line_1": "Tanggal kepulangan harus setelah tanggal keberangkatan"
+                      }
+                    }
+                  },
+                  "tooManyPassengers": {
+                    "summary": "Jumlah penumpang melebihi batas maksimum",
+                    "value": {
+                      "status": "error",
+                      "messages": {
+                        "line_1": "Maksimal 7 penumpang (dewasa dan anak-anak)"
+                      }
+                    }
+                  },
+                  "infantExceedsAdults": {
+                    "summary": "Jumlah bayi melebihi jumlah dewasa",
+                    "value": {
+                      "status": "error",
+                      "messages": {
+                        "line_1": "Jumlah penumpang bayi tidak boleh melebihi jumlah penumpang dewasa"
+                      }
+                    }
+                  },
+                  "noAdultPassengers": {
+                    "summary": "Tidak ada penumpang dewasa",
+                    "value": {
+                      "status": "error",
+                      "messages": {
+                        "line_1": "Minimal 1 penumpang dewasa"
+                      }
+                    }
+                  },
+                  "missingReturningDate": {
+                    "summary": "Tanggal penerbangan pulang belum diisi (untuk penerbangan PP)",
+                    "value": {
+                      "status": "error",
+                      "messages": {
+                        "line_1": "Tanggal penerbangan pulang belum diisi",
+                        "line_2": "Mohon isi tanggal penerbangan pulang"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Tidak ada penerbangan yang memenuhi kriteria pencarian (search)",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "messages": {
+                    "line_1": "Maaf, pencarian Anda tidak ditemukan",
+                    "line_2": "Coba cari perjalanan lainnya!"
+                  }
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Penerbangan yang dicari penuh semua",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "messages": {
+                    "line_1": "Maaf, Tiket terjual habis!",
+                    "line_2": "Coba cari perjalanan lainnya!"
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Kesalahan pada server",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "message": "Internal server error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/flights/detail": {
+      "get": {
+        "tags": ["Flights"],
+        "summary": "Mendapatkan detail penerbangan",
+        "description": "Mengambil detail penerbangan berdasarkan ID penerbangan, kelas kursi, dan jumlah penumpang",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "flightId",
+            "in": "query",
+            "required": true,
+            "description": "ID penerbangan yang ingin dicari",
+            "schema": {
+              "type": "string",
+              "default": "f1"
+            }
+          },
+          {
+            "name": "seatClass",
+            "in": "query",
+            "required": true,
+            "description": "Tipe kelas kursi (misalnya, Economy, Business, PremiumEconomy)",
+            "schema": {
+              "type": "string",
+              "default": "Economy"
+            }
+          },
+          {
+            "name": "adult",
+            "in": "query",
+            "required": true,
+            "description": "Jumlah penumpang dewasa",
+            "schema": {
+              "type": "integer",
+              "default": "1"
+            }
+          },
+          {
+            "name": "child",
+            "in": "query",
+            "required": true,
+            "description": "Jumlah penumpang anak-anak",
+            "schema": {
+              "type": "integer",
+              "default": "1"
+            }
+          },
+          {
+            "name": "baby",
+            "in": "query",
+            "required": true,
+            "description": "Jumlah penumpang bayi",
+            "schema": {
+              "type": "integer",
+              "default": "1"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detail penerbangan berhasil ditemukan",
+            "content": {
+              "application/json": {
+                "example": {
+                  "type": "object",
+                  "statusCode": 200,
+                  "status": "Success",
+                  "message": "Detail penerbangan berhasil ditemukan",
+                  "data": {
+                    "flightClass": {
+                      "flight_seat_class_id": "12345",
+                      "flight_id": "FL123",
+                      "seat_class": {
+                        "seat_class_type": "Economy"
+                      }
+                    },
+                    "seatAssignments": [
+                      {
+                        "seat_id": "A1",
+                        "price": 100.0
+                      },
+                      {
+                        "seat_id": "A2",
+                        "price": 100.0
+                      }
+                    ],
+                    "subTotalPrice": {
+                      "adult": 200.0,
+                      "child": 100.0,
+                      "baby": 50.0
+                    },
+                    "tax": 35.0,
+                    "total": 385.0
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Negara atau kota tidak ditemukan.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "status": "error",
+                  "message": "Negara atau kota tidak ditemukan"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/ticket-order": {
+      "post": {
+        "tags": ["Transaction"],
+        "summary": "Membuat tiket pesanan",
+        "description": "API untuk membuat pemesanan tiket pesawat",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "seats": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "example": "1"
+                        }
+                      }
+                    }
+                  },
+                  "passengers": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "title": {
+                          "type": "string",
+                          "enum": ["Mr", "Mrs"],
+                          "example": "Mr"
+                        },
+                        "name": {
+                          "type": "string",
+                          "example": "John"
+                        },
+                        "familyName": {
+                          "type": "string",
+                          "example": "Doe"
+                        },
+                        "dateOfBirth": {
+                          "type": "string",
+                          "format": "date",
+                          "example": "01-01-1990"
+                        },
+                        "nationality": {
+                          "type": "string",
+                          "example": "ID"
+                        },
+                        "identityNumber": {
+                          "type": "string",
+                          "example": "1234567890123456"
+                        },
+                        "issuingCountry": {
+                          "type": "string",
+                          "example": "ID"
+                        }
+                      }
+                    }
+                  },
+                  "bookerName": {
+                    "type": "string",
+                    "example": "Jane Doe"
+                  },
+                  "bookerEmail": {
+                    "type": "string",
+                    "example": "jane.doe@example.com"
+                  },
+                  "bookerPhone": {
+                    "type": "string",
+                    "example": "+62123456789"
+                  }
+                },
+                "required": [
+                  "seats",
+                  "passengers",
+                  "bookerName",
+                  "bookerEmail",
+                  "bookerPhone"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successfully created ticket order",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 200
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "Success"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Berhasil membuat Tiket"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "booking_id": {
+                            "type": "string",
+                            "example": "5bb68854-a9db-4909-af7f-dfb72d76858f"
+                          },
+                          "flight_seat_assigment_id": {
+                            "type": "integer",
+                            "example": "1"
+                          },
+                          "passenger_id": {
+                            "type": "string",
+                            "example": "1"
+                          },
+                          "category": {
+                            "type": "string",
+                            "example": "Adult"
+                          }
+                        }
+                      }
+                    },
+                    "bookingCode": {
+                      "type": "string",
+                      "example": "fea8798c"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "Failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "data kursi dan penumpang wajib ada"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400_invalid_seat": {
+            "description": "Beberapa kursi tidak valid atau tidak tersedia",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "Failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Beberapa kursi tidak valid atau tidak tersedia"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400_seatPassenger_mismatch": {
+            "description": "Jumlah kursi harus sama dengan jumlah penumpang",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "Failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Jumlah kursi harus sama dengan jumlah penumpang"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400_raceCondition": {
+            "description": "Beberapa kursi sudah tidak tersedia, pemesanan gagal",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "Failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Beberapa kursi sudah tidak tersedia, pemesanan gagal"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 500
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "Failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Terjadi kesalahan saat pada server"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {}
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transaksi": {
+      "get": {
+        "tags": ["Transaction"],
+        "summary": "Menampilkan List Transaksi",
+        "description": "Mengambil data dari tabel bookings",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Menampilkan list transaksi",
+            "content": {
+              "application/json": {
+                "example": {
+                  "type": "object",
+                  "statusCode": 200,
+                  "status": "success",
+                  "message": "Transaction details retrieved successfully",
+                  "data": {
+                    "transactionId": "TX123456",
+                    "booking_id": "5bb68854-a9db-4909-af7f-dfb72d76858f",
+                    "booking_date": "2024-12-08T08:09:03.726Z",
+                    "booking_amount": "166.5",
+                    "booking_code": "fea8798c",
+                    "user_id": "fae5e2e7-264c-490d-9896-df3bea9920b5",
+                    "tax": "16.5",
+                    "booking_payment_status": "Unpaid",
+                    "booking_payment_method": "Midtrans"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No transactions found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Tidak ada transaksi ditemukan"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400_Kesalahan dalam permintaan ke database": {
+            "description": "Bad request due to database error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Kesalahan dalam permintaan ke database"
+                    },
+                    "details": {
+                      "type": "string",
+                      "example": "Detailed error message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "Service unavailable due to database connection error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 503
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Kesalahan koneksi ke database"
+                    },
+                    "details": {
+                      "type": "string",
+                      "example": "Detailed error message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 500
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Terjadi kesalahan pada server"
+                    },
+                    "details": {
+                      "type": "string",
+                      "example": "Detailed error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transaksi/user": {
+      "get": {
+        "tags": ["Transaction"],
+        "summary": "Mengambil transaksi berdasarkan ID pengguna",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "showTransaksiByIdUser ",
+        "responses": {
+          "200": {
+            "description": "Menampilkan list transaksi",
+            "content": {
+              "application/json": {
+                "example": {
+                  "type": "object",
+                  "statusCode": 200,
+                  "status": "success",
+                  "message": "Successfully retrieved transactions",
+                  "data": {
+                    "booking_id": "5bb68854-a9db-4909-af7f-dfb72d76858f",
+                    "booking_date": "2024-12-08T08:09:03.726Z",
+                    "booking_amount": "166.5",
+                    "booking_code": "fea8798c",
+                    "user_id": "fae5e2e7-264c-490d-9896-df3bea9920b5",
+                    "tax": "16.5",
+                    "booking_payment_status": "Unpaid",
+                    "booking_payment_method": "Midtrans",
+                    "tickets": [
+                      {
+                        "ticket_id": "0280aa10-7274-49b2-82cc-2f8a13c65bdc",
+                        "booking_id": "3b9b170b-5842-48f1-879a-d7cca4a6da93",
+                        "passenger_id": "0a258423-bef1-4d92-aae5-f196aa5ed835",
+                        "flight_seat_assigment_id": 5,
+                        "category": "Adult"
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400_idPengguna": {
+            "description": "ID pengguna tidak valid atau tidak ada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "User  ID is required"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Tidak ada transaksi ditemukan untuk pengguna ini",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "No transactions found for this user"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request due to database error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Kesalahan dalam permintaan ke database"
+                    },
+                    "details": {
+                      "type": "string",
+                      "example": "Detailed error message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 500
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Terjadi kesalahan pada server"
+                    },
+                    "details": {
+                      "type": "string",
+                      "example": "Detailed error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payment": {
+      "post": {
+        "tags": ["Transaction"],
+        "summary": "Membuat pembayaran untuk pemesanan",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "createPayment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bookingId": {
+                    "type": "string",
+                    "example": "5bb68854-a9db-4909-af7f-dfb72d76858f",
+                    "description": "ID pemesanan yang akan dibayar"
+                  }
+                },
+                "required": ["bookingId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Pembayaran berhasil dibuat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Berhasil membuat pembayaran"
+                    },
+                    "token": {
+                      "type": "string",
+                      "example": "1ee4c66a-ae6f-4a2c-9310-f76c8cf2f8f6"
+                    },
+                    "redirect_url": {
+                      "type": "string",
+                      "description": "URL untuk mengarahkan pengguna ke halaman pembayaran",
+                      "example": "https://app.sandbox.midtrans.com/snap/v4/redirection/6b26bdb6-a3ad-47ca-924f-827d30c5e3db"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Permintaan tidak valid, beberapa field tidak lengkap",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Lengkapi field"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400_field_detail_pengguna": {
+            "description": "Detail pengguna tidak lengkap. Nama, email, dan telepon wajib diisi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Detail pengguna tidak lengkap. Nama, email, dan telepon wajib diisi"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404_idBookings": {
+            "description": "Id bookings tidak ditemukan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "id booking tidak ada"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "ID pemesanan atau pengguna tidak ditemukan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "user tidak ada"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Kesalahan server atau kesalahan dari API Midtrans",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "server error"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/payment/notification": {
+      "post": {
+        "tags": ["Transaction"],
+        "summary": "Menerima notifikasi pembayaran dari Midtrans",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "operationId": "paymentNotification",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "order_id": {
+                    "type": "string",
+                    "description": "ID pemesanan yang terkait dengan notifikasi",
+                    "example": "08c7d800"
+                  },
+                  "transaction_status": {
+                    "type": "string",
+                    "description": "Status transaksi dari Midtrans",
+                    "example": "settlement"
+                  },
+                  "payment_type": {
+                    "type": "string",
+                    "description": "Tipe pembayaran yang digunakan",
+                    "example": "credit_card"
+                  }
+                },
+                "required": ["order_id", "transaction_status", "payment_type"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status transaksi berhasil diperbarui",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "Transaction status updated"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "ID pemesanan tidak ditemukan",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Booking not found"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Kesalahan server saat memperbarui status transaksi",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "error": {
+                      "type": "string",
+                      "example": "Failed to update transaction status"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    }
+  }
 }
