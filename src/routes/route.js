@@ -13,6 +13,9 @@ const SeatController = require("../controllers/orderTiket/seatControllers");
 const TiketController = require("../controllers/orderTiket/ticketControllers");
 const PaymentController = require("../controllers/orderTiket/transaksiControllers");
 const FavDestinationController = require("../controllers/favorite/fav.destination.controller");
+const AdminController = require("../controllers/admin/admin.controller");
+const NotificationController = require("../controllers/notifications/notification.controller");
+const AdminMiddleware = require("../middleware/admin");
 
 //search & list tiket
 app.get("/", IndexController.index);
@@ -104,6 +107,32 @@ app.post(
   "/api/v1/payment/notification",
   AuthMiddleware.authenticateUser,
   PaymentController.paymentNotification
+);
+
+//admin
+app.post(
+  "/api/v1/admin/login",
+  AdminController.login
+);
+app.post(
+  "/api/v1/admin/logout",
+  AdminMiddleware,
+  AdminController.logout
+);
+
+//notifications
+app.post(
+  "/api/v1/notifications/create",
+  AdminMiddleware,
+  NotificationController.create
+);
+app.get(
+  "/api/v1/notifications/get/:user_id",
+  NotificationController.getNotifications
+);
+app.patch(
+  "/api/v1/notifications/update/:notification_id",
+  NotificationController.updateNotificationStatus
 );
 
 module.exports = app;
