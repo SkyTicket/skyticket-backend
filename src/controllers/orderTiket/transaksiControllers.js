@@ -3,12 +3,13 @@ const axios = require("axios");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const jwt = require("jsonwebtoken");
+const FlightDataMapper = require("../flights/utils/flightMapper");
 
 const MIDTRANS_API_URL =
   "https://app.sandbox.midtrans.com/snap/v1/transactions";
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 function calculateTotalPrice(booking) {
-  return Math.floor(booking.booking_amount); 
+  return Math.floor(booking.booking_amount);
 }
 
 class PaymentController {
@@ -60,7 +61,6 @@ class PaymentController {
     }
   }
   static async showTransaksiByIdUser(req, res) {
-    // const { userId } = req.params;
     try {
       const authToken = req.headers.authorization?.split(" ")[1];
 
@@ -90,9 +90,92 @@ class PaymentController {
           user_id: userId,
         },
         include: {
-          tickets: true,
+          tickets: {
+            include: {
+              flight_seat_assigment: {
+                include: {
+                  flight_seat_class: {
+                    include: {
+                      seat_class: true,
+                      flight: {
+                        include: {
+                          departure_airport: {
+                            select: {
+                              airport_city: true,
+                              airport_name: true,
+                            },
+                          },
+                          arrival_airport: {
+                            select: {
+                              airport_city: true,
+                              airport_name: true,
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       });
+
+      const flights = await prisma.flights.findMany({
+        include: {
+          airline: true,
+          departure_airport: true,
+          arrival_airport: true,
+          flight_seat_classes: {
+            include: {
+              seat_class: true,
+            },
+          },
+        },
+      });
+
+      const formattedTransaksi = transaksi.map((booking) => {
+        return {
+          booking_code: booking.booking_code,
+          booking_payment_status: booking.booking_payment_status,
+          tickets: booking.tickets.map((ticket) => {
+            const seatClassType =
+              ticket.flight_seat_assigment.flight_seat_class.seat_class
+                .seat_class_type;
+
+            const mappedFlights = FlightDataMapper.mapFlights(
+              flights,
+              seatClassType
+            );
+
+            const matchedFlight = mappedFlights.find(
+              (flight) =>
+                flight.flight_id ===
+                ticket.flight_seat_assigment.flight_seat_class.flight_id
+            );
+
+            return {
+              seat_class_type: seatClassType,
+              seat_class_price:
+                ticket.flight_seat_assigment.flight_seat_class.seat_class_price,
+              flight_duration: matchedFlight?.flight_duration,
+              departure_airport_city:
+                ticket.flight_seat_assigment.flight_seat_class.flight
+                  .departure_airport.airport_city,
+              arrival_airport_city:
+                ticket.flight_seat_assigment.flight_seat_class.flight
+                  .arrival_airport.airport_city,
+              departure_time: matchedFlight?.departure_time,
+              departure_date: matchedFlight?.departure_date,
+              arrival_time: matchedFlight?.arrival_time,
+              arrival_date: matchedFlight?.arrival_date,
+            };
+          }),
+        };
+      });
+
+      console.log(formattedTransaksi);
 
       if (transaksi.length === 0) {
         return res.status(404).json({
@@ -106,7 +189,7 @@ class PaymentController {
         statusCode: 200,
         status: "success",
         message: "Successfully retrieved transactions",
-        data: transaksi,
+        data: formattedTransaksi,
       });
     } catch (error) {
       // Menangani error yang lebih spesifik dan logging
@@ -174,7 +257,7 @@ class PaymentController {
         });
       }
       const totalPrice = calculateTotalPrice(booking);
-      console.log("Total Price:", totalPrice)
+      console.log("Total Price:", totalPrice);
       const snapPayload = {
         transaction_details: {
           order_id: booking.booking_code,
