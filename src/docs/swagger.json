@@ -1515,44 +1515,159 @@
                   "type": "object",
                   "statusCode": 200,
                   "status": "Success",
-                  "message": "Detail penerbangan berhasil ditemukan",
+                  "message": "Detail penerbangan berhasil ditemukan.",
                   "data": {
-                    "flightClass": {
-                      "flight_seat_class_id": "12345",
-                      "flight_id": "FL123",
-                      "seat_class": {
-                        "seat_class_type": "Economy"
-                      }
-                    },
-                    "seatAssignments": [
+                    "formattedFlightData": [
                       {
-                        "seat_id": "A1",
-                        "price": 100.0
-                      },
-                      {
-                        "seat_id": "A2",
-                        "price": 100.0
+                        "seat_class_type": "Economy",
+                        "seat_class_price": {
+                          "raw": 1150000,
+                          "formatted": "IDR 1.150.000"
+                        },
+                        "departure_airport_city": "Surabaya",
+                        "departure_airport_name": "Bandara Internasional Juanda",
+                        "arrival_airport_city": "Denpasar",
+                        "arrival_airport_name": "Bandara Internasional Ngurah Rai",
+                        "departure_time": "07.00",
+                        "departure_date": "29 Desember 2024",
+                        "arrival_time": "08.50",
+                        "arrival_date": "29 Desember 2024",
+                        "airline_name_and_class": "Lion Air Indonesia - Economy",
+                        "flight_number": "JT - 111",
+                        "airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/LNI.png",
+                        "Informasi": [
+                          "Baggage 20 kg",
+                          "Cabin baggage 7 kg",
+                          "In-flight entertainment"
+                        ]
                       }
                     ],
                     "subTotalPrice": {
-                      "adult": 200.0,
-                      "child": 100.0,
-                      "baby": 50.0
+                      "adult": 1150000,
+                      "child": 1150000,
+                      "baby": 1150000
                     },
-                    "tax": 35.0,
-                    "total": 385.0
+                    "tax": 379500,
+                    "total": 3829500,
+                    "seatAssignments": [
+                      {
+                        "id": 4,
+                        "seat_id": 1,
+                        "flight_seat_class_id": "8f9bd113-21e8-48d8-a06a-2d1885965290",
+                        "available": false,
+                        "seat": {
+                          "id": 1,
+                          "seat_number": "1A"
+                        }
+                      },
+                      {
+                        "id": 12,
+                        "seat_id": 6,
+                        "flight_seat_class_id": "8f9bd113-21e8-48d8-a06a-2d1885965290",
+                        "available": true,
+                        "seat": {
+                          "id": 6,
+                          "seat_number": "6A"
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Parameter yang diberikan tidak valid.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 400
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "Failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Parameter yang diberikan tidak valid."
+                    }
                   }
                 }
               }
             }
           },
           "404": {
-            "description": "Negara atau kota tidak ditemukan.",
+            "description": "Tidak ditemukan penerbangan yang cocok untuk kelas kursi ini.",
             "content": {
               "application/json": {
-                "example": {
-                  "status": "error",
-                  "message": "Negara atau kota tidak ditemukan"
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "Failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Tidak ditemukan penerbangan yang cocok untuk kelas kursi ini."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404_noSeat": {
+            "description": "Tidak ditemukan kursi untuk penerbangan ini.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "Failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Tidak ditemukan kursi untuk penerbangan ini."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Terjadi kesalahan pada server.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 500
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "Failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Terjadi kesalahan pada server."
+                    }
+                  }
                 }
               }
             }

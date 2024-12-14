@@ -24,7 +24,7 @@ model Users {
   Bookers Bookers[] // new
   notifications Notifications[]
   passwordResetTokens Password_reset_tokens[]
-    bookings Bookings[]
+  bookings Bookings[]
 
   otps                 Otp[]                // Relasi ke tabel Otp
 }

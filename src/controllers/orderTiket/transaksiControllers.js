@@ -170,8 +170,6 @@ class PaymentController {
                   .arrival_airport.airport_city,
               departure_time: matchedFlight?.departure_time,
               departure_date: matchedFlight?.flight_details?.departure_date,
-              arrival_time: matchedFlight?.arrival_time,
-              arrival_date: matchedFlight?.flight_details?.arrival_date,
             };
           }),
         };
