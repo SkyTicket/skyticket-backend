@@ -4,6 +4,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const jwt = require("jsonwebtoken");
 const FlightDataMapper = require("../flights/utils/flightMapper");
+const moment = require("moment");
 
 const MIDTRANS_API_URL =
   "https://app.sandbox.midtrans.com/snap/v1/transactions";
@@ -135,6 +136,7 @@ class PaymentController {
         },
       });
 
+      // Format data transaksi
       const formattedTransaksi = transaksi.map((booking) => {
         return {
           booking_code: booking.booking_code,
@@ -167,17 +169,47 @@ class PaymentController {
                 ticket.flight_seat_assigment.flight_seat_class.flight
                   .arrival_airport.airport_city,
               departure_time: matchedFlight?.departure_time,
-              departure_date: matchedFlight?.departure_date,
+              departure_date: matchedFlight?.flight_details?.departure_date,
               arrival_time: matchedFlight?.arrival_time,
-              arrival_date: matchedFlight?.arrival_date,
+              arrival_date: matchedFlight?.flight_details?.arrival_date,
             };
           }),
         };
       });
 
-      console.log(formattedTransaksi);
+      const groupedByMonth = {};
+      formattedTransaksi.forEach((booking) => {
+        booking.tickets.forEach((ticket) => {
+          const { departure_date } = ticket;
 
-      if (transaksi.length === 0) {
+          if (!departure_date) {
+            console.error("Missing departure_date in ticket:", ticket);
+            return;
+          }
+
+          // Parsing tanggal menggunakan moment
+          const date = moment(departure_date, "DD MMMM YYYY", "id");
+          if (!date.isValid()) {
+            console.error("Invalid departure_date format:", departure_date);
+            return;
+          }
+
+          // Format bulan dan tahun
+          const monthYear = date.format("MMMM YYYY");
+
+          if (!groupedByMonth[monthYear]) {
+            groupedByMonth[monthYear] = [];
+          }
+
+          groupedByMonth[monthYear].push({
+            booking_code: booking.booking_code,
+            booking_payment_status: booking.booking_payment_status,
+            ticket,
+          });
+        });
+      });
+
+      if (Object.keys(groupedByMonth).length === 0) {
         return res.status(404).json({
           statusCode: 404,
           status: "Failed",
@@ -189,12 +221,11 @@ class PaymentController {
         statusCode: 200,
         status: "success",
         message: "Successfully retrieved transactions",
-        data: formattedTransaksi,
+        data: groupedByMonth,
       });
     } catch (error) {
-      // Menangani error yang lebih spesifik dan logging
       console.error("Error retrieving transactions:", error.message);
-      // Menangani kesalahan yang mungkin terjadi saat berinteraksi dengan database
+
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         return res.status(400).json({
           statusCode: 400,
@@ -203,7 +234,7 @@ class PaymentController {
           details: error.message,
         });
       }
-      // Menangani error yang lebih spesifik dan logging
+
       console.error("Error retrieving transactions:", error.message);
       res.status(500).json({
         statusCode: 500,

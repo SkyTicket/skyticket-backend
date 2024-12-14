@@ -7,7 +7,7 @@
   },
   "servers": [
     {
-      "url": "http://localhost:3000",
+      "url": "http://34.101.115.143:3000",
       "description": "Staging Environment (HTTP/No SSL)"
     },
     {
@@ -2002,20 +2002,22 @@
                   "status": "success",
                   "message": "Successfully retrieved transactions",
                   "data": {
-                    "booking_code": "457116c3",
-                    "booking_payment_status": "Unpaid",
-                    "tickets": [
+                    "Desember 2024": [
                       {
-                        "seat_class_type": "Economy",
-                        "seat_class_price": "1150000",
-                        "flight_duration": {
-                          "raw": 50,
-                          "formatted": "50m"
-                        },
-                        "departure_airport_city": "Surabaya",
-                        "arrival_airport_city": "Denpasar",
-                        "departure_time": "07.00",
-                        "arrival_time": "08.50"
+                        "booking_code": "457116c3",
+                        "booking_payment_status": "Unpaid",
+                        "tickets": {
+                          "seat_class_type": "Economy",
+                          "seat_class_price": "1150000",
+                          "flight_duration": {
+                            "raw": 50,
+                            "formatted": "50m"
+                          },
+                          "departure_airport_city": "Surabaya",
+                          "arrival_airport_city": "Denpasar",
+                          "departure_time": "07.00",
+                          "arrival_time": "08.50"
+                        }
                       }
                     ]
                   }
