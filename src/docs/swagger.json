@@ -687,7 +687,7 @@
     "/api/v1/auth/register": {
       "post": {
         "summary": "Registrasi pengguna",
-        "description": "Melakukan registrasi pengguna baru dengan email dan password. OTP akan dikirim untuk verifikasi.",
+        "description": "Melakukan registrasi pengguna baru dengan email, password, dan nomor telepon. OTP akan dikirim untuk verifikasi.",
         "tags": ["Auth"],
         "requestBody": {
           "required": true,
@@ -698,19 +698,23 @@
                 "properties": {
                   "user_name": {
                     "type": "string",
-                    "example": "John Doe"
+                    "example": "John Doe",
+                    "description": "Nama lengkap pengguna. Tidak boleh berupa angka."
                   },
                   "user_email": {
                     "type": "string",
-                    "example": "john.doe@example.com"
+                    "example": "john.doe@example.com",
+                    "description": "Email pengguna yang valid."
                   },
                   "user_password": {
                     "type": "string",
-                    "example": "password123"
+                    "example": "password123",
+                    "description": "Password pengguna minimal 8 karakter."
                   },
                   "user_phone": {
                     "type": "string",
-                    "example": "+6281234567890"
+                    "example": "+6281234567890",
+                    "description": "Nomor telepon pengguna dalam format valid."
                   }
                 },
                 "required": [
@@ -734,6 +738,46 @@
                     "message": {
                       "type": "string",
                       "example": "Registrasi berhasil. Kode OTP telah dikirim ke email Anda."
+                    },
+                    "otp_request_reset_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2024-12-15T12:00:00.000Z",
+                      "description": "Waktu reset permintaan OTP berikutnya."
+                    },
+                    "last_otp_requested_at": {
+                      "type": "string",
+                      "format": "date-time",
+                      "example": "2024-12-15T11:59:00.000Z",
+                      "description": "Waktu permintaan OTP terakhir kali."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validasi input gagal (misalnya, email atau nomor telepon sudah terdaftar).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "msg": {
+                            "type": "string",
+                            "example": "Email sudah terdaftar."
+                          },
+                          "param": {
+                            "type": "string",
+                            "example": "user_email"
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -741,7 +785,7 @@
             }
           },
           "500": {
-            "description": "Gagal mendaftarkan user",
+            "description": "Kesalahan server saat mencoba mendaftarkan user.",
             "content": {
               "application/json": {
                 "schema": {
@@ -753,7 +797,7 @@
                     },
                     "detail": {
                       "type": "string",
-                      "example": "Error detail here"
+                      "example": "Terjadi kesalahan pada database."
                     }
                   }
                 }
@@ -893,7 +937,15 @@
                   "properties": {
                     "message": {
                       "type": "string",
-                      "example": "Kode OTP baru telah dikirim ke email Anda."
+                      "example": "Kode OTP telah dikirim ulang ke email Anda."
+                    },
+                    "last_otp_requested_at": {
+                      "type": "string",
+                      "example": "2024-12-15T12:34:56.000Z"
+                    },
+                    "otp_request_reset_at": {
+                      "type": "string",
+                      "example": "2024-12-15T12:35:56.000Z"
                     }
                   }
                 }
@@ -901,7 +953,7 @@
             }
           },
           "400": {
-            "description": "Email tidak terdaftar atau pengguna belum mendaftar.",
+            "description": "Permintaan tidak valid atau melebihi batas percobaan.",
             "content": {
               "application/json": {
                 "schema": {
@@ -909,7 +961,31 @@
                   "properties": {
                     "message": {
                       "type": "string",
-                      "example": "Email tidak terdaftar atau pengguna belum mendaftar."
+                      "example": "Silakan tunggu beberapa saat sebelum mencoba lagi."
+                    },
+                    "last_otp_requested_at": {
+                      "type": "string",
+                      "example": "2024-12-15T12:34:56.000Z"
+                    },
+                    "otp_request_reset_at": {
+                      "type": "string",
+                      "example": "2024-12-15T13:34:56.000Z"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pengguna tidak ditemukan.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "example": "User tidak ditemukan."
                     }
                   }
                 }
@@ -917,7 +993,7 @@
             }
           },
           "500": {
-            "description": "Terjadi kesalahan saat mengirim OTP.",
+            "description": "Terjadi kesalahan saat mengirim ulang OTP.",
             "content": {
               "application/json": {
                 "schema": {
@@ -925,7 +1001,7 @@
                   "properties": {
                     "message": {
                       "type": "string",
-                      "example": "Terjadi kesalahan saat mengirim OTP."
+                      "example": "Gagal mengirim ulang kode OTP."
                     },
                     "error": {
                       "type": "string",
@@ -1042,17 +1118,21 @@
                 "properties": {
                   "token": {
                     "type": "string",
+                    "description": "Token reset password yang valid",
                     "example": "<reset_password_token>"
                   },
                   "password": {
                     "type": "string",
+                    "description": "Password baru (minimal 8 karakter)",
                     "example": "newPassword123"
                   },
                   "confirmPassword": {
                     "type": "string",
+                    "description": "Konfirmasi password baru",
                     "example": "newPassword123"
                   }
-                }
+                },
+                "required": ["token", "password", "confirmPassword"]
               }
             }
           }
@@ -1079,7 +1159,7 @@
             }
           },
           "400": {
-            "description": "Password dan konfirmasi tidak cocok.",
+            "description": "Validasi gagal atau token tidak valid.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1091,7 +1171,47 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "Password dan konfirmasi tidak cocok."
+                      "example": "Password dan konfirmasi password tidak cocok atau token tidak valid."
+                    },
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "msg": {
+                            "type": "string",
+                            "example": "Password minimal 8 karakter."
+                          },
+                          "param": {
+                            "type": "string",
+                            "example": "password"
+                          },
+                          "location": {
+                            "type": "string",
+                            "example": "body"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Token tidak valid atau sudah kedaluwarsa.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Token tidak valid atau sudah kedaluwarsa"
                     }
                   }
                 }
@@ -1288,21 +1408,26 @@
                 "properties": {
                   "user_name": {
                     "type": "string",
+                    "description": "Nama pengguna. Tidak boleh berupa angka.",
                     "example": "John Doe"
                   },
                   "user_email": {
                     "type": "string",
+                    "description": "Email pengguna. Harus dalam format email yang valid.",
                     "example": "john.doe@example.com"
                   },
                   "user_phone": {
                     "type": "string",
+                    "description": "Nomor telepon pengguna. Harus berupa nomor telepon valid.",
                     "example": "+6281234567890"
                   },
                   "user_password": {
                     "type": "string",
+                    "description": "Password baru pengguna. Minimal 8 karakter.",
                     "example": "newpassword123"
                   }
-                }
+                },
+                "required": []
               }
             }
           }
@@ -1346,7 +1471,7 @@
             }
           },
           "400": {
-            "description": "Bad request, data tidak valid",
+            "description": "Bad request, data tidak valid.",
             "content": {
               "application/json": {
                 "schema": {
@@ -1355,6 +1480,26 @@
                     "message": {
                       "type": "string",
                       "example": "Data tidak valid"
+                    },
+                    "errors": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "msg": {
+                            "type": "string",
+                            "example": "Nama tidak boleh berupa angka."
+                          },
+                          "param": {
+                            "type": "string",
+                            "example": "user_name"
+                          },
+                          "location": {
+                            "type": "string",
+                            "example": "body"
+                          }
+                        }
+                      }
                     }
                   }
                 }
@@ -1362,7 +1507,7 @@
             }
           },
           "500": {
-            "description": "Kesalahan pada server",
+            "description": "Kesalahan pada server.",
             "content": {
               "application/json": {
                 "schema": {

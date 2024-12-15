@@ -31,9 +31,7 @@ class PasswordController {
       });
 
       // Buat link reset password
-      const resetLink = `${req.protocol}://${req.get(
-        "host"
-      )}/password/reset-password?token=${token}`;
+      const resetLink = `https://34.101.115.143/password/reset-password?token=${token}`;
 
       // Kirim email dengan link reset password
       await sendForgotPasswordEmail(email, resetLink);

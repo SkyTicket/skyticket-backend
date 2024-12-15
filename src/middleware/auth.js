@@ -1,9 +1,11 @@
+const { body, validationResult } = require("express-validator");
 const jwt = require("jsonwebtoken");
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const SECRET_KEY = process.env.JWT_SECRET;
 
 class AuthMiddleware {
+  // Middleware untuk autentikasi user
   static async authenticateUser(req, res, next) {
     const token = req.headers.authorization?.split(" ")[1];
 
@@ -41,6 +43,102 @@ class AuthMiddleware {
       return res.status(401).json({ message: "Token tidak valid.", error });
     }
   }
+
+  // Middleware untuk validasi register
+  static validateRegister = [
+    body("user_name")
+      .not()
+      .isNumeric()
+      .withMessage("Nama tidak boleh berupa angka."),
+    body("user_email").isEmail().withMessage("Email tidak valid."),
+    body("user_password")
+      .isLength({ min: 8 })
+      .withMessage("Password minimal 8 karakter."),
+    body("user_phone")
+      .isMobilePhone("id-ID")
+      .withMessage("Nomor telepon tidak valid."),
+    async (req, res, next) => {
+      // Validasi format menggunakan express-validator
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      const { user_email, user_phone } = req.body;
+
+      try {
+        // Periksa apakah email sudah terdaftar
+        const emailExists = await prisma.users.findUnique({
+          where: { user_email },
+        });
+
+        if (emailExists) {
+          return res.status(400).json({
+            errors: [{ msg: "Email sudah terdaftar.", param: "user_email" }],
+          });
+        }
+
+        // Periksa apakah nomor telepon sudah terdaftar
+        const phoneExists = await prisma.users.findFirst({
+          where: { user_phone },
+        });
+
+        if (phoneExists) {
+          return res.status(400).json({
+            errors: [
+              { msg: "Nomor telepon sudah terdaftar.", param: "user_phone" },
+            ],
+          });
+        }
+
+        next();
+      } catch (error) {
+        console.error("Error saat memeriksa email atau nomor telepon:", error);
+        res.status(500).json({ message: "Terjadi kesalahan pada server." });
+      }
+    },
+  ];
+
+  static validateResetPassword = [
+    body("password")
+      .isLength({ min: 8 })
+      .withMessage("Password minimal 8 karakter."),
+    body("confirmPassword")
+      .custom((value, { req }) => value === req.body.password)
+      .withMessage("Password dan konfirmasi password tidak cocok."),
+    async (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+      next();
+    },
+  ];
+
+  static validateEditUser = [
+    body("user_name")
+      .optional()
+      .not()
+      .isNumeric()
+      .withMessage("Nama tidak boleh berupa angka."),
+    body("user_email").optional().isEmail().withMessage("Email tidak valid."),
+    body("user_phone")
+      .optional()
+      .isMobilePhone("id-ID")
+      .withMessage("Nomor telepon tidak valid."),
+    body("user_password")
+      .optional()
+      .isLength({ min: 8 })
+      .withMessage("Password minimal 8 karakter."),
+    async (req, res, next) => {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+      }
+
+      next();
+    },
+  ];
 }
 
 module.exports = AuthMiddleware;

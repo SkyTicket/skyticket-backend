@@ -10,7 +10,7 @@ const session = require("express-session");
 // const passwordRoutes = require("./routes/password.route");
 // const userRoutes = require("./routes/user.route");
 // const oauthRoutes = require("./routes/oauth.route");
-require("./services/removeJwt");
+require("./services/cronjob");
 const favDestinationRoutes = require("./routes/fav.destination.routes");
 
 const PORT = 3000;

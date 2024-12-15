@@ -28,13 +28,17 @@ model Users {
 }
 
 model Otp {
-  otp_id         String   @id @default(uuid()) // Primary Key
-  user_id        String   @unique              // Foreign Key
-  otp_code       String                         // OTP yang di-hash
-  otp_expires_at DateTime                      // Tanggal kedaluwarsa OTP
-  otp_is_used    Boolean  @default(false)      // Status OTP
- user           Users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  otp_id            String   @id @default(uuid())       // Primary Key
+  user_id           String   @unique                   // Foreign Key
+  otp_code          String                              // OTP yang di-hash
+  otp_expires_at    DateTime                           // Tanggal kedaluwarsa OTP
+  otp_is_used       Boolean  @default(false)           // Status OTP
+  otp_request_count Int      @default(0)               // Jumlah permintaan resend OTP
+  otp_request_reset_at DateTime?                       // Waktu reset hitungan permintaan resend OTP
+  last_otp_requested_at DateTime?                      // Waktu permintaan OTP terakhir
+  user              Users    @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 }
+
 
 model Password_reset_tokens {
   id String @id @default(uuid())
