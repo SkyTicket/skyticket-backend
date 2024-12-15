@@ -24,6 +24,8 @@ model Users {
   Bookers Bookers[] // new
   notifications Notifications[]
   passwordResetTokens Password_reset_tokens[]
+    bookings Bookings[]
+
   otps                 Otp[]                // Relasi ke tabel Otp
 }
 
@@ -89,22 +91,16 @@ model Bookings {
   booking_id String @id @default(uuid())
   booking_date DateTime @default(now())
   booking_amount Decimal @db.Decimal(15, 2)
-  booking_code String
+  booking_code String @unique
+  user_id String
   tax Decimal @db.Decimal(10, 2) @default(0.00) 
   booking_payment_status PaymentStatus
   booking_payment_method String?
-  booking_details Booking_details[]
   tickets Tickets[]
+ 
+  user Users @relation(fields: [user_id], references: [user_id])
 }
 
-model Booking_details {
-  booking_detail_id String @id @default(uuid())
-  booking_id String
-  ticket_id String
-  transaction_detail_quantity Int
-  booking Bookings @relation(fields: [booking_id], references: [booking_id])
-  ticket Tickets @relation(fields: [ticket_id], references: [ticket_id])
-}
 
 model Tickets {
   ticket_id String @id @default(uuid())
@@ -115,7 +111,6 @@ model Tickets {
   passanger Passengers @relation(fields: [passenger_id], references: [passenger_id])
   flight_seat_assigment Flight_seat_assignments @relation(fields: [flight_seat_assigment_id], references: [id])
   booking Bookings @relation(fields: [booking_id], references: [booking_id])
-  booking_details Booking_details[]
 }
 
 model Airports {
@@ -152,7 +147,6 @@ model Flight_seat_assignments {
   seat_id                Int      // FK ke Seats
   flight_seat_class_id   String   // FK ke Flight_seat_classes
   available              Boolean  @default(true) // Status ketersediaan kursi
-  price                  Decimal  @db.Decimal(15, 2)  // Harga kursi di penerbangan dan kelas tertentu
   seat                   Seat     @relation(fields: [seat_id], references: [id])
   flight_seat_class      Flight_seat_classes @relation(fields: [flight_seat_class_id], references: [flight_seat_class_id])
   tickets Tickets[]

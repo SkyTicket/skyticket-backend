@@ -1,7 +1,8 @@
+require("dotenv").config();
 const { PrismaClient } = require("@prisma/client");
 const crypto = require("crypto");
 const prisma = new PrismaClient();
-const response = require("./utils/response");
+const jwt = require("jsonwebtoken");
 
 class TicketController {
   static getCategoryByAge(dateOfBirth) {
@@ -24,140 +25,195 @@ class TicketController {
   }
 
   static async createTicketOrder(req, res) {
-    const { seats, passengers, userId, bookerName, bookerEmail, bookerPhone } =
+    const { seats, passengers, bookerName, bookerEmail, bookerPhone } =
       req.body;
 
+    const token = req.headers.authorization?.split(" ")[1];
+
+    if (!token) {
+      return res.status(401).json({
+        statusCode: 401,
+        status: "Failed",
+        message: "Token tidak ditemukan",
+        data: [],
+      });
+    }
     if (
       !seats ||
       !passengers ||
       seats.length === 0 ||
       passengers.length === 0
     ) {
-      return response(
-        400,
-        "failed",
-        null,
-        "Seats and passengers data are required.",
-        res
-      );
+      return res.status(400).json({
+        statusCode: 400,
+        status: "Failed",
+        message: "data kursi dan penumpang wajib ada",
+        data: [],
+      });
     }
-
-    const expiredAt = new Date();
-    expiredAt.setHours(expiredAt.getHours() + 1);
 
     const bookingCode = crypto.randomBytes(4).toString("hex");
+    try {
+      //memastikan hanya 1 transaksi
+      const transaction = await prisma.$transaction(async (prisma) => {
+        const seatData = await prisma.flight_seat_assignments.findMany({
+          where: {
+            id: { in: seats.map((seat) => parseInt(seat.id, 10)) },
+            available: true,
+          },
+          select: {
+            id: true,
+            seat_id: true,
+            available: true,
+            flight_seat_class: {
+              select: {
+                seat_class_price: true,
+              },
+            },
+          },
+        });
+        if (seatData.length !== seats.length) {
+          return res.status(400).json({
+            statusCode: 400,
+            status: "Failed",
+            message: "Beberapa kursi tidak valid atau tidak tersedia",
+            data: [],
+          });
+        }
 
-    const seatData = await prisma.flight_seat_assignments.findMany({
-      where: {
-        id: { in: seats.map((seat) => seat.id) },
-      },
-      select: {
-        price: true,
-      },
-    });
+        const totalPrice = seatData.reduce(
+          (total, seat) =>
+            total + parseInt(seat.flight_seat_class.seat_class_price),
+          0
+        );
 
-    if (seatData.length !== seats.length) {
-      return response(
-        400,
-        "failed",
-        null,
-        "Some seats are invalid or not found.",
-        res
-      );
+        const tax = 0.11 * totalPrice;
+
+        // Dekode token
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        console.log(decoded);
+        const userId = decoded.userID;
+
+        if (!userId) {
+          return res.status(401).json({
+            statusCode: 401,
+            status: "Failed",
+            message: "User  ID tidak ditemukan dalam token.",
+            data: [],
+          });
+        }
+        const transaction = await prisma.bookings.create({
+          data: {
+            booking_code: bookingCode,
+            tax: tax,
+            booking_amount: totalPrice + tax,
+            booking_payment_status: "Unpaid",
+            booking_payment_method: "Credit Card",
+            user: {
+              connect: {
+                user_id: userId,
+              },
+            },
+          },
+        });
+        const user = await prisma.users.findUnique({
+          where: { user_id: userId },
+        });
+
+        if (!user) {
+          return res.status(400).json({ error: "User not found" });
+        }
+        const bookerData = {
+          user_id: userId,
+          booker_name: bookerName,
+          booker_email: bookerEmail,
+          booker_phone: bookerPhone,
+        };
+
+        const booker = await prisma.bookers.create({
+          data: bookerData,
+        });
+        const passengerData = passengers.map((passenger) => {
+          const category = TicketController.getCategoryByAge(
+            passenger.dateOfBirth
+          );
+          return {
+            title: passenger.title,
+            name: passenger.name,
+            familyName: passenger.familyName || null,
+            dateOfBirth: new Date(passenger.dateOfBirth),
+            nationality: passenger.nationality,
+            identityNumber: passenger.identityNumber,
+            issuingCountry: passenger.issuingCountry,
+            validUntil: passenger.validUntil
+              ? new Date(passenger.validUntil)
+              : null,
+            category: category,
+            bookers_id: booker.booker_id,
+          };
+        });
+
+        await prisma.passengers.createMany({
+          data: passengerData,
+        });
+        const passengerIds = await prisma.passengers.findMany({
+          where: { name: { in: passengers.map((p) => p.name) } },
+          select: { passenger_id: true },
+        });
+        if (seats.length !== passengers.length) {
+          return res.status(400).json({
+            statusCode: 400,
+            status: "Failed",
+            message: "Jumlah kursi harus sama dengan jumlah penumpang",
+            data: [],
+          });
+        }
+
+        const ticketData = seats.map((seat, index) => ({
+          booking_id: transaction.booking_id,
+          flight_seat_assigment_id: seat.id,
+          passenger_id: passengerIds[index].passenger_id,
+          category: passengerData[index].category,
+        }));
+        // Update status kursi dengan optimistik locking
+        const updateResults = await prisma.flight_seat_assignments.updateMany({
+          where: {
+            id: { in: seats.map((seat) => seat.id) },
+            available: true,
+          },
+          data: { available: false },
+        });
+
+        if (updateResults.count !== seats.length) {
+          return res.status(400).json({
+            statusCode: 400,
+            status: "Failed",
+            message: "Beberapa kursi sudah tidak tersedia, pemesanan gagal",
+            data: [],
+          });
+        }
+
+        await prisma.tickets.createMany({
+          data: ticketData,
+        });
+        return {
+          statusCode: 200,
+          status: "Success",
+          message: "Berhasil membuat Tiket",
+          data: ticketData,
+          bookingCode,
+        };
+      });
+      return res.status(transaction.statusCode).json(transaction);
+    } catch (error) {
+      console.error("Error creating ticket order:", error);
+      return res.status(500).json({
+        statusCode: 500,
+        status: "Failed",
+        message: "Terjadi kesalahan saat pada server",
+        data: [],
+      });
     }
-
-    const totalPrice = seatData.reduce(
-      (total, seat) => total + parseInt(seat.price),
-      0
-    );
-
-    const tax = 0.11 * totalPrice;
-
-    const transaction = await prisma.bookings.create({
-      data: {
-        booking_code: bookingCode,
-        tax: tax,
-        booking_amount: totalPrice + tax,
-        booking_payment_status: "Unpaid",
-        booking_payment_method: "Credit Card",
-      },
-    });
-
-    const user = await prisma.users.findUnique({
-      where: { user_id: userId },
-    });
-
-    if (!user) {
-      return res.status(400).json({ error: "User not found" });
-    }
-
-    const bookerData = {
-      user_id: userId,
-      booker_name: bookerName,
-      booker_email: bookerEmail,
-      booker_phone: bookerPhone,
-    };
-
-    const booker = await prisma.bookers.create({
-      data: bookerData,
-    });
-
-    const passengerData = passengers.map((passenger) => {
-      const category = TicketController.getCategoryByAge(passenger.dateOfBirth);
-      return {
-        title: passenger.title,
-        name: passenger.name,
-        familyName: passenger.familyName || null,
-        dateOfBirth: new Date(passenger.dateOfBirth),
-        nationality: passenger.nationality,
-        identityNumber: passenger.identityNumber,
-        issuingCountry: passenger.issuingCountry,
-        validUntil: passenger.validUntil
-          ? new Date(passenger.validUntil)
-          : null,
-        category: category,
-        bookers_id: booker.booker_id,
-      };
-    });
-
-    const createdPassengers = await prisma.passengers.createMany({
-      data: passengerData,
-    });
-
-    const passengerIds = await prisma.passengers.findMany({
-      where: { name: { in: passengers.map((p) => p.name) } },
-      select: { passenger_id: true },
-    });
-
-    const validSeats = await prisma.flight_seat_assignments.findMany({
-      where: {
-        id: { in: seats.map((seat) => seat.id) },
-      },
-    });
-
-    if (validSeats.length !== seats.length) {
-      return res
-        .status(400)
-        .json({ error: "Some seats are invalid or not found" });
-    }
-
-    const ticketData = seats.map((seat, index) => ({
-      booking_id: transaction.booking_id,
-      flight_seat_assigment_id: seat.id,
-      passenger_id: passengerIds[index].passenger_id,
-      category: passengerData[index].category,
-    }));
-
-    await prisma.tickets.createMany({
-      data: ticketData,
-    });
-
-    await prisma.flight_seat_assignments.updateMany({
-      where: { id: { in: seats.map((seat) => seat.id) } },
-      data: { available: false },
-    });
-
-    response(200, "success", bookingCode, "Tickets successfully created", res);
   }
 }
 
