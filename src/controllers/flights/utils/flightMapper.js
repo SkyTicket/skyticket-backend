@@ -3,11 +3,14 @@ const Moment = require('../../../libs/moment');
 const Currency = require('../../../libs/currency');
 
 class FlightDataMapper {
-    static mapFlights(flights, seatClassType){
+    static mapFlights(flights, seatClassType, totalPassengers){
         return flights.map((flight) => {
             const findBySeatClassType = flight.flight_seat_classes.find(flightSeatClass => {
                 return flightSeatClass.seat_class.seat_class_type === seatClassType
             })
+
+            const flightSeatPrice = Number(findBySeatClassType.seat_class_price);
+            const flightSeatPriceTotal = flightSeatPrice * totalPassengers;
             
             return {
                 flight_id: flight.flight_id, // for count tickets handling
@@ -15,8 +18,12 @@ class FlightDataMapper {
                 airline_logo: flight.airline.Airline_logo,
                 airline_name_and_class: `${flight.airline.airline_name} - ${findBySeatClassType.seat_class.seat_class_type}`,
                 seat_class_price: {
-                    raw: Number(findBySeatClassType.seat_class_price),
+                    raw: findBySeatClassType.seat_class_price,
                     formatted: Currency.format(findBySeatClassType.seat_class_price),
+                    total: {
+                        raw: flightSeatPriceTotal,
+                        formatted: Currency.format(flightSeatPriceTotal)
+                    }
                 },
                 departure_airport: flight.departure_airport.airport_code,
                 departure_time: DateTimeUtils.formatHoursByTimezone(flight.flight_departure_date, flight.departure_airport.airport_time_zone),
