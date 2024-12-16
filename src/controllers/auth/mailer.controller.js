@@ -42,15 +42,16 @@ class MailerController {
       subject: "Verifikasi OTP untuk Registrasi",
       html: `<p>Untuk menyelesaikan pendaftaran Anda, masukkan kode OTP berikut:</p>
                <h3>${otpCode}</h3>
-               <p>Kode ini akan kedaluwarsa dalam 15 menit.</p>`,
+               <p>Kode ini akan kedaluwarsa dalam 1 menit.</p>`,
     };
 
     try {
-      await transporter.sendMail(mailOptions);
+      const result = await transporter.sendMail(mailOptions);
       console.log(`OTP sent to ${email}`);
+      return result.accepted.length > 0; // Return true jika email berhasil dikirim
     } catch (error) {
       console.error("Error sending OTP email:", error.message);
-      throw new Error("Failed to send OTP email");
+      return false; // Mengembalikan false jika gagal
     }
   }
 
@@ -69,15 +70,16 @@ class MailerController {
       subject: "Resend OTP untuk Registrasi",
       html: `<p>Permintaan untuk mengirim ulang OTP diterima. Masukkan kode OTP berikut:</p>
                <h3>${otpCode}</h3>
-               <p>Kode ini akan kedaluwarsa dalam 15 menit.</p>`,
+               <p>Kode ini akan kedaluwarsa dalam 1 menit.</p>`,
     };
 
     try {
-      await transporter.sendMail(mailOptions);
+      const result = await transporter.sendMail(mailOptions);
       console.log(`Resend OTP sent to ${email}`);
+      return result.accepted.length > 0; // Return true jika email berhasil dikirim
     } catch (error) {
       console.error("Error sending resend OTP email:", error.message);
-      throw new Error("Failed to resend OTP email");
+      return false; // Mengembalikan false jika gagal
     }
   }
 }

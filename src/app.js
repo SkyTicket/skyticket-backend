@@ -6,11 +6,13 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./docs/swagger.json");
 require("./controllers/auth/oauth.controller");
 const session = require("express-session");
+
 // const authRoutes = require("./routes/authRoute");
 // const passwordRoutes = require("./routes/password.route");
 // const userRoutes = require("./routes/user.route");
 // const oauthRoutes = require("./routes/oauth.route");
-require("./services/removeJwt");
+
+require("./services/cronjob");
 
 const PORT = 3000;
 const router = require("./routes/route");
@@ -31,8 +33,6 @@ app.use(
     saveUninitialized: true,
   })
 );
-
-
 
 app.use(router);
 

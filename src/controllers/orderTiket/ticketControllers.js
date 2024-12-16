@@ -3,6 +3,7 @@ const { PrismaClient } = require("@prisma/client");
 const crypto = require("crypto");
 const prisma = new PrismaClient();
 const jwt = require("jsonwebtoken");
+const FlightDataMapper = require("../flights/utils/flightMapper");
 
 class TicketController {
   static getCategoryByAge(dateOfBirth) {
@@ -17,7 +18,7 @@ class TicketController {
 
     if (age < 2) {
       return "Infant";
-    } else if (age >= 2 && age < 18) {
+    } else if (age >= 2 && age < 12) {
       return "Child";
     } else {
       return "Adult";

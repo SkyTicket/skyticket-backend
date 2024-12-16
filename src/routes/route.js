@@ -18,13 +18,21 @@ const FavDestinationController = require("../controllers/favorite/fav.destinatio
 app.get("/", IndexController.index);
 
 //auth & reset password
-app.post("/api/v1/auth/register", authController.register);
+app.post(
+  "/api/v1/auth/register",
+  AuthMiddleware.validateRegister,
+  authController.register
+);
 app.post("/api/v1/auth/verify-otp", authController.verifyOtp);
 app.post("/api/v1/auth/resend-otp", authController.resendOtp);
 app.post("/api/v1/auth/login", authController.login);
 app.post("/api/v1/auth/logout", authController.logout);
 app.post("/api/v1/auth/forget-password", PasswordController.forgetPassword);
-app.post("/api/v1/auth/reset-password", PasswordController.resetPassword);
+app.post(
+  "/api/v1/auth/reset-password",
+  AuthMiddleware.validateResetPassword,
+  PasswordController.resetPassword
+);
 
 //oauth
 app.get(
@@ -56,6 +64,7 @@ app.get(
 app.put(
   "/api/v1/user/update-user",
   AuthMiddleware.authenticateUser,
+  AuthMiddleware.validateEditUser,
   UserController.editUser
 );
 app.delete(
