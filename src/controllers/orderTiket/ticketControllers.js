@@ -74,12 +74,11 @@ class TicketController {
           },
         });
         if (seatData.length !== seats.length) {
-          return res.status(400).json({
+          throw {
             statusCode: 400,
             status: "Failed",
             message: "Beberapa kursi tidak valid atau tidak tersedia",
-            data: [],
-          });
+          };
         }
 
         const totalPrice = seatData.reduce(
@@ -96,12 +95,11 @@ class TicketController {
         const userId = decoded.userID;
 
         if (!userId) {
-          return res.status(401).json({
+          throw {
             statusCode: 401,
             status: "Failed",
-            message: "User  ID tidak ditemukan dalam token.",
-            data: [],
-          });
+            message: "User   ID tidak ditemukan dalam token.",
+          };
         }
         const transaction = await prisma.bookings.create({
           data: {
@@ -122,7 +120,11 @@ class TicketController {
         });
 
         if (!user) {
-          return res.status(400).json({ error: "User not found" });
+          throw {
+            statusCode: 400,
+            status: "Failed",
+            message: "User   not found",
+          };
         }
         const bookerData = {
           user_id: userId,
@@ -162,12 +164,11 @@ class TicketController {
           select: { passenger_id: true },
         });
         if (seats.length !== passengers.length) {
-          return res.status(400).json({
+          throw {
             statusCode: 400,
             status: "Failed",
             message: "Jumlah kursi harus sama dengan jumlah penumpang",
-            data: [],
-          });
+          };
         }
 
         const ticketData = seats.map((seat, index) => ({
@@ -186,12 +187,11 @@ class TicketController {
         });
 
         if (updateResults.count !== seats.length) {
-          return res.status(400).json({
+          throw {
             statusCode: 400,
             status: "Failed",
             message: "Beberapa kursi sudah tidak tersedia, pemesanan gagal",
-            data: [],
-          });
+          };
         }
 
         await prisma.tickets.createMany({
@@ -207,11 +207,12 @@ class TicketController {
       });
       return res.status(transaction.statusCode).json(transaction);
     } catch (error) {
-      console.error("Error creating ticket order:", error);
-      return res.status(500).json({
-        statusCode: 500,
+      const statusCode = error.statusCode || 500;
+      const message = error.message || "Terjadi kesalahan saat pada server";
+      return res.status(statusCode).json({
+        statusCode,
         status: "Failed",
-        message: "Terjadi kesalahan saat pada server",
+        message,
         data: [],
       });
     }
