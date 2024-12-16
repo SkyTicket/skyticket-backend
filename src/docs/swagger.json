@@ -1015,7 +1015,8 @@
                           "travel_date": "21 - 22 Desember 2024",
                           "price": "IDR 1.000.000",
                           "promo": "50% OFF",
-                          "city_image": "d14.jpg"
+                          "city_image": "d14.jpg",
+                          "url": "http://localhost:3000/api/v1/flights?departure_airport=Chonqing&arrival_airport=Kediri&is_round_trip=false&flight_departure_date=2024-12-21T20:16:27.230Z&seat_class_type=economy&total_adult_passengers=1"
                         }
                       }
                     }
@@ -2362,115 +2363,6 @@
                       "example": "Failed to update transaction status"
                     }
                   }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/login": {
-      "post": {
-        "tags": ["Admin"],
-        "summary": "Login admin",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "email": {
-                    "type": "string",
-                    "example": "user@example.com"
-                  },
-                  "password": {
-                    "type": "string"
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Login berhasil",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "Login berhasil",
-                  "user": {
-                    "user_id": "1",
-                    "user_name": "John Doe",
-                    "user_email": "user@example.com",
-                    "user_role": "admin"
-                  }
-                }
-              }
-            }
-          },
-          "401": {
-            "description": "Akses tidak diizinkan",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "Akses tidak diizinkan"
-                },
-                "examples": {
-                  "message": "Kesalahan pada email atau password"
-                }
-              }
-            }
-          },
-          "404": {
-            "description": "User tidak ditemukan",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "User tidak ditemukan"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Kesalahan server",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "Kesalahan pada server"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/v1/admin/logout": {
-      "post": {
-        "tags": ["Admin"],
-        "summary": "Logout admin",
-        "security": [
-          {
-            "BearerAuth": []
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Logout berhasil",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "Logout berhasil"
-                }
-              }
-            }
-          },
-          "403": {
-            "description": "Token tidak valid",
-            "content": {
-              "application/json": {
-                "example": {
-                  "message": "Token tidak valid"
                 }
               }
             }

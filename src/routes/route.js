@@ -13,7 +13,6 @@ const SeatController = require("../controllers/orderTiket/seatControllers");
 const TiketController = require("../controllers/orderTiket/ticketControllers");
 const PaymentController = require("../controllers/orderTiket/transaksiControllers");
 const FavDestinationController = require("../controllers/favorite/fav.destination.controller");
-const AdminController = require("../controllers/admin/admin.controller");
 const NotificationController = require("../controllers/notifications/notification.controller");
 const AdminMiddleware = require("../middleware/admin");
 
@@ -109,20 +108,10 @@ app.post(
   PaymentController.paymentNotification
 );
 
-//admin
-app.post(
-  "/api/v1/admin/login",
-  AdminController.login
-);
-app.post(
-  "/api/v1/admin/logout",
-  AdminMiddleware,
-  AdminController.logout
-);
-
 //notifications
 app.post(
   "/api/v1/notifications/create",
+  AuthMiddleware.authenticateUser,
   AdminMiddleware,
   NotificationController.create
 );

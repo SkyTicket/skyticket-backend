@@ -1,24 +1,21 @@
-require('dotenv').config();
-const jwt = require('jsonwebtoken');
-const SECRET_KEY = process.env.JWT_SECRET;
-
-
 function adminMiddleware (req, res, next) {
-    const authHeader = req.headers.authorization;
+    console.log("Middleware - req.user:", req.user);
 
-    if(!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ message: 'Access Unauthorized' });
+    if (!req.user) {
+        return res.status(401).json({
+            status: 'failed',
+            message: 'unauthorized',
+        })
     }
 
-    const token = authHeader.split(' ')[1];
-
-    try {
-        const decoded = jwt.verify(token, SECRET_KEY);
-        req.user = decoded;
-        next();
-    } catch (error) {
-        res.status(403).json({ message: 'Invalid token' });
+    if (req.user.user_role.toLowerCase() !== 'admin') {
+        return res.status(403).json({
+            status: 'failed',
+            message: 'forbidden',
+        })
     }
-}
+
+    next();
+};
 
 module.exports = adminMiddleware;

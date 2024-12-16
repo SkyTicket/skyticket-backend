@@ -6,10 +6,6 @@ class NotificationController {
         const { user_id, notification_type, notification_message } = req.body;
 
         try {
-            if (req.user.user_role !== 'admin') {
-                return res.status(403).json({ message: 'Hanya admin yang dapat mengirim notifikasi' });
-            }
-
             const user = await prisma.users.findUnique({
                 where: { user_id },
             })
