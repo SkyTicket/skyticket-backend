@@ -47,6 +47,13 @@ class ErrorHandler {
         }
     }
 
+    static getSeatClassesPriceError(){
+        throw {
+            statusCode: 400,
+            message: 'Bandara asal dan tujuan serta tanggal keberangkatan harus diisi terlebih dahulu'
+        }
+    }
+
     static ifNoReturningDateInRoundTrip(returning_flight_departure_date){
         if(!returning_flight_departure_date){ // if no returning flight date provided
             throw {

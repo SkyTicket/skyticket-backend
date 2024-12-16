@@ -13,6 +13,7 @@ const SeatController = require("../controllers/orderTiket/seatControllers");
 const TiketController = require("../controllers/orderTiket/ticketControllers");
 const PaymentController = require("../controllers/orderTiket/transaksiControllers");
 const FavDestinationController = require("../controllers/favorite/fav.destination.controller");
+const SeatClassesController = require("../controllers/flights/controllers/seat_classes.controller");
 
 //search & list tiket
 app.get("/", IndexController.index);
@@ -81,6 +82,7 @@ app.get(
 
 //flight
 app.get("/api/v1/flights", FlightsController.searchFlights);
+app.get("/api/v1/seat-classes-price", SeatClassesController.seatClassPrice);
 app.get("/api/v1/airports", AirportsController.searchAirports);
 app.get(
   "/api/v1/flights/detail",

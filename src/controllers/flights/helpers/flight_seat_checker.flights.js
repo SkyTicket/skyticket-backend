@@ -1,4 +1,4 @@
-const BookedTicketCount = require('../services/ticket_count.flights');
+const BookedSeatCount = require('../services/booked_seats_count.flights');
 
 async function flightSeatChecker(mappedFlights, adultPassengersTotal, childPassengersTotal){
     // TICKET COUNTING
@@ -6,7 +6,7 @@ async function flightSeatChecker(mappedFlights, adultPassengersTotal, childPasse
         return mappedFlights.flight_id
     })
 
-    const bookedSeatsPerFlight = await BookedTicketCount(bookedTicketsFlightIds)
+    const bookedSeatsPerFlight = await BookedSeatCount(bookedTicketsFlightIds)
 
     const getSeatCapacity = mappedFlights.map((flight) => {
         return flight.flight_seat_class_capacity

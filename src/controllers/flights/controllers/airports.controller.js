@@ -49,8 +49,9 @@ class AirportsController {
                                 mode: 'insensitive'
                             }
                         }
-                    ]
+                    ],
                 },
+                take: 5,
                 select: {
                     airport_code: true,
                     airport_city: true
