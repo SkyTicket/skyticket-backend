@@ -31,7 +31,7 @@ class PasswordController {
       });
 
       // Buat link reset password
-      const resetLink = `https://34.101.115.143/password/reset-password?token=${token}`;
+      const resetLink = `${process.env.FRONTEND_RESET_PASSWORD_URL}?token=${token}`;
 
       // Kirim email dengan link reset password
       await sendForgotPasswordEmail(email, resetLink);
