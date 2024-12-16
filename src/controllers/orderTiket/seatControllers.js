@@ -1,4 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
+const FlightDataMapper = require("../flights/utils/flightMapper");
 const prisma = new PrismaClient();
 class SeatController {
   static async getDetailFlight(req, res) {
@@ -19,61 +20,80 @@ class SeatController {
         });
       }
 
-      // Mencari data kelas kursi penerbangan
-      const flightClass = await prisma.flight_seat_classes.findFirst({
-        where: {
-          flight_id: flightId,
-          seat_class: {
-            seat_class_type: seatClass,
+      const flight = await prisma.flights.findUnique({
+        where: { flight_id: flightId },
+        include: {
+          airline: true,
+          departure_airport: {
+            select: {
+              airport_city: true,
+              airport_name: true,
+              airport_time_zone: true,
+            },
+          },
+          arrival_airport: {
+            select: {
+              airport_city: true,
+              airport_name: true,
+              airport_time_zone: true,
+            },
+          },
+          flight_seat_classes: {
+            include: {
+              seat_class: true,
+            },
           },
         },
-        include: {
-          flight: true,
-          seat_class: true,
-        },
       });
+      flight.flight_seat_classes.filter(
+        (seatClass) => seatClass.seat_class.seat_class_id === seatClass
+      );
 
-      // Jika kelas kursi tidak ditemukan
-      if (!flightClass) {
+      const mappedFlight = FlightDataMapper.mapFlights([flight], seatClass)[0];
+
+      if (!mappedFlight || !flight) {
         return res.status(404).json({
           statusCode: 404,
           status: "Failed",
-          message: "Tidak ditemukan kelas kursi untuk penerbangan ini.",
+          message:
+            "Tidak ditemukan penerbangan yang cocok untuk kelas kursi ini.",
           data: [],
         });
       }
 
-      const seatPrice = flightClass.seat_class_price;
-
-      // Mencari data seat assignments
-      const seatAssignments = await prisma.flight_seat_assignments.findMany({
-        where: {
-          flight_seat_class: {
-            flight_seat_class_id: flightClass.flight_seat_class_id,
+      const formattedFlightData = [
+        {
+          seat_class_type: seatClass,
+          seat_class_price: {
+            raw: mappedFlight.seat_class_price.raw,
+            formatted: mappedFlight.seat_class_price.formatted,
           },
+          departure_airport_city: flight.departure_airport.airport_city,
+          departure_airport_name: flight.departure_airport.airport_name,
+          arrival_airport_city: flight.arrival_airport.airport_city,
+          arrival_airport_name: flight.arrival_airport.airport_name,
+          departure_time: mappedFlight.flight_details.departure_time,
+          departure_date: mappedFlight.flight_details.departure_date,
+          arrival_time: mappedFlight.flight_details.arrival_time,
+          arrival_date: mappedFlight.flight_details.arrival_date,
+          airline_name_and_class:
+            mappedFlight.flight_details.airline_name_and_class,
+          flight_number: mappedFlight.flight_details.flight_number,
+          airline_logo: mappedFlight.flight_details.airline_logo,
+          Informasi: [
+            "Baggage 20 kg",
+            "Cabin baggage 7 kg",
+            "In-flight entertainment",
+          ],
         },
-        include: {
-          seat: true,
-        },
-      });
+      ];
 
-      // Jika tidak ada seat assignments
-      if (!seatAssignments || seatAssignments.length === 0) {
-        return res.status(404).json({
-          statusCode: 404,
-          status: "Failed",
-          message: "Tidak ditemukan kursi untuk penerbangan ini.",
-          data: [],
-        });
-      }
-
+      const seatPrice = flight.flight_seat_classes[0].seat_class_price;
       const passengerCounts = {
         adult: parseInt(adult) || 0,
         child: parseInt(child) || 0,
         baby: parseInt(baby) || 0,
       };
-
-      // Menghitung harga total untuk penumpang
       const subTotalPrice = {
         adult: passengerCounts.adult * seatPrice,
         child: passengerCounts.child * seatPrice,
@@ -81,52 +101,30 @@ class SeatController {
       };
       const totalPrice =
         subTotalPrice.adult + subTotalPrice.child + subTotalPrice.baby;
-
       const tax = 0.11 * parseInt(totalPrice);
       const total = totalPrice + tax;
 
-      // Menghitung waktu mulai
-      const startTime = Date.now();
-
-      // Fungsi untuk memeriksa apakah waktu habis
-      const checkTimeout = () => {
-        if (Date.now() - startTime > 60000) {
-          // 1 menit = 60000 ms
-          return true;
-        }
-        return false;
-      };
-
-      // Menunda respons selama 1 menit atau hingga waktu habis
-      setTimeout(() => {
-        if (checkTimeout()) {
-          return res.status(408).json({
-            statusCode: 408,
-            status: "Failed",
-            message: "Waktu habis",
-            data: [],
-          });
-        } else {
-          return res.status(200).json({
-            statusCode: 200,
-            status: "Success",
-            message: "Data berhasil diambil.",
-            data: seatAssignments,
-          });
-        }
-      }, 60000); // Tunggu selama 1 menit
-
-      // Menampilkan hasil ke pengguna
+      const seatAssignments = await prisma.flight_seat_assignments.findMany({
+        where: {
+          flight_seat_class: {
+            flight_seat_class_id:
+              flight.flight_seat_classes[0].flight_seat_class_id,
+          },
+        },
+        include: {
+          seat: true,
+        },
+      });
       return res.status(200).json({
         statusCode: 200,
         status: "Success",
         message: "Detail penerbangan berhasil ditemukan.",
         data: {
-          flightClass,
-          seatAssignments,
+          formattedFlightData,
           subTotalPrice,
           tax,
           total,
+          seatAssignments,
         },
       });
     } catch (error) {

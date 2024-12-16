@@ -62,8 +62,8 @@ class FlightsController {
             }
 
             // map departingFlights and returningFlights array respectively
-            const mappedDepartingFlights = FlightDataMapper.mapFlights(flightQueriesResult.departingFlights, seat_class_type);
-            const mappedReturningFlights = FlightDataMapper.mapFlights(flightQueriesResult.returningFlights, seat_class_type);
+            const mappedDepartingFlights = FlightDataMapper.mapFlights(flightQueriesResult.departingFlights, seat_class_type, totalNoInfant);
+            const mappedReturningFlights = FlightDataMapper.mapFlights(flightQueriesResult.returningFlights, seat_class_type, totalNoInfant);
 
             // sort mappedFlights by query parameter of sort_by
             FlightDataFilters.sortFlights(mappedDepartingFlights, sort_by)

@@ -87,14 +87,16 @@ class FlightQueries {
                     select: {
                         airport_code: true,
                         airport_time_zone: true,
-                        airport_name: true
+                        airport_name: true,
+                        airport_city: true
                     }
                 },
                 arrival_airport: {
                     select: {
                         airport_code: true,
                         airport_time_zone: true,
-                        airport_name: true
+                        airport_name: true,
+                        airport_city: true
                     }
                 },
                 flight_seat_classes: {
