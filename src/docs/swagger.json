@@ -796,7 +796,7 @@
         "summary": "Get All Users",
         "description": "Menampilkan semua data pengguna.",
         "tags": [
-          "User"
+          "Admin"
         ],
         "security": [
           {
@@ -1160,7 +1160,7 @@
             "required": "false",
             "schema": {
               "type": "integer",
-              "example": 2
+              "example": 1
             }
           },
           {
@@ -1194,7 +1194,8 @@
                           "travel_date": "21 - 22 Desember 2024",
                           "price": "IDR 1.000.000",
                           "promo": "50% OFF",
-                          "city_image": "d14.jpg"
+                          "city_image": "d14.jpg",
+                          "url": "http://localhost:3000/api/v1/flights?departure_airport=CKG&arrival_airport=DHX&is_round_trip=false&flight_departure_date=2024-12-21T20:16:27.230Z&seat_class_type=Economy&total_adult_passengers=1"
                         }
                       }
                     }
@@ -2810,6 +2811,208 @@
                       "example": "Failed to update transaction status"
                     }
                   }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/create": {
+      "post": {
+        "tags": ["Admin"],
+        "summary": "Membuat notifikasi",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_id": {
+                    "type": "string",
+                    "example": "1ee4c66a-ae6f-4a2c-9310-f76c8cf2f8f6",
+                    "description": "ID user"
+                  },
+                  "notification_type": {
+                    "type": "string",
+                    "example": "PROMO",
+                    "description": "Tipe notifikasi (PROMO, SCHEDULE_CHANGE)"
+                  },
+                  "notification_message": {
+                    "type": "string",
+                    "example": "Promo terbaru!",
+                    "description": "Pesan notifikasi"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Notifikasi berhasil dibuat",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Notifikasi berhasil dibuat"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Tipe notifikasi tidak valid",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Tipe notifikasi tidak valid"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "User tidak ditemukan",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "User tidak ditemukan"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Kesalahan server",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Kesalahan pada server"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/get/{user_id}": {
+      "get": {
+        "tags": ["Notification"],
+        "summary": "Mengambil notifikasi berdasarkan user_id",
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "description": "ID user",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "5bb68854-a9db-4909-af7f-dfb72d76858f"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notifikasi berhasil ditemukan",
+            "content": {
+              "application/json": {
+                "example": {
+                  "notification_id": "77ea5767-7ed3-4594-8d61-799b0c332dbe",
+                  "user_id": "5bb68854-a9db-4909-af7f-dfb72d76858f",
+                  "notification_type": "PROMO",
+                  "notification_message": "Ada promo nih boss...",
+                  "notification_is_read": false,
+                  "notification_created_at": "2024-12-14T15:15:36.300Z"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Tidak ada notifikasi",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Tidak ada notifikasi"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Kesalahan server",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Kesalahan pada server"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/notifications/update/{notification_id}": {
+      "patch": {
+        "tags": ["Notification"],
+        "summary": "Mengubah status notifikasi",
+        "parameters": [
+          {
+            "name": "notification_id",
+            "in": "path",
+            "description": "ID notifikasi",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "77ea5767-7ed3-4594-8d61-799b0c332dbe"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "notification_is_read": {
+                    "type": "boolean",
+                    "example": true,
+                    "description": "Status notifikasi"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Notifikasi berhasil diperbarui",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "status notifikasi berhasil diperbarui"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Notifikasi tidak ditemukan",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Notifikasi tidak ditemukan"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Kesalahan server",
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "Kesalahan pada server"
                 }
               }
             }
