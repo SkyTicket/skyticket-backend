@@ -2428,33 +2428,59 @@
             "BearerAuth": []
           }
         ],
-        "operationId": "showTransaksiByIdUser ",
+        "operationId": "showTransaksiByIdUser",
         "responses": {
           "200": {
             "description": "Menampilkan list transaksi",
             "content": {
               "application/json": {
                 "example": {
-                  "type": "object",
                   "statusCode": 200,
                   "status": "success",
                   "message": "Successfully retrieved transactions",
                   "data": {
                     "Desember 2024": [
                       {
-                        "booking_code": "457116c3",
-                        "booking_payment_status": "Unpaid",
-                        "tickets": {
-                          "seat_class_type": "Economy",
-                          "seat_class_price": "1150000",
-                          "flight_duration": {
-                            "raw": 50,
-                            "formatted": "50m"
+                        "booking_payment_status": "Issued",
+                        "departure_airport_city": "Surabaya",
+                        "flight_duration": "2h 0m",
+                        "arrival_airport_city": "Singapura",
+                        "booking_code": "f6019dec",
+                        "seat_class_type": "Economy",
+                        "booking_amount": "IDR 1.665.000",
+                        "passangers_total": {
+                          "adult": 1,
+                          "child": 0,
+                          "baby": 0
+                        },
+                        "ticket": {
+                          "flight_departure_airport_name": "Bandara Internasional Juanda",
+                          "flight_arrival_airport_name": "Bandara Internasional Changi",
+                          "airline_and_seat_class": "Garuda Indonesia - Economy",
+                          "flight_number": "GA - 915",
+                          "airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/GIA.png",
+                          "passengers": [
+                            [
+                              {
+                                "id": "39c34458-b1ba-44d3-ac0d-e9aef1210156",
+                                "name": "Mr. maram2 Doe"
+                              }
+                            ]
+                          ],
+                          "seat_class_price": {
+                            "raw": "1500000",
+                            "formatted": "IDR 1.500.000"
                           },
-                          "departure_airport_city": "Surabaya",
-                          "arrival_airport_city": "Denpasar",
-                          "departure_time": "07.00",
-                          "arrival_time": "08.50"
+                          "departure_date": "27 Desember 2024",
+                          "departure_time": "10.00",
+                          "arrival_date": "27 Desember 2024",
+                          "arrival_time": "13.00",
+                          "amount_details": {
+                            "adults": "1 Adults",
+                            "adults_amount_total": "IDR 1.500.000",
+                            "tax": "IDR 165.000",
+                            "booking_amount_total": "IDR 1.665.000"
+                          }
                         }
                       }
                     ]
@@ -2480,7 +2506,7 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "User  ID is required"
+                      "example": "User ID is required"
                     },
                     "data": {
                       "type": "array",
@@ -2500,7 +2526,7 @@
                   "properties": {
                     "statusCode": {
                       "type": "integer",
-                      "example": 400
+                      "example": 404
                     },
                     "status": {
                       "type": "string",
@@ -2508,7 +2534,7 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "No transactions found for this user"
+                      "example": "Tidak ada transaksi ditemukan"
                     },
                     "data": {
                       "type": "array",
@@ -2820,7 +2846,9 @@
     },
     "/api/v1/notifications/create": {
       "post": {
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Membuat notifikasi",
         "security": [
           {
@@ -2900,7 +2928,9 @@
     },
     "/api/v1/notifications/get/{user_id}": {
       "get": {
-        "tags": ["Notification"],
+        "tags": [
+          "Notification"
+        ],
         "summary": "Mengambil notifikasi berdasarkan user_id",
         "parameters": [
           {
@@ -2955,7 +2985,9 @@
     },
     "/api/v1/notifications/update/{notification_id}": {
       "patch": {
-        "tags": ["Notification"],
+        "tags": [
+          "Notification"
+        ],
         "summary": "Mengubah status notifikasi",
         "parameters": [
           {
