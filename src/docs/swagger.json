@@ -2370,37 +2370,43 @@
             "BearerAuth": []
           }
         ],
-        "operationId": "showTransaksiByIdUser ",
+        "operationId": "showTransaksiByIdUser",
         "responses": {
           "200": {
             "description": "Menampilkan list transaksi",
             "content": {
               "application/json": {
                 "example": {
-                  "type": "object",
                   "statusCode": 200,
                   "status": "success",
                   "message": "Successfully retrieved transactions",
-                  "data": {
-                    "Desember 2024": [
-                      {
-                        "booking_code": "457116c3",
-                        "booking_payment_status": "Unpaid",
-                        "tickets": {
+                  "data": [
+                    {
+                      "booking_code": "457116c3",
+                      "booking_payment_status": "Unpaid",
+                      "booking_amount": 1150000,
+                      "tax": 10000,
+                      "tickets": [
+                        {
+                          "passenger_id": "12345",
+                          "passenger_name": "John Doe",
+                          "flight_departure_airport_name": "Surabaya International Airport",
+                          "flight_arrival_airport_name": "Ngurah Rai International Airport",
+                          "airline_and_seat_class": "Garuda Indonesia - Economy",
+                          "flight_number": "GA123 - 123",
+                          "airline_logo": "https://example.com/logo.png",
                           "seat_class_type": "Economy",
-                          "seat_class_price": "1150000",
-                          "flight_duration": {
-                            "raw": 50,
-                            "formatted": "50m"
-                          },
+                          "seat_class_price": 1140000,
                           "departure_airport_city": "Surabaya",
                           "arrival_airport_city": "Denpasar",
-                          "departure_time": "07.00",
-                          "arrival_time": "08.50"
+                          "departure_date": "2024-12-15",
+                          "departure_time": "07:00",
+                          "arrival_date": "2024-12-15",
+                          "arrival_time": "08:50"
                         }
-                      }
-                    ]
-                  }
+                      ]
+                    }
+                  ]
                 }
               }
             }
@@ -2422,7 +2428,7 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "User  ID is required"
+                      "example": "User ID is required"
                     },
                     "data": {
                       "type": "array",
@@ -2442,7 +2448,7 @@
                   "properties": {
                     "statusCode": {
                       "type": "integer",
-                      "example": 400
+                      "example": 404
                     },
                     "status": {
                       "type": "string",
@@ -2450,7 +2456,7 @@
                     },
                     "message": {
                       "type": "string",
-                      "example": "No transactions found for this user"
+                      "example": "Tidak ada transaksi ditemukan"
                     },
                     "data": {
                       "type": "array",

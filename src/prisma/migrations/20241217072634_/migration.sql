@@ -16,6 +16,9 @@ CREATE TYPE "PaymentStatus" AS ENUM ('Issued', 'Unpaid', 'Cancelled');
 -- CreateEnum
 CREATE TYPE "SeatClass" AS ENUM ('Economy', 'PremiumEconomy', 'Business', 'FirstClass');
 
+-- CreateEnum
+CREATE TYPE "UserStatus" AS ENUM ('unverified', 'verified');
+
 -- CreateTable
 CREATE TABLE "Users" (
     "user_id" TEXT NOT NULL,
@@ -24,8 +27,23 @@ CREATE TABLE "Users" (
     "user_password" TEXT NOT NULL,
     "user_role" "UserRole" NOT NULL DEFAULT 'buyer',
     "user_phone" TEXT NOT NULL,
+    "user_is_active" "UserStatus" NOT NULL DEFAULT 'unverified',
 
     CONSTRAINT "Users_pkey" PRIMARY KEY ("user_id")
+);
+
+-- CreateTable
+CREATE TABLE "Otp" (
+    "otp_id" TEXT NOT NULL,
+    "user_id" TEXT NOT NULL,
+    "otp_code" TEXT NOT NULL,
+    "otp_expires_at" TIMESTAMP(3) NOT NULL,
+    "otp_is_used" BOOLEAN NOT NULL DEFAULT false,
+    "otp_request_count" INTEGER NOT NULL DEFAULT 0,
+    "otp_request_reset_at" TIMESTAMP(3),
+    "last_otp_requested_at" TIMESTAMP(3),
+
+    CONSTRAINT "Otp_pkey" PRIMARY KEY ("otp_id")
 );
 
 -- CreateTable
@@ -142,7 +160,6 @@ CREATE TABLE "Flight_seat_assignments" (
     "seat_id" INTEGER NOT NULL,
     "flight_seat_class_id" TEXT NOT NULL,
     "available" BOOLEAN NOT NULL DEFAULT true,
-    "price" DECIMAL(15,2) NOT NULL,
 
     CONSTRAINT "Flight_seat_assignments_pkey" PRIMARY KEY ("id")
 );
@@ -211,10 +228,22 @@ CREATE TABLE "TokenBlacklist" (
 CREATE UNIQUE INDEX "Users_user_email_key" ON "Users"("user_email");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Otp_user_id_key" ON "Otp"("user_id");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Password_reset_tokens_token_key" ON "Password_reset_tokens"("token");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Bookings_booking_code_key" ON "Bookings"("booking_code");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Airports_airport_code_key" ON "Airports"("airport_code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "TokenBlacklist_token_key" ON "TokenBlacklist"("token");
+
+-- AddForeignKey
+ALTER TABLE "Otp" ADD CONSTRAINT "Otp_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "Users"("user_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Password_reset_tokens" ADD CONSTRAINT "Password_reset_tokens_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "Users"("user_id") ON DELETE RESTRICT ON UPDATE CASCADE;
