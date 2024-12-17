@@ -14,9 +14,6 @@ class FlightsController {
             flight_departure_date,
             returning_flight_departure_date,
             is_round_trip,
-            total_adult_passengers,
-            total_child_passengers,
-            total_infant_passengers,
             seat_class_type,
             sort_by,
         } = req.query
@@ -27,12 +24,18 @@ class FlightsController {
         let {
             page,
             limit,
-            show_returning_flights
+            show_returning_flights,
+            total_adult_passengers,
+            total_child_passengers,
+            total_infant_passengers,
         } = req.query
         
         page = parseInt(page) || 1;  
         limit = parseInt(limit) || 5;
-        show_returning_flights = false
+        show_returning_flights = false;
+        total_adult_passengers = 1;
+        total_child_passengers = 0;
+        total_infant_passengers = 0;
 
         const skip = (page - 1) * limit;
 

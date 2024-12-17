@@ -130,6 +130,7 @@ class favDestination {
                             airport_city: flight.departure_airport.airport_city,
                             airport_country: flight.departure_airport.airport_country,
                             continent: departureContinent.continent,
+                            airport_code: flight.departure_airport.airport_code,
                             airport_city_image: flight.departure_airport.Airport_city_image,
                             airport_time_zone: flight.departure_airport.airport_time_zone
                         },
@@ -137,12 +138,13 @@ class favDestination {
                             airport_city: flight.arrival_airport.airport_city,
                             airport_country: flight.arrival_airport.airport_country,
                             continent: arrivalContinent.continent,
+                            airport_code: flight.arrival_airport.airport_code,
                             airport_city_image: flight.arrival_airport.Airport_city_image,
                             airport_time_zone: flight.arrival_airport.airport_time_zone
                         },
                         // Menampilkan promo berdasarkan harga
                         promo: flightPrice
-                             ? flightPrice < 1000000
+                            ? flightPrice < 1000000
                                 ? "Limited!"
                                 : flightPrice <= 5000000
                                     ? "50% OFF"
@@ -207,7 +209,7 @@ class favDestination {
             .map((flight) => {
                 const departureContinent = getContinent(flight.departure_airport.airport_country);
                 const arrivalContinent = getContinent(flight.arrival_airport.airport_country);
-
+                
                 return {
                     route: `${flight.departure_airport.airport_city} → ${flight.arrival_airport.airport_city}`,
                     airline: flight.airline.airline_name,
@@ -215,7 +217,7 @@ class favDestination {
                     price: flight.flight_price ? Currency.format(flight.flight_price) : null,
                     promo: flight.promo || null,
                     city_image: flight.arrival_airport.airport_city_image || "default-image.jpg",
-                    url: `${req.protocol}://${req.get('host')}/api/v1/flights?departure_airport=${flight.departure_airport.airport_city}&arrival_airport=${flight.arrival_airport.airport_city}&is_round_trip=false&flight_departure_date=${(flight.flight_departure_date).toISOString()}&seat_class_type=economy&total_adult_passengers=1`,
+                    url: `${req.protocol}://${req.get('host')}/api/v1/flights?departure_airport=${flight.departure_airport.airport_code}&arrival_airport=${flight.arrival_airport.airport_code}&is_round_trip=false&flight_departure_date=${(flight.flight_departure_date).toISOString()}&seat_class_type=Economy&total_adult_passengers=1`,
                 }
             })
 
