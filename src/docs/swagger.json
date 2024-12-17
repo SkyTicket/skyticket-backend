@@ -1565,7 +1565,7 @@
                   "status": "success",
                   "message": "Berhasil menemukan penerbangan",
                   "passengers": {
-                    "adult": 1,
+                    "adult": 2,
                     "child": null,
                     "infant": null,
                     "total_no_infant": null,
@@ -1575,6 +1575,7 @@
                     "flights_data": [
                       {
                         "flight_id": "261e0a2d-b44c-4098-afc0-031ad36aa153",
+                        "flight_seat_class_type": "Economy",
                         "flight_seat_class_capacity": 180,
                         "airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/LNI.png",
                         "airline_name_and_class": "Lion Air Indonesia - Economy",
@@ -1651,8 +1652,7 @@
                     "pagination": {
                       "current_page": 1,
                       "limit": 2,
-                      "prev_url": null,
-                      "next_url": "http://localhost:3000/api/v1/flights?departure_airport=SUB&arrival_airport=CGK&flight_departure_date=2024-12-25+00%3A00%3A00&is_round_trip=false&total_adult_passengers=1&seat_class_type=Economy&sort_by=lowest_price&show_returning_flights=false&page=2&limit=2"
+                      "total_pages": 2
                     }
                   }
                 }
