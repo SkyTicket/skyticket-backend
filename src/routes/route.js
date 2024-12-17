@@ -57,6 +57,7 @@ app.get(
 app.get(
   "/api/v1/user/all-users",
   AuthMiddleware.authenticateUser,
+  AdminMiddleware,
   UserController.getAllUsers
 );
 app.get(
