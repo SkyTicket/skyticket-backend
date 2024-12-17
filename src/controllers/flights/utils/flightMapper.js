@@ -14,7 +14,6 @@ class FlightDataMapper {
             
             return {
                 flight_id: flight.flight_id, // for count tickets handling
-                flight_seat_class_type: findBySeatClassType.seat_class.seat_class_type,
                 flight_seat_class_capacity: findBySeatClassType.seat_class_capacity, // for count tickets handling
                 airline_logo: flight.airline.Airline_logo,
                 airline_name_and_class: `${flight.airline.airline_name} - ${findBySeatClassType.seat_class.seat_class_type}`,
