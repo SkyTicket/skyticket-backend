@@ -135,6 +135,7 @@ class FlightsController {
                     total_no_infant: totalNoInfant,
                     total: passengersTotal,
                 },
+                searched_trip: `${departure_airport} > ${arrival_airport} - ${totalNoInfant} Penumpang - ${seat_class_type}`,
                 flights: show_returning_flights === false ? {
                     flights_data: mappedDepartingFlights,
                     returning_flights_url: returningFlightsUrl,
