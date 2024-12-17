@@ -4,7 +4,8 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 const jwt = require("jsonwebtoken");
 const FlightDataMapper = require("../flights/utils/flightMapper");
-const moment = require("moment");
+// const moment = require("moment");
+const DateTimeUtils = require("../../libs/datetime");
 
 const MIDTRANS_API_URL =
   "https://app.sandbox.midtrans.com/snap/v1/transactions";
@@ -73,6 +74,7 @@ class PaymentController {
           data: [],
         });
       }
+
       const decoded = jwt.verify(authToken, process.env.JWT_SECRET);
       console.log(decoded);
       const userId = decoded.userID;
@@ -81,37 +83,28 @@ class PaymentController {
         return res.status(400).json({
           statusCode: 400,
           status: "Failed",
-          message: "User  ID is required",
+          message: "User ID is required",
           data: [],
         });
       }
 
       const transaksi = await prisma.bookings.findMany({
-        where: {
-          user_id: userId,
-        },
+        where: { user_id: userId },
         include: {
           tickets: {
             include: {
+              passanger: true, // Mengambil data penumpang
               flight_seat_assigment: {
                 include: {
+                  seat: true,
                   flight_seat_class: {
                     include: {
                       seat_class: true,
                       flight: {
                         include: {
-                          departure_airport: {
-                            select: {
-                              airport_city: true,
-                              airport_name: true,
-                            },
-                          },
-                          arrival_airport: {
-                            select: {
-                              airport_city: true,
-                              airport_name: true,
-                            },
-                          },
+                          airline: true, // Mengambil data maskapai
+                          departure_airport: true,
+                          arrival_airport: true,
                         },
                       },
                     },
@@ -123,103 +116,83 @@ class PaymentController {
         },
       });
 
-      const flights = await prisma.flights.findMany({
-        include: {
-          airline: true,
-          departure_airport: true,
-          arrival_airport: true,
-          flight_seat_classes: {
-            include: {
-              seat_class: true,
-            },
-          },
-        },
-      });
+      if (!transaksi || transaksi.length === 0) {
+        return res.status(404).json({
+          statusCode: 404,
+          status: "failed",
+          message: "Tidak ada transaksi ditemukan",
+          data: [],
+        });
+      }
 
       // Format data transaksi
       const formattedTransaksi = transaksi.map((booking) => {
         return {
           booking_code: booking.booking_code,
           booking_payment_status: booking.booking_payment_status,
+          booking_amount: booking.booking_amount,
+          tax: booking.tax,
           tickets: booking.tickets.map((ticket) => {
             const seatClassType =
-              ticket.flight_seat_assigment.flight_seat_class.seat_class
-                .seat_class_type;
+              ticket.flight_seat_assigment?.flight_seat_class?.seat_class
+                ?.seat_class_type || "Unknown";
 
-            const mappedFlights = FlightDataMapper.mapFlights(
-              flights,
-              seatClassType
-            );
+            const seatClassPrice =
+              ticket.flight_seat_assigment?.flight_seat_class
+                ?.seat_class_price || 0;
 
-            const matchedFlight = mappedFlights.find(
-              (flight) =>
-                flight.flight_id ===
-                ticket.flight_seat_assigment.flight_seat_class.flight_id
-            );
+            const flight =
+              ticket.flight_seat_assigment?.flight_seat_class?.flight || {};
+
+            const timezone = "Asia/Jakarta";
+
+            // Menambahkan data airline, seat class, flight number, dan logo
+            const airlineAndSeatClass = `${flight?.airline?.airline_name} - ${seatClassType}`;
+            const flightNumber = `${flight?.airline?.airline_code} - ${flight?.flight_number}`;
+            const airlineLogo = flight?.airline?.Airline_logo || "N/A";
 
             return {
+              passenger_id: ticket.passanger?.passenger_id || "Unknown",
+              passenger_name: ticket.passanger?.name || "Unknown",
+              flight_departure_airport_name:
+                flight?.departure_airport?.airport_name || "N/A", // Nama bandara keberangkatan
+              flight_arrival_airport_name:
+                flight?.arrival_airport?.airport_name || "N/A", // Nama bandara kedatangan
+              airline_and_seat_class: airlineAndSeatClass,
+              flight_number: flightNumber,
+              airline_logo: airlineLogo,
               seat_class_type: seatClassType,
-              seat_class_price:
-                ticket.flight_seat_assigment.flight_seat_class.seat_class_price,
-              flight_duration: matchedFlight?.flight_duration,
+              seat_class_price: seatClassPrice,
               departure_airport_city:
-                ticket.flight_seat_assigment.flight_seat_class.flight
-                  .departure_airport.airport_city,
+                flight?.departure_airport?.airport_city || "N/A",
               arrival_airport_city:
-                ticket.flight_seat_assigment.flight_seat_class.flight
-                  .arrival_airport.airport_city,
-              departure_time: matchedFlight?.departure_time,
-              departure_date: matchedFlight?.flight_details?.departure_date,
+                flight?.arrival_airport?.airport_city || "N/A",
+              departure_date: DateTimeUtils.formatDateByTimezone(
+                flight?.flight_departure_date,
+                timezone
+              ),
+              departure_time: DateTimeUtils.formatHoursByTimezone(
+                flight?.flight_departure_date,
+                timezone
+              ),
+              arrival_date: DateTimeUtils.formatDateByTimezone(
+                flight?.flight_arrival_date,
+                timezone
+              ),
+              arrival_time: DateTimeUtils.formatHoursByTimezone(
+                flight?.flight_arrival_date,
+                timezone
+              ),
             };
           }),
         };
       });
 
-      const groupedByMonth = {};
-      formattedTransaksi.forEach((booking) => {
-        booking.tickets.forEach((ticket) => {
-          const { departure_date } = ticket;
-
-          if (!departure_date) {
-            console.error("Missing departure_date in ticket:", ticket);
-            return;
-          }
-
-          // Parsing tanggal menggunakan moment
-          const date = moment(departure_date, "DD MMMM YYYY", "id");
-          if (!date.isValid()) {
-            console.error("Invalid departure_date format:", departure_date);
-            return;
-          }
-
-          // Format bulan dan tahun
-          const monthYear = date.format("MMMM YYYY");
-
-          if (!groupedByMonth[monthYear]) {
-            groupedByMonth[monthYear] = [];
-          }
-
-          groupedByMonth[monthYear].push({
-            booking_code: booking.booking_code,
-            booking_payment_status: booking.booking_payment_status,
-            ticket,
-          });
-        });
-      });
-
-      if (Object.keys(groupedByMonth).length === 0) {
-        return res.status(404).json({
-          statusCode: 404,
-          status: "Failed",
-          message: "No transactions found for this user",
-          data: [],
-        });
-      }
       res.status(200).json({
         statusCode: 200,
         status: "success",
         message: "Successfully retrieved transactions",
-        data: groupedByMonth,
+        data: formattedTransaksi,
       });
     } catch (error) {
       console.error("Error retrieving transactions:", error.message);
@@ -233,7 +206,6 @@ class PaymentController {
         });
       }
 
-      console.error("Error retrieving transactions:", error.message);
       res.status(500).json({
         statusCode: 500,
         status: "failed",
