@@ -29,16 +29,15 @@ class TicketController {
     const { seats, passengers, bookerName, bookerEmail, bookerPhone } =
       req.body;
 
-    const token = req.headers.authorization?.split(" ")[1];
-
-    if (!token) {
-      return res.status(401).json({
+    const userId = req.user.user_id;
+    if (!userId) {
+      throw {
         statusCode: 401,
         status: "Failed",
-        message: "Token tidak ditemukan",
-        data: [],
-      });
+        message: "UserID tidak ditemukan dalam token.",
+      };
     }
+
     if (
       !seats ||
       !passengers ||
@@ -89,18 +88,6 @@ class TicketController {
 
         const tax = 0.11 * totalPrice;
 
-        // Dekode token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log(decoded);
-        const userId = decoded.userID;
-
-        if (!userId) {
-          throw {
-            statusCode: 401,
-            status: "Failed",
-            message: "User   ID tidak ditemukan dalam token.",
-          };
-        }
         const transaction = await prisma.bookings.create({
           data: {
             booking_code: bookingCode,
@@ -115,24 +102,12 @@ class TicketController {
             },
           },
         });
-        const user = await prisma.users.findUnique({
-          where: { user_id: userId },
-        });
-
-        if (!user) {
-          throw {
-            statusCode: 400,
-            status: "Failed",
-            message: "User   not found",
-          };
-        }
         const bookerData = {
           user_id: userId,
           booker_name: bookerName,
           booker_email: bookerEmail,
           booker_phone: bookerPhone,
         };
-
         const booker = await prisma.bookers.create({
           data: bookerData,
         });
