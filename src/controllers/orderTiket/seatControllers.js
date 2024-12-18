@@ -1,5 +1,5 @@
 const { PrismaClient } = require("@prisma/client");
-const FlightDataMapper = require("../flights/utils/flightMapper");
+const FlightDataMapper = require("../flights/utils/flightMapper"); //untuk memproses format penerbangan
 const prisma = new PrismaClient();
 class SeatController {
   static async getDetailFlight(req, res) {
