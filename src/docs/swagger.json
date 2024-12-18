@@ -1195,7 +1195,9 @@
                           "price": "IDR 1.000.000",
                           "promo": "50% OFF",
                           "city_image": "d14.jpg",
-                          "url": "http://localhost:3000/api/v1/flights?departure_airport=CKG&arrival_airport=DHX&is_round_trip=false&flight_departure_date=2024-12-21T20:16:27.230Z&seat_class_type=Economy&total_adult_passengers=1"
+                          "url": "http://localhost:3000/api/v1/flights?departure_airport=CKG&arrival_airport=DHX&is_round_trip=false&flight_departure_date=2024-12-21T20:16:27.230Z&seat_class_type=Economy&total_adult_passengers=1",
+                          "departure_city": "Chongqing",
+                          "arrival_city": "Kediri"
                         }
                       }
                     }
