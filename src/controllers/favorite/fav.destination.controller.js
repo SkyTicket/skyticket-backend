@@ -217,11 +217,13 @@ class favDestination {
                     price: flight.flight_price ? Currency.format(flight.flight_price) : null,
                     promo: flight.promo || null,
                     city_image: flight.arrival_airport.airport_city_image || "default-image.jpg",
-                    url: `${req.protocol}://${req.get('host')}/api/v1/flights?departure_airport=${flight.departure_airport.airport_code}&arrival_airport=${flight.arrival_airport.airport_code}&is_round_trip=false&flight_departure_date=${(flight.flight_departure_date).toISOString()}&seat_class_type=Economy&total_adult_passengers=1`,
+                    url: `https://${req.get('host')}/api/v1/flights?departure_airport=${flight.departure_airport.airport_code}&arrival_airport=${flight.arrival_airport.airport_code}&is_round_trip=false&flight_departure_date=${(flight.flight_departure_date).toISOString()}&seat_class_type=Economy&total_adult_passengers=1`,
+                    departure_city: flight.departure_airport.airport_city,
+                    arrival_city: flight.arrival_airport.airport_city,
                 }
             })
 
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 currentPage: pageNumber,
                 totalPages,
@@ -231,7 +233,7 @@ class favDestination {
             });
         } catch(error) {
             console.error("Error fetching favorite destinations", error);
-            res.status(500).json({ success: false, message: "Gagal menampilkan destinasi favorit" });
+            return res.status(500).json({ success: false, message: "Gagal menampilkan destinasi favorit" });
         }
     }
 }
