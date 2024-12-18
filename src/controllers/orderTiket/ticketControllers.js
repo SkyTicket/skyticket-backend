@@ -81,7 +81,7 @@ class TicketController {
         const categorySubtotals = {
           adult: 0,
           child: 0,
-          baby: 0,
+          Infant: 0,
         };
         seatData.forEach((seat, index) => {
           const passengerCategory = TicketController.getCategoryByAge(
@@ -92,16 +92,16 @@ class TicketController {
             10
           );
           if (passengerCategory === "Adult") {
-            categorySubtotals.adult += seatPrice; // Hanya adult yang dihitung
+            categorySubtotals.adult += seatPrice;
           } else if (passengerCategory === "Child") {
-            categorySubtotals.child += 0; // Child harganya 0
-          } else if (passengerCategory === "Baby") {
-            categorySubtotals.baby += 0; // Baby harganya 0
+            categorySubtotals.child += 0;
+          } else if (passengerCategory === "Infant") {
+            categorySubtotals.baby += 0;
           }
         });
-        const totalPrice = categorySubtotals.adult; // Total hanya berdasarkan adult
-        const tax = 0.11 * totalPrice; // Pajak dihitung dari total adult
-        const totalAmount = totalPrice + tax; // Total keseluruhan
+        const totalPrice = categorySubtotals.adult;
+        const tax = 0.11 * totalPrice;
+        const totalAmount = totalPrice + tax;
 
         const transaction = await prisma.bookings.create({
           data: {

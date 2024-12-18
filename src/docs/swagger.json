@@ -2034,7 +2034,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Successfully created ticket order",
             "content": {
               "application/json": {
@@ -2064,7 +2064,7 @@
                           },
                           "flight_seat_assigment_id": {
                             "type": "integer",
-                            "example": "1"
+                            "example": 1
                           },
                           "passenger_id": {
                             "type": "string",
@@ -2080,6 +2080,31 @@
                     "bookingCode": {
                       "type": "string",
                       "example": "fea8798c"
+                    },
+                    "subtotal": {
+                      "type": "object",
+                      "properties": {
+                        "adult": {
+                          "type": "integer",
+                          "example": 2300000
+                        },
+                        "child": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "baby": {
+                          "type": "integer",
+                          "example": 0
+                        }
+                      }
+                    },
+                    "tax": {
+                      "type": "integer",
+                      "example": 253000
+                    },
+                    "total": {
+                      "type": "integer",
+                      "example": 2553000
                     }
                   }
                 }
