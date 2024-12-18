@@ -2,8 +2,6 @@ require("dotenv").config();
 const { PrismaClient } = require("@prisma/client");
 const crypto = require("crypto");
 const prisma = new PrismaClient();
-const jwt = require("jsonwebtoken");
-const FlightDataMapper = require("../flights/utils/flightMapper");
 
 class TicketController {
   static getCategoryByAge(dateOfBirth) {
@@ -80,13 +78,30 @@ class TicketController {
           };
         }
 
-        const totalPrice = seatData.reduce(
-          (total, seat) =>
-            total + parseInt(seat.flight_seat_class.seat_class_price),
-          0
-        );
-
-        const tax = 0.11 * totalPrice;
+        const categorySubtotals = {
+          adult: 0,
+          child: 0,
+          baby: 0,
+        };
+        seatData.forEach((seat, index) => {
+          const passengerCategory = TicketController.getCategoryByAge(
+            passengers[index].dateOfBirth
+          );
+          const seatPrice = parseInt(
+            seat.flight_seat_class.seat_class_price,
+            10
+          );
+          if (passengerCategory === "Adult") {
+            categorySubtotals.adult += seatPrice; // Hanya adult yang dihitung
+          } else if (passengerCategory === "Child") {
+            categorySubtotals.child += 0; // Child harganya 0
+          } else if (passengerCategory === "Baby") {
+            categorySubtotals.baby += 0; // Baby harganya 0
+          }
+        });
+        const totalPrice = categorySubtotals.adult; // Total hanya berdasarkan adult
+        const tax = 0.11 * totalPrice; // Pajak dihitung dari total adult
+        const totalAmount = totalPrice + tax; // Total keseluruhan
 
         const transaction = await prisma.bookings.create({
           data: {
@@ -178,6 +193,9 @@ class TicketController {
           message: "Berhasil membuat Tiket",
           data: ticketData,
           bookingCode,
+          subtotal: categorySubtotals,
+          tax,
+          total: totalAmount,
         };
       });
       return res.status(transaction.statusCode).json(transaction);
