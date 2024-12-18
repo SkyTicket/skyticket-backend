@@ -129,43 +129,59 @@ class PaymentController {
 
       // Format data transaksi
       const groupedTransaksi = transaksi.reduce((grouped, booking) => {
-        const flightTicket = booking.tickets[0].flight_seat_assigment?.flight_seat_class;
-      
+        const flightTicket =
+          booking.tickets[0].flight_seat_assigment?.flight_seat_class;
+
         const passengerCategory = (category) => {
-          return booking.tickets.filter((passenger) => passenger.category === category);
+          return booking.tickets.filter(
+            (passenger) => passenger.category === category
+          );
         };
-      
+
         const amountDetails = {
-          adults: `${passengerCategory('Adult').length} Adults`,
-          adults_amount_total: Currency.format(passengerCategory('Adult').length * flightTicket.seat_class_price),
-          ...(passengerCategory('Child').length > 0 && {
-            children: `${passengerCategory('Child').length} Children`,
-            children_amount_total: Currency.format(passengerCategory('Child').length * flightTicket.seat_class_price),
+          adults: `${passengerCategory("Adult").length} Adults`,
+          adults_amount_total: Currency.format(
+            passengerCategory("Adult").length * flightTicket.seat_class_price
+          ),
+          ...(passengerCategory("Child").length > 0 && {
+            children: `${passengerCategory("Child").length} Children`,
+            children_amount_total: Currency.format(
+              passengerCategory("Child").length * flightTicket.seat_class_price
+            ),
           }),
-          ...(passengerCategory('Baby').length > 0 && {
-            babies: `${passengerCategory('Baby').length} Babies`,
-            babies_amount_total: Currency.format(passengerCategory('Baby').length * 0),
+          ...(passengerCategory("Baby").length > 0 && {
+            babies: `${passengerCategory("Baby").length} Babies`,
+            babies_amount_total: Currency.format(
+              passengerCategory("Baby").length * 0
+            ),
           }),
           tax: Currency.format(booking.tax),
           booking_amount_total: Currency.format(Number(booking.booking_amount)),
         };
-      
+
         const formattedData = {
           booking_payment_status: booking.booking_payment_status,
-          departure_airport_city: flightTicket.flight.departure_airport.airport_city,
-          flight_duration: Moment.timeDifferenceFormatted(flightTicket.flight.flight_arrival_date, flightTicket.flight.flight_departure_date),
-          arrival_airport_city: flightTicket.flight.arrival_airport.airport_city,
+          departure_airport_city:
+            flightTicket.flight.departure_airport.airport_city,
+          flight_duration: Moment.timeDifferenceFormatted(
+            flightTicket.flight.flight_arrival_date,
+            flightTicket.flight.flight_departure_date
+          ),
+          arrival_airport_city:
+            flightTicket.flight.arrival_airport.airport_city,
           booking_code: booking.booking_code,
           seat_class_type: flightTicket.seat_class.seat_class_type || "Unknown",
           booking_amount: Currency.format(booking.booking_amount),
           passangers_total: {
-            adult: passengerCategory('Adult').length,
-            child: passengerCategory('Child').length,
-            baby: passengerCategory('Baby').length,
+            adult: passengerCategory("Adult").length,
+            child: passengerCategory("Child").length,
+            baby: passengerCategory("Baby").length,
           },
           ticket: {
-            flight_departure_airport_name: flightTicket.flight.departure_airport.airport_name || {},
-            flight_arrival_airport_name: flightTicket.flight.arrival_airport.airport_name || {},
+            flight_departure_airport_name:
+              flightTicket.flight.departure_airport.airport_name || {},
+            flight_arrival_airport_name:
+              flightTicket.flight.arrival_airport.airport_name || {},
             airline_and_seat_class: `${flightTicket.flight.airline.airline_name} - ${flightTicket.seat_class.seat_class_type}`,
             flight_number: `${flightTicket.flight.airline.airline_code} - ${flightTicket.flight.flight_number}`,
             airline_logo: flightTicket.flight.airline.Airline_logo || "N/A",
@@ -173,7 +189,13 @@ class PaymentController {
               return [
                 {
                   id: passenger.passanger.passenger_id,
-                  name: `${passenger.passanger.title}. ${passenger.passanger.name} ${passenger.passanger.familyName ? passenger.passanger.familyName : ""}`,
+                  name: `${passenger.passanger.title}. ${
+                    passenger.passanger.name
+                  } ${
+                    passenger.passanger.familyName
+                      ? passenger.passanger.familyName
+                      : ""
+                  }`,
                 },
               ];
             }),
@@ -181,26 +203,42 @@ class PaymentController {
               raw: flightTicket.seat_class_price || 0,
               formatted: Currency.format(flightTicket.seat_class_price || 0),
             },
-            departure_date: DateTimeUtils.formatDateByTimezone(flightTicket.flight.flight_departure_date, flightTicket.flight.departure_airport.airport_time_zone),
-            departure_time: DateTimeUtils.formatHoursByTimezone(flightTicket.flight.flight_departure_date, flightTicket.flight.departure_airport.airport_time_zone),
-            arrival_date: DateTimeUtils.formatDateByTimezone(flightTicket.flight.flight_arrival_date, flightTicket.flight.arrival_airport.airport_time_zone),
-            arrival_time: DateTimeUtils.formatHoursByTimezone(flightTicket.flight.flight_arrival_date, flightTicket.flight.arrival_airport.airport_time_zone),
+            departure_date: DateTimeUtils.formatDateByTimezone(
+              flightTicket.flight.flight_departure_date,
+              flightTicket.flight.departure_airport.airport_time_zone
+            ),
+            departure_time: DateTimeUtils.formatHoursByTimezone(
+              flightTicket.flight.flight_departure_date,
+              flightTicket.flight.departure_airport.airport_time_zone
+            ),
+            arrival_date: DateTimeUtils.formatDateByTimezone(
+              flightTicket.flight.flight_arrival_date,
+              flightTicket.flight.arrival_airport.airport_time_zone
+            ),
+            arrival_time: DateTimeUtils.formatHoursByTimezone(
+              flightTicket.flight.flight_arrival_date,
+              flightTicket.flight.arrival_airport.airport_time_zone
+            ),
             amount_details: amountDetails,
           },
         };
-      
+
         // take departure date for grouping
-        const departureDate = new Date(flightTicket.flight.flight_departure_date);
-        const monthYearKey = `${departureDate.toLocaleString('id-ID', { month: 'long' })} ${departureDate.getFullYear()}`;
-      
+        const departureDate = new Date(
+          flightTicket.flight.flight_departure_date
+        );
+        const monthYearKey = `${departureDate.toLocaleString("id-ID", {
+          month: "long",
+        })} ${departureDate.getFullYear()}`;
+
         // group by monthYearKey
         if (!grouped[monthYearKey]) {
           grouped[monthYearKey] = [];
         }
         grouped[monthYearKey].push(formattedData);
-      
+
         return grouped;
-      }, {}); // initial value = {}      
+      }, {}); // initial value = {}
 
       return res.status(200).json({
         statusCode: 200,
@@ -231,174 +269,63 @@ class PaymentController {
 
   static async createPayment(req, res) {
     try {
-      const { bookingId } = req.body;
+      const { bookingId } = req.params;
 
-      const authToken = req.headers.authorization?.split(" ")[1];
-
-      if (!authToken) {
-        return res.status(401).json({
+      const userId = req.user.user_id;
+      if (!userId) {
+        throw {
           statusCode: 401,
           status: "Failed",
-          message: "Token tidak ditemukan",
-          data: [],
-        });
-      }
-
-      if (!bookingId) {
-        return res.status(400).json({ error: "lengkapi fields" });
+          message: "UserID tidak ditemukan dalam token.",
+        };
       }
 
       const booking = await prisma.bookings.findUnique({
         where: { booking_id: bookingId },
-        include: {
-          user: true,
-          tickets: {
-            include: {
-              flight_seat_assigment: {
-                include: {
-                  flight_seat_class: {
-                    include: {
-                      seat_class: true, // Ensure this is included
-                      flight: {
-                        include: {
-                          airline: true,
-                          departure_airport: {
-                            select: {
-                              airport_city: true,
-                              airport_name: true,
-                            },
-                          },
-                          arrival_airport: {
-                            select: {
-                              airport_city: true,
-                              airport_name: true,
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
       });
-
       if (!booking) {
         return res.status(404).json({ error: "id booking tidak ada" });
       }
 
-      const decoded = jwt.verify(authToken, process.env.JWT_SECRET);
-      console.log(decoded);
-      const userId = decoded.userID;
-
-      const user = await prisma.users.findUnique({
-        where: { user_id: userId },
-      });
-
-      if (!user) {
-        return res.status(404).json({ error: "user tidak ada" });
-      }
-      if (!user.user_name || !user.user_email || !user.user_phone) {
-        return res.status(400).json({
-          error:
-            "Detail pengguna tidak lengkap. Nama, email, dan telepon wajib diisi",
-        });
-      }
-      // Ambil detail penerbangan dari tiket
-      const ticket = booking.tickets[0]; // Ambil tiket pertama (asumsi satu booking satu tiket)
-      const flightSeatAssignment = ticket.flight_seat_assigment;
-      const flightSeatClass = flightSeatAssignment.flight_seat_class;
-      const flight = flightSeatClass.flight;
-
-      // Pemetaan data penerbangan
-      const seatClass = flightSeatClass.seat_class.seat_class_type; // Ambil jenis kelas kursi
-      const seatPrice = flightSeatClass.seat_class_price;
-      const formattedFlightData = [
-        {
-          seat_class_type: seatClass,
-          seat_class_price: {
-            raw: seatPrice,
-            formatted: seatPrice.toLocaleString("id-ID", {
-              style: "currency",
-              currency: "IDR",
-            }),
-          },
-          departure_airport_city: flight.departure_airport.airport_city,
-          departure_airport_name: flight.departure_airport.airport_name,
-          arrival_airport_city: flight.arrival_airport.airport_city,
-          arrival_airport_name: flight.arrival_airport.airport_name,
-          departure_time: flight.flight_departure_date.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          departure_date:
-            flight.flight_departure_date.toLocaleDateString("id-ID"),
-          arrival_time: flight.flight_arrival_date.toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          arrival_date: flight.flight_arrival_date.toLocaleDateString("id-ID"),
-          airline_name_and_class: `${flight.airline.name} - ${seatClass}`,
-          flight_number: flight.flight_number,
-          airline_logo: flight.airline.logo, // Pastikan ada field logo di model Airline
-          Informasi: [
-            "Baggage 20 kg",
-            "Cabin baggage 7 kg",
-            "In-flight entertainment",
-          ],
-        },
-      ];
-
-      const passengerCounts = {
-        adult: booking.tickets.filter((ticket) => ticket.category === "Adult")
-          .length,
-        child: booking.tickets.filter((ticket) => ticket.category === "Child")
-          .length,
-        baby: booking.tickets.filter((ticket) => ticket.category === "Baby")
-          .length,
-      };
-      const subTotalPrice = {
-        adult: passengerCounts.adult * seatPrice,
-        child: passengerCounts.child * seatPrice,
-        baby: passengerCounts.baby * seatPrice,
-      };
-      const totalPrice =
-        subTotalPrice.adult + subTotalPrice.child + subTotalPrice.baby;
-      const tax = 0.11 * totalPrice; // Misalkan pajak 11%
-      const total = totalPrice + tax;
-
-      const itemDetails = booking.tickets.map((ticket) => {
-        const flightSeatAssignment = ticket.flight_seat_assigment;
-        const flightSeatClass = flightSeatAssignment.flight_seat_class;
-        const flight = flightSeatClass.flight;
-
-        return {
-          id: ticket.ticket_id,
-          price: flightSeatClass.seat_class_price,
-          quantity: 1,
-          name: `${flight.flight_number} - ${flight.airline.name} (${flightSeatClass.seat_class.seat_class_type})`,
-        };
-      });
-      // const totalPrice = calculateTotalPrice(booking);
+      const totalPrice = calculateTotalPrice(booking);
       console.log("Total Price:", totalPrice);
+      const now = new Date();
+      const startTime =
+        now.toISOString().slice(0, 19).replace("T", " ") + " +0000";
+      const expiryDuration = 1;
+      const expiryTime = new Date(
+        now.getTime() + expiryDuration * 60 * 60 * 1000
+      );
+
+      // Format waktu kedaluwarsa ke format jam (HH:mm:ss)
+      const expiryHours = expiryTime.getHours().toString().padStart(2, "0");
+      const expiryMinutes = expiryTime.getMinutes().toString().padStart(2, "0");
+      const expirySeconds = expiryTime.getSeconds().toString().padStart(2, "0");
+      const formattedExpiryTime = `${expiryHours}:${expiryMinutes}:${expirySeconds}`;
+
       const snapPayload = {
         transaction_details: {
           order_id: booking.booking_code,
           gross_amount: totalPrice,
         },
         customer_details: {
-          first_name: user.user_name,
-          email: user.user_email,
-          phone: user.user_phone,
+          first_name: userId.user_email,
+          email: userId.user_email,
+          phone: userId.user_phone,
         },
-        item_details: itemDetails,
-        // Menambahkan detail penerbangan ke dalam payload
-        formattedFlightData, // Pastikan ini ada
-        subTotalPrice, // Pastikan ini ada
-        tax, // Pastikan ini ada
-        total, // Pastikan ini ada
+        item_details: [
+          {
+            id: booking.booking_code,
+            price: totalPrice,
+            quantity: 1,
+            name: "Ticket Payment",
+          },
+        ],
+        expiry: {
+          start_time: startTime,
+          unit: "hour",
+          duration: expiryDuration,
+        },
       };
       const response = await axios.post(MIDTRANS_API_URL, snapPayload, {
         headers: {
@@ -420,8 +347,11 @@ class PaymentController {
 
       res.status(201).json({
         message: "Berhasil membuat pembayaran",
+        booking_id: bookingId,
+        booking_code: booking.booking_code,
         token: token,
         redirect_url: redirectUrl,
+        expiry_time: formattedExpiryTime,
       });
     } catch (error) {
       console.error("Gagal membuat pembayaran", error.message);
