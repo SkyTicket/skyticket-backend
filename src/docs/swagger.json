@@ -576,9 +576,13 @@
                       "type": "string",
                       "example": "Link reset password telah dikirim ke email."
                     },
-                    "resetLink": {
+                    "reset_link": {
                       "type": "string",
                       "example": "http://localhost:3000/password/reset-password?token=eyJhbGciOiJIUzI1NiIsIn..."
+                    },
+                    "token": {
+                      "type": "string",
+                      "example": "eyABCdefg..."
                     }
                   }
                 }
