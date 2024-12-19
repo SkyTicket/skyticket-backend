@@ -1169,8 +1169,14 @@
             "description": "Filter destinasi berdasarkan continent",
             "required": "false",
             "schema": {
-              "type": "string",
-              "example": "asia"
+              "enum": [
+                "Asia",
+                "Amerika",
+                "Australia",
+                "Eropa",
+                "Afrika"
+              ],
+              "default": "Asia"
             }
           }
         ],

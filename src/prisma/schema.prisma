@@ -117,6 +117,7 @@ model Airports {
   airport_id String @id @default(uuid())
   airport_name String
   airport_code String @unique @db.Char(3)
+  airport_continent Continents?
   airport_country String
   airport_city String
   Airport_city_image String
@@ -213,6 +214,13 @@ enum UserRole {
   admin
 }
 
+enum Continents {
+  Asia
+  Amerika
+  Australia
+  Eropa
+  Afrika
+}
 
 enum PassengerCategory {
   Adult

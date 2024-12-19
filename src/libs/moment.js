@@ -34,6 +34,14 @@ class Moment {
 
         return differenceInMin
     }
+
+    static formatToSQLDateTime(dateTime){
+        let datetime = new Date(dateTime).toISOString();
+
+        datetime = moment(dateTime).format('YYYY-MM-DD 00:00:00')
+
+        return datetime;
+    }
 }
 
 module.exports = Moment;
