@@ -27,4 +27,4 @@ description('GET /api/v1/favorite-destination', () => {
 
         expect(response.statusCode).toBe(500);
     });
-})
+});
