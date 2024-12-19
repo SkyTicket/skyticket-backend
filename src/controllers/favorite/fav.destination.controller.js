@@ -2,6 +2,8 @@ const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 const { countries } = require('countries-list');
 const Currency = require('../../libs/currency');
+const DateTimeUtils = require('../../libs/datetime');
+const Luxon = require('../../libs/luxon');
 
 class favDestination {
     static async favDestination(req, res) {
@@ -173,15 +175,23 @@ class favDestination {
             }
 
             // Format tanggal
-            const formattedDate = (startDate, endDate) => {
+            const formattedDate = (startDate, endDate, startDateTz, endDateTz) => {
                 if(!startDate || !endDate) return null;
                 const options = { day: '2-digit', month: 'long', year: 'numeric' };
 
-                const start = new Date(startDate).toLocaleDateString('id-ID', options);
-                const end = new Date(endDate).toLocaleDateString('id-ID', options);
+                let start = new Date(startDate)
+                const startDateTzOffset = Luxon.getTimezoneOffset(startDateTz)
+                start = DateTimeUtils.modifyHours(start, startDateTzOffset)
 
-                const [startDay, startMonth, startYear] = start.split(' ');
-                const [endDay, endMonth, endYear] = end.split(' ');
+                let end = new Date(endDate)
+                const endDateTzOffset = Luxon.getTimezoneOffset(endDateTz)
+                end = DateTimeUtils.modifyHours(end, endDateTzOffset)
+
+                const startDateWithOptions = new Date(start).toLocaleDateString('id-ID', options);
+                const endDateWithOptions = new Date(end).toLocaleDateString('id-ID', options);
+
+                const [startDay, startMonth, startYear] = startDateWithOptions.split(' ');
+                const [endDay, endMonth, endYear] = endDateWithOptions.split(' ');
 
                 if(startMonth === endMonth && startYear === endYear) {
                     return `${startDay} - ${endDay} ${startMonth} ${startYear}`;
@@ -213,7 +223,7 @@ class favDestination {
                 return {
                     route: `${flight.departure_airport.airport_city} → ${flight.arrival_airport.airport_city}`,
                     airline: flight.airline.airline_name,
-                    travel_date: formattedDate(flight.flight_departure_date, flight.flight_arrival_date),
+                    travel_date: formattedDate(flight.flight_departure_date, flight.flight_arrival_date, flight.departure_airport.airport_time_zone, flight.arrival_airport.airport_time_zone),
                     price: flight.flight_price ? Currency.format(flight.flight_price) : null,
                     promo: flight.promo || null,
                     city_image: flight.arrival_airport.airport_city_image || "default-image.jpg",
