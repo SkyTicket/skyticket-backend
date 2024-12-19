@@ -1,7 +1,10 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const { countries } = require('countries-list');
 const Currency = require('../../libs/currency');
+const DateTimeUtils = require('../../libs/datetime');
+const Luxon = require('../../libs/luxon');
+const Moment = require('../../libs/moment');
+const FavDestDateFormatter = require('./helpers/date_formatter');
 
 class favDestination {
     static async favDestination(req, res) {
@@ -12,48 +15,25 @@ class favDestination {
 
         const skip = (pageNumber - 1) * pageLimit;
 
-        const continentMap = {
-            "AF": "Africa",
-            "AN": "Antarctica",
-            "AS": "Asia",
-            "EU": "Europe",
-            "OC": "Oceania",
-            "NA": "North America",
-            "SA": "South America",
-        };
-        
-        function getContinent(countryName) {
-            if (!countryName) {
-                console.error("Country name is undefined or empty:", countryName);
-                return { country: "Unknown", continent: "Unknown" };
+        const continentOptions = ['Asia', 'Amerika', 'Australia', 'Eropa', 'Afrika']
+
+        const whereClause = !continentOptions.includes(continent) ? { // if the query param value is not one of the continent options
+            flight_departure_date: {
+                gte: new Date(), // Hanya penerbangan mendatang
+            }, // if true, show all
+        } : { // else, show by continent
+            flight_departure_date: {
+                gte: new Date(),
+            },
+            arrival_airport: {
+                airport_continent: continent
             }
-
-            const country = countries;
-            const countryEntry = Object.values(country).find((entry) => {
-                return entry.name &&entry.name.toLowerCase() === countryName.toLowerCase();
-            });
-
-            if (countryEntry) {
-                return {
-                    country: countryEntry.name,
-                    continent: continentMap[countryEntry.continent] || "unknown",
-                };
-            }
-
-            return {
-                country: countryName,
-                continent: "Unknown",
-            };
         }
 
         try {
             // Mengambil data
             const flights = await prisma.flights.findMany({
-                where: {
-                    flight_departure_date: {
-                        gte: new Date(), // Hanya penerbangan mendatang
-                    },
-                },
+                where: whereClause,
                 select: {
                     flight_id: true,
                     flight_number: true,
@@ -107,12 +87,6 @@ class favDestination {
             // Formatting untuk data output
             const flightsData = await Promise.all(
                 flights.map(async (flight) => {
-                    const departureCountry = flight.departure_airport.airport_country;
-                    const arrivalCountry = flight.arrival_airport.airport_country;
-
-                    const departureContinent = await getContinent(departureCountry);
-                    const arrivalContinent = await getContinent(arrivalCountry);
-
                     const cheapestSeatClass = flight.flight_seat_classes[0];
                     const flightPrice = cheapestSeatClass?.seat_class_price || null;
                     const seatClassType = cheapestSeatClass?.seat_class?.seat_class_type || "N/A";
@@ -129,7 +103,6 @@ class favDestination {
                         departure_airport: {
                             airport_city: flight.departure_airport.airport_city,
                             airport_country: flight.departure_airport.airport_country,
-                            continent: departureContinent.continent,
                             airport_code: flight.departure_airport.airport_code,
                             airport_city_image: flight.departure_airport.Airport_city_image,
                             airport_time_zone: flight.departure_airport.airport_time_zone
@@ -137,7 +110,6 @@ class favDestination {
                         arrival_airport: {
                             airport_city: flight.arrival_airport.airport_city,
                             airport_country: flight.arrival_airport.airport_country,
-                            continent: arrivalContinent.continent,
                             airport_code: flight.arrival_airport.airport_code,
                             airport_city_image: flight.arrival_airport.Airport_city_image,
                             airport_time_zone: flight.arrival_airport.airport_time_zone
@@ -155,11 +127,7 @@ class favDestination {
             );
 
             const totalFlights = await prisma.flights.count({
-                where: {
-                    flight_arrival_date: {
-                        gte: new Date(),
-                    },
-                },
+                where: whereClause
             });
 
             const totalPages = Math.ceil(totalFlights / pageLimit);
@@ -172,56 +140,28 @@ class favDestination {
                 });
             }
 
-            // Format tanggal
-            const formattedDate = (startDate, endDate) => {
-                if(!startDate || !endDate) return null;
-                const options = { day: '2-digit', month: 'long', year: 'numeric' };
-
-                const start = new Date(startDate).toLocaleDateString('id-ID', options);
-                const end = new Date(endDate).toLocaleDateString('id-ID', options);
-
-                const [startDay, startMonth, startYear] = start.split(' ');
-                const [endDay, endMonth, endYear] = end.split(' ');
-
-                if(startMonth === endMonth && startYear === endYear) {
-                    return `${startDay} - ${endDay} ${startMonth} ${startYear}`;
-                }
-
-                if(startYear === endYear) {
-                    return `${startDay} ${startMonth} - ${endDay} ${endMonth} ${startYear}`;
-                }
-
-                return `${startDay} ${startMonth} ${startYear} - ${endDay} ${endMonth} ${endYear}`;
-            }
-
             // Format response final output
             const formattedFlights = flightsData
-            .filter((flight) => {
-                if(!continent) return true;
-                const continentLower = continent.toLowerCase();
-                const departureContinent = flight.departure_airport.continent?.toLowerCase() || "unknown";
-                const arrivalContinent = flight.arrival_airport.continent?.toLowerCase() || "unknown";
+            .map((flight) => {                
+                let flightDepartureDate = new Date(flight.flight_departure_date);
+                const departureAirportTzOffset = Luxon.getTimezoneOffset(flight.departure_airport.airport_time_zone);
+                flightDepartureDate = DateTimeUtils.modifyHours(flightDepartureDate, departureAirportTzOffset).toISOString()
+                const formattedFlightDepartureDate = encodeURIComponent(Moment.formatToSQLDateTime(flightDepartureDate))
 
-                return (
-                    departureContinent === continentLower || arrivalContinent === continentLower
-                );
-            })
-            .map((flight) => {
-                const departureContinent = getContinent(flight.departure_airport.airport_country);
-                const arrivalContinent = getContinent(flight.arrival_airport.airport_country);
-                
                 return {
                     route: `${flight.departure_airport.airport_city} → ${flight.arrival_airport.airport_city}`,
                     airline: flight.airline.airline_name,
-                    travel_date: formattedDate(flight.flight_departure_date, flight.flight_arrival_date),
+                    travel_date: FavDestDateFormatter.formattedDate(flight.flight_departure_date, flight.flight_arrival_date, flight.departure_airport.airport_time_zone, flight.arrival_airport.airport_time_zone),
                     price: flight.flight_price ? Currency.format(flight.flight_price) : null,
                     promo: flight.promo || null,
                     city_image: flight.arrival_airport.airport_city_image || "default-image.jpg",
-                    url: `${req.protocol}://${req.get('host')}/api/v1/flights?departure_airport=${flight.departure_airport.airport_code}&arrival_airport=${flight.arrival_airport.airport_code}&is_round_trip=false&flight_departure_date=${(flight.flight_departure_date).toISOString()}&seat_class_type=Economy&total_adult_passengers=1`,
+                    url: `https://${req.get('host')}/api/v1/flights?departure_airport=${flight.departure_airport.airport_code}&arrival_airport=${flight.arrival_airport.airport_code}&is_round_trip=false&flight_departure_date=${(formattedFlightDepartureDate)}&seat_class_type=Economy&total_adult_passengers=1`,
+                    departure_city: flight.departure_airport.airport_city,
+                    arrival_city: flight.arrival_airport.airport_city,
                 }
             })
 
-            res.status(200).json({
+            return res.status(200).json({
                 success: true,
                 currentPage: pageNumber,
                 totalPages,
@@ -231,7 +171,7 @@ class favDestination {
             });
         } catch(error) {
             console.error("Error fetching favorite destinations", error);
-            res.status(500).json({ success: false, message: "Gagal menampilkan destinasi favorit" });
+            return res.status(500).json({ success: false, message: "Gagal menampilkan destinasi favorit" });
         }
     }
 }

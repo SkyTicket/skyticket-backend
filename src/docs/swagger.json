@@ -7,12 +7,12 @@
   },
   "servers": [
     {
-      "url": "http://34.101.115.143:3000",
-      "description": "Staging Environment (HTTP/No SSL)"
-    },
-    {
       "url": "https://34.101.115.143",
       "description": "Staging Environment (HTTPS/With SSL)"
+    },
+    {
+      "url": "http://34.101.115.143:3000",
+      "description": "Staging Environment (HTTP/No SSL)"
     }
   ],
   "paths": {
@@ -1133,8 +1133,14 @@
             "description": "Filter destinasi berdasarkan continent",
             "required": "false",
             "schema": {
-              "type": "string",
-              "example": "asia"
+              "enum": [
+                "Asia",
+                "Amerika",
+                "Australia",
+                "Eropa",
+                "Afrika"
+              ],
+              "default": "Asia"
             }
           }
         ],
@@ -1159,7 +1165,9 @@
                           "price": "IDR 1.000.000",
                           "promo": "50% OFF",
                           "city_image": "d14.jpg",
-                          "url": "http://localhost:3000/api/v1/flights?departure_airport=CKG&arrival_airport=DHX&is_round_trip=false&flight_departure_date=2024-12-21T20:16:27.230Z&seat_class_type=Economy&total_adult_passengers=1"
+                          "url": "http://localhost:3000/api/v1/flights?departure_airport=CKG&arrival_airport=DHX&is_round_trip=false&flight_departure_date=2024-12-21T20:16:27.230Z&seat_class_type=Economy&total_adult_passengers=1",
+                          "departure_city": "Chongqing",
+                          "arrival_city": "Kediri"
                         }
                       }
                     }
@@ -1727,7 +1735,7 @@
             "description": "ID penerbangan yang ingin dicari",
             "schema": {
               "type": "string",
-              "default": "f1"
+              "default": "6b4a721d-23bb-4245-8e0c-2ec1fb7906be"
             }
           },
           {
@@ -2032,7 +2040,7 @@
           }
         },
         "responses": {
-          "200": {
+          "201": {
             "description": "Successfully created ticket order",
             "content": {
               "application/json": {
@@ -2062,7 +2070,7 @@
                           },
                           "flight_seat_assigment_id": {
                             "type": "integer",
-                            "example": "1"
+                            "example": 1
                           },
                           "passenger_id": {
                             "type": "string",
@@ -2078,6 +2086,31 @@
                     "bookingCode": {
                       "type": "string",
                       "example": "fea8798c"
+                    },
+                    "subtotal": {
+                      "type": "object",
+                      "properties": {
+                        "adult": {
+                          "type": "integer",
+                          "example": 2300000
+                        },
+                        "child": {
+                          "type": "integer",
+                          "example": 0
+                        },
+                        "baby": {
+                          "type": "integer",
+                          "example": 0
+                        }
+                      }
+                    },
+                    "tax": {
+                      "type": "integer",
+                      "example": 253000
+                    },
+                    "total": {
+                      "type": "integer",
+                      "example": 2553000
                     }
                   }
                 }
@@ -2102,6 +2135,30 @@
                     "message": {
                       "type": "string",
                       "example": "data kursi dan penumpang wajib ada"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "UserID tidak ditemukan dalam token.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 401
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "Failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "UserID tidak ditemukan dalam token."
                     }
                   }
                 }
@@ -2380,33 +2437,53 @@
                   "statusCode": 200,
                   "status": "success",
                   "message": "Successfully retrieved transactions",
-                  "data": [
-                    {
-                      "booking_code": "457116c3",
-                      "booking_payment_status": "Unpaid",
-                      "booking_amount": 1150000,
-                      "tax": 10000,
-                      "tickets": [
-                        {
-                          "passenger_id": "12345",
-                          "passenger_name": "John Doe",
-                          "flight_departure_airport_name": "Surabaya International Airport",
-                          "flight_arrival_airport_name": "Ngurah Rai International Airport",
+                  "data": {
+                    "Desember 2024": [
+                      {
+                        "booking_payment_status": "Issued",
+                        "departure_airport_city": "Surabaya",
+                        "flight_duration": "2h 0m",
+                        "arrival_airport_city": "Singapura",
+                        "booking_code": "f6019dec",
+                        "seat_class_type": "Economy",
+                        "booking_amount": "IDR 1.665.000",
+                        "passangers_total": {
+                          "adult": 1,
+                          "child": 0,
+                          "baby": 0
+                        },
+                        "ticket": {
+                          "flight_departure_airport_name": "Bandara Internasional Juanda",
+                          "flight_arrival_airport_name": "Bandara Internasional Changi",
                           "airline_and_seat_class": "Garuda Indonesia - Economy",
-                          "flight_number": "GA123 - 123",
-                          "airline_logo": "https://example.com/logo.png",
-                          "seat_class_type": "Economy",
-                          "seat_class_price": 1140000,
-                          "departure_airport_city": "Surabaya",
-                          "arrival_airport_city": "Denpasar",
-                          "departure_date": "2024-12-15",
-                          "departure_time": "07:00",
-                          "arrival_date": "2024-12-15",
-                          "arrival_time": "08:50"
+                          "flight_number": "GA - 915",
+                          "airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/GIA.png",
+                          "passengers": [
+                            [
+                              {
+                                "id": "39c34458-b1ba-44d3-ac0d-e9aef1210156",
+                                "name": "Mr. maram2 Doe"
+                              }
+                            ]
+                          ],
+                          "seat_class_price": {
+                            "raw": "1500000",
+                            "formatted": "IDR 1.500.000"
+                          },
+                          "departure_date": "27 Desember 2024",
+                          "departure_time": "10.00",
+                          "arrival_date": "27 Desember 2024",
+                          "arrival_time": "13.00",
+                          "amount_details": {
+                            "adults": "1 Adults",
+                            "adults_amount_total": "IDR 1.500.000",
+                            "tax": "IDR 165.000",
+                            "booking_amount_total": "IDR 1.665.000"
+                          }
                         }
-                      ]
-                    }
-                  ]
+                      }
+                    ]
+                  }
                 }
               }
             }
@@ -2526,7 +2603,7 @@
         }
       }
     },
-    "/api/v1/payment": {
+    "/api/v1/payment/booking/{bookingId}": {
       "post": {
         "tags": ["Transaction"],
         "summary": "Membuat pembayaran untuk pemesanan",
@@ -2536,24 +2613,18 @@
           }
         ],
         "operationId": "createPayment",
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "bookingId": {
-                    "type": "string",
-                    "example": "5bb68854-a9db-4909-af7f-dfb72d76858f",
-                    "description": "ID pemesanan yang akan dibayar"
-                  }
-                },
-                "required": ["bookingId"]
-              }
-            }
+        "parameters": [
+          {
+            "name": "bookingId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "5bb68854-a9db-4909-af7f-dfb72d76858f"
+            },
+            "description": "ID pemesanan yang akan dibayar"
           }
-        },
+        ],
         "responses": {
           "201": {
             "description": "Pembayaran berhasil dibuat",
@@ -2566,14 +2637,30 @@
                       "type": "string",
                       "example": "Berhasil membuat pembayaran"
                     },
+                    "booking_id": {
+                      "type": "string",
+                      "example": "5c5f0598-b0df-44c9-957f-6a17c209a679",
+                      "description": "ID pemesanan yang terkait dengan pembayaran"
+                    },
+                    "booking_code": {
+                      "type": "string",
+                      "example": "633164a1",
+                      "description": "Kode pemesanan yang unik"
+                    },
                     "token": {
                       "type": "string",
-                      "example": "1ee4c66a-ae6f-4a2c-9310-f76c8cf2f8f6"
+                      "example": "e2c95461-052f-45a3-ae03-1c0e4bc45cfc",
+                      "description": "Token pembayaran dari Midtrans"
                     },
                     "redirect_url": {
                       "type": "string",
                       "description": "URL untuk mengarahkan pengguna ke halaman pembayaran",
-                      "example": "https://app.sandbox.midtrans.com/snap/v4/redirection/6b26bdb6-a3ad-47ca-924f-827d30c5e3db"
+                      "example": "https://app.sandbox.midtrans.com/snap/v4/redirection/e2c95461-052f-45a3-ae03-1c0e4bc45cfc"
+                    },
+                    "expiry_time": {
+                      "type": "string",
+                      "description": "Waktu kedaluwarsa dalam format jam:menit:detik",
+                      "example": "16:55:28"
                     }
                   }
                 }

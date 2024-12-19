@@ -12,7 +12,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Surabaya',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Surabaya.jpg',
-                airport_time_zone: 'Asia/Jakarta'
+                airport_time_zone: 'Asia/Jakarta',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a19',
@@ -21,7 +22,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Jakarta',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Jakarta.jpg',
-                airport_time_zone: 'Asia/Jakarta'
+                airport_time_zone: 'Asia/Jakarta',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a20',
@@ -30,7 +32,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Jakarta',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Jakarta.jpg',
-                airport_time_zone: 'Asia/Jakarta'
+                airport_time_zone: 'Asia/Jakarta',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a21',
@@ -39,7 +42,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Denpasar',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Denpasar.jpg',
-                airport_time_zone: 'Asia/Makassar'
+                airport_time_zone: 'Asia/Makassar',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a22',
@@ -48,7 +52,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Medan',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Medan.jpg',
-                airport_time_zone: 'Asia/Jakarta'
+                airport_time_zone: 'Asia/Jakarta',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a23',
@@ -57,7 +62,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Makassar',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Makassar.jpg',
-                airport_time_zone: 'Asia/Makassar'
+                airport_time_zone: 'Asia/Makassar',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a24',
@@ -66,7 +72,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Yogyakarta',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Yogyakarta.jpg',
-                airport_time_zone: 'Asia/Jakarta'
+                airport_time_zone: 'Asia/Jakarta',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a25',
@@ -75,7 +82,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Padang',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Padang.jpg',
-                airport_time_zone: 'Asia/Jakarta'
+                airport_time_zone: 'Asia/Jakarta',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a26',
@@ -84,7 +92,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Manado',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Manado.jpg',
-                airport_time_zone: 'Asia/Makassar'
+                airport_time_zone: 'Asia/Makassar',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a27',
@@ -93,7 +102,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Pontianak',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Pontianak.jpg',
-                airport_time_zone: 'Asia/Jakarta'
+                airport_time_zone: 'Asia/Jakarta',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a28',
@@ -102,7 +112,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Batam',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Batam.jpg',
-                airport_time_zone: 'Asia/Jakarta'
+                airport_time_zone: 'Asia/Jakarta',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a29',
@@ -111,7 +122,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Pekanbaru',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Pekanbaru.jpg',
-                airport_time_zone: 'Asia/Jakarta'
+                airport_time_zone: 'Asia/Jakarta',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a30',
@@ -120,7 +132,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Lombok',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Lombok.jpg',
-                airport_time_zone: 'Asia/Makassar'
+                airport_time_zone: 'Asia/Makassar',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a31',
@@ -129,7 +142,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Semarang',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Semarang.jpg',
-                airport_time_zone: 'Asia/Jakarta'
+                airport_time_zone: 'Asia/Jakarta',
+                airport_continent: 'Asia',
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a32',
@@ -138,7 +152,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Palembang',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Palembang.jpg',
-                airport_time_zone: 'Asia/Jakarta'
+                airport_time_zone: 'Asia/Jakarta',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a33',
@@ -147,7 +162,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Kupang',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Kupang.jpg',
-                airport_time_zone: 'Asia/Makassar'
+                airport_time_zone: 'Asia/Makassar',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a38',
@@ -156,7 +172,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Ambon',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Ambon.jpg',
-                airport_time_zone: 'Asia/Jayapura'
+                airport_time_zone: 'Asia/Jayapura',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a39',
@@ -165,7 +182,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Biak',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Biak.jpg',
-                airport_time_zone: 'Asia/Jayapura'
+                airport_time_zone: 'Asia/Jayapura',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a40',
@@ -174,7 +192,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Jayapura',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Jayapura.jpg',
-                airport_time_zone: 'Asia/Jayapura'
+                airport_time_zone: 'Asia/Jayapura',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a41',
@@ -183,7 +202,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Ternate',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Ternate.jpg',
-                airport_time_zone: 'Asia/Jayapura'
+                airport_time_zone: 'Asia/Jayapura',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a42',
@@ -192,7 +212,8 @@ async function main() {
                 airport_country: 'Indonesia',
                 airport_city: 'Merauke',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Merauke.jpg',
-                airport_time_zone: 'Asia/Jayapura'
+                airport_time_zone: 'Asia/Jayapura',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a43',
@@ -201,7 +222,8 @@ async function main() {
                 airport_country: 'Singapura',
                 airport_city: 'Singapura',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Singapura.jpg',
-                airport_time_zone: 'Asia/Singapore'
+                airport_time_zone: 'Asia/Singapore',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a44',
@@ -210,7 +232,8 @@ async function main() {
                 airport_country: 'Malaysia',
                 airport_city: 'Kuala Lumpur',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Kuala_Lumpur.jpg',
-                airport_time_zone: 'Asia/Kuala_Lumpur'
+                airport_time_zone: 'Asia/Kuala_Lumpur',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a45',
@@ -219,7 +242,8 @@ async function main() {
                 airport_country: 'Thailand',
                 airport_city: 'Bangkok',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Bangkok.jpg',
-                airport_time_zone: 'Asia/Bangkok'
+                airport_time_zone: 'Asia/Bangkok',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a46',
@@ -228,7 +252,8 @@ async function main() {
                 airport_country: 'Hong Kong',
                 airport_city: 'Hong Kong',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Hong_Kong.jpg',
-                airport_time_zone: 'Asia/Hong_Kong'
+                airport_time_zone: 'Asia/Hong_Kong',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a47',
@@ -237,7 +262,8 @@ async function main() {
                 airport_country: 'Tiongkok',
                 airport_city: 'Shanghai',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Shanghai.jpg',
-                airport_time_zone: 'Asia/Shanghai'
+                airport_time_zone: 'Asia/Shanghai',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a48',
@@ -246,7 +272,8 @@ async function main() {
                 airport_country: 'Taiwan',
                 airport_city: 'Taipei',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Taipei.jpg',
-                airport_time_zone: 'Asia/Taipei'
+                airport_time_zone: 'Asia/Taipei',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a49',
@@ -255,7 +282,8 @@ async function main() {
                 airport_country: 'Korea Selatan',
                 airport_city: 'Seoul',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Seoul.jpg',
-                airport_time_zone: 'Asia/Seoul'
+                airport_time_zone: 'Asia/Seoul',
+                airport_continent: 'Asia'
             },
             {
                 airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a50',
@@ -264,8 +292,19 @@ async function main() {
                 airport_country: 'Jepang',
                 airport_city: 'Tokyo',
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Tokyo.jpg',
-                airport_time_zone: 'Asia/Tokyo'
-            }            
+                airport_time_zone: 'Asia/Tokyo',
+                airport_continent: 'Asia'
+            },         
+            {
+                airport_id: 'acd832cd-d5f5-4801-9657-8c61cb888e5f',
+                airport_name: 'Perth Airport',
+                airport_code: 'PER',
+                airport_country: 'Australia',
+                airport_city: 'Perth',
+                Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Perth.jpg',
+                airport_time_zone: 'Australia/Perth',
+                airport_continent: 'Australia'
+            }
         ]
     })
 

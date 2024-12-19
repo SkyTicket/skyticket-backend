@@ -155,6 +155,16 @@ async function main() {
               flight_arrival_date: '2024-12-30T03:50:00.000Z',
               flight_number: '222'
             },
+            {
+              flight_id: '6c6c7879-4515-4a83-a45c-c98184af9a4c',
+              airline_id: 'c000cdc0-b0d5-4728-8616-8d6abc4z91h3', // AirAsia
+              flight_departure_airport_id: 'db7af224-bac7-4d14-aec7-8874b0e32a21', // DPS
+              flight_arrival_airport_id: 'acd832cd-d5f5-4801-9657-8c61cb888e5f', // PER
+              aircraft_id: '8bf696ca-b0fc-4466-8fee-97f0bfcd0508', // A320
+              flight_departure_date: '2024-12-30T23:00:00.000Z',
+              flight_arrival_date: '2024-12-31T02:25:00.000Z',
+              flight_number: '534'
+            },
         ]
     })
 
