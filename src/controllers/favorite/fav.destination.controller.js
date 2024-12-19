@@ -4,6 +4,7 @@ const { countries } = require('countries-list');
 const Currency = require('../../libs/currency');
 const DateTimeUtils = require('../../libs/datetime');
 const Luxon = require('../../libs/luxon');
+const Moment = require('../../libs/moment');
 
 class favDestination {
     static async favDestination(req, res) {
@@ -15,13 +16,13 @@ class favDestination {
         const skip = (pageNumber - 1) * pageLimit;
 
         const continentMap = {
-            "AF": "Africa",
-            "AN": "Antarctica",
+            "AF": "Afrika",
+            // "AN": "Antarctica",
             "AS": "Asia",
-            "EU": "Europe",
-            "OC": "Oceania",
-            "NA": "North America",
-            "SA": "South America",
+            "EU": "Eropa",
+            "OC": "Australia",
+            "NA": "Amerika",
+            // "SA": "South America",
         };
         
         function getContinent(countryName) {
@@ -220,6 +221,11 @@ class favDestination {
                 const departureContinent = getContinent(flight.departure_airport.airport_country);
                 const arrivalContinent = getContinent(flight.arrival_airport.airport_country);
                 
+                let flightDepartureDate = new Date(flight.flight_departure_date);
+                const departureAirportTzOffset = Luxon.getTimezoneOffset(flight.departure_airport.airport_time_zone);
+                flightDepartureDate = DateTimeUtils.modifyHours(flightDepartureDate, departureAirportTzOffset).toISOString()
+                const formattedFlightDepartureDate = encodeURIComponent(Moment.formatToSQLDateTime(flightDepartureDate))
+
                 return {
                     route: `${flight.departure_airport.airport_city} → ${flight.arrival_airport.airport_city}`,
                     airline: flight.airline.airline_name,
@@ -227,7 +233,7 @@ class favDestination {
                     price: flight.flight_price ? Currency.format(flight.flight_price) : null,
                     promo: flight.promo || null,
                     city_image: flight.arrival_airport.airport_city_image || "default-image.jpg",
-                    url: `https://${req.get('host')}/api/v1/flights?departure_airport=${flight.departure_airport.airport_code}&arrival_airport=${flight.arrival_airport.airport_code}&is_round_trip=false&flight_departure_date=${(flight.flight_departure_date).toISOString()}&seat_class_type=Economy&total_adult_passengers=1`,
+                    url: `https://${req.get('host')}/api/v1/flights?departure_airport=${flight.departure_airport.airport_code}&arrival_airport=${flight.arrival_airport.airport_code}&is_round_trip=false&flight_departure_date=${(formattedFlightDepartureDate)}&seat_class_type=Economy&total_adult_passengers=1`,
                     departure_city: flight.departure_airport.airport_city,
                     arrival_city: flight.arrival_airport.airport_city,
                 }
