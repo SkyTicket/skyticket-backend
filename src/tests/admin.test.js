@@ -6,7 +6,7 @@ const { expect, describe } = require('@jest/globals');
 describe('Admin', () => {
     describe('GET /api/v1/user/all-users', () => {
         test('Get all users', async () => {
-            prisma.users.findMany.mockResolvedValue([
+            prisma.users.findMany.mockResolvedValue(
                 {
                     "user_id": "12345",
                     "user_name": "John Doe",
