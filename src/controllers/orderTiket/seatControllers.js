@@ -96,7 +96,7 @@ class SeatController {
       };
       const subTotalPrice = {
         adult: passengerCounts.adult * seatPrice,
-        child: passengerCounts.child * seatPrice * 0,
+        child: passengerCounts.child * seatPrice,
         baby: passengerCounts.baby * seatPrice * 0 ,
       };
       const totalPrice =

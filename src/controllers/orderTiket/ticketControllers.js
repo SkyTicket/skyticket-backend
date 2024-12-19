@@ -94,12 +94,12 @@ class TicketController {
           if (passengerCategory === "Adult") {
             categorySubtotals.adult += seatPrice;
           } else if (passengerCategory === "Child") {
-            categorySubtotals.child += 0;
+            categorySubtotals.child += seatPrice;
           } else if (passengerCategory === "Infant") {
             categorySubtotals.baby += 0;
           }
         });
-        const totalPrice = categorySubtotals.adult;
+        const totalPrice = categorySubtotals.adult + categorySubtotals.child;
         const tax = 0.11 * totalPrice;
         const totalAmount = totalPrice + tax;
 
