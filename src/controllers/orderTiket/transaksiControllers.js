@@ -301,15 +301,27 @@ class PaymentController {
       const expirySeconds = expiryTime.getSeconds().toString().padStart(2, "0");
       const formattedExpiryTime = `${expiryHours}:${expiryMinutes}:${expirySeconds}`;
 
+      const user = await prisma.users.findUnique({
+        where: { user_id: userId },
+        select: { user_name: true, user_email: true, user_phone: true },
+      });
+
+      if (!user) {
+        throw {
+          statusCode: 404,
+          status: "Failed",
+          message: "Data pengguna tidak ditemukan.",
+        };
+      }
       const snapPayload = {
         transaction_details: {
           order_id: booking.booking_code,
           gross_amount: totalPrice,
         },
         customer_details: {
-          first_name: userId.user_email,
-          email: userId.user_email,
-          phone: userId.user_phone,
+          first_name: user.user_name || "Anonymous",
+          email: user.user_email || "no-email@example.com",
+          phone: user.user_phone || "0000000000",
         },
         item_details: [
           {
