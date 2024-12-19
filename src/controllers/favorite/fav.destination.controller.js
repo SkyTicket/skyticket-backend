@@ -1,6 +1,5 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
-const { countries } = require('countries-list');
 const Currency = require('../../libs/currency');
 const DateTimeUtils = require('../../libs/datetime');
 const Luxon = require('../../libs/luxon');
@@ -15,40 +14,6 @@ class favDestination {
 
         const skip = (pageNumber - 1) * pageLimit;
 
-        const continentMap = {
-            "AF": "Afrika",
-            // "AN": "Antarctica",
-            "AS": "Asia",
-            "EU": "Eropa",
-            "OC": "Australia",
-            "NA": "Amerika",
-            // "SA": "South America",
-        };
-        
-        function getContinent(countryName) {
-            if (!countryName) {
-                console.error("Country name is undefined or empty:", countryName);
-                return { country: "Unknown", continent: "Unknown" };
-            }
-
-            const country = countries;
-            const countryEntry = Object.values(country).find((entry) => {
-                return entry.name &&entry.name.toLowerCase() === countryName.toLowerCase();
-            });
-
-            if (countryEntry) {
-                return {
-                    country: countryEntry.name,
-                    continent: continentMap[countryEntry.continent] || "unknown",
-                };
-            }
-
-            return {
-                country: countryName,
-                continent: "Unknown",
-            };
-        }
-
         try {
             // Mengambil data
             const flights = await prisma.flights.findMany({
@@ -56,6 +21,9 @@ class favDestination {
                     flight_departure_date: {
                         gte: new Date(), // Hanya penerbangan mendatang
                     },
+                    arrival_airport: {
+                        airport_continent: continent
+                    }
                 },
                 select: {
                     flight_id: true,
@@ -110,12 +78,6 @@ class favDestination {
             // Formatting untuk data output
             const flightsData = await Promise.all(
                 flights.map(async (flight) => {
-                    const departureCountry = flight.departure_airport.airport_country;
-                    const arrivalCountry = flight.arrival_airport.airport_country;
-
-                    const departureContinent = await getContinent(departureCountry);
-                    const arrivalContinent = await getContinent(arrivalCountry);
-
                     const cheapestSeatClass = flight.flight_seat_classes[0];
                     const flightPrice = cheapestSeatClass?.seat_class_price || null;
                     const seatClassType = cheapestSeatClass?.seat_class?.seat_class_type || "N/A";
@@ -132,7 +94,6 @@ class favDestination {
                         departure_airport: {
                             airport_city: flight.departure_airport.airport_city,
                             airport_country: flight.departure_airport.airport_country,
-                            continent: departureContinent.continent,
                             airport_code: flight.departure_airport.airport_code,
                             airport_city_image: flight.departure_airport.Airport_city_image,
                             airport_time_zone: flight.departure_airport.airport_time_zone
@@ -140,7 +101,6 @@ class favDestination {
                         arrival_airport: {
                             airport_city: flight.arrival_airport.airport_city,
                             airport_country: flight.arrival_airport.airport_country,
-                            continent: arrivalContinent.continent,
                             airport_code: flight.arrival_airport.airport_code,
                             airport_city_image: flight.arrival_airport.Airport_city_image,
                             airport_time_zone: flight.arrival_airport.airport_time_zone
@@ -162,6 +122,9 @@ class favDestination {
                     flight_arrival_date: {
                         gte: new Date(),
                     },
+                    arrival_airport: {
+                        airport_continent: continent,
+                    }
                 },
             });
 
@@ -207,20 +170,7 @@ class favDestination {
 
             // Format response final output
             const formattedFlights = flightsData
-            .filter((flight) => {
-                if(!continent) return true;
-                const continentLower = continent.toLowerCase();
-                const departureContinent = flight.departure_airport.continent?.toLowerCase() || "unknown";
-                const arrivalContinent = flight.arrival_airport.continent?.toLowerCase() || "unknown";
-
-                return (
-                    departureContinent === continentLower || arrivalContinent === continentLower
-                );
-            })
-            .map((flight) => {
-                const departureContinent = getContinent(flight.departure_airport.airport_country);
-                const arrivalContinent = getContinent(flight.arrival_airport.airport_country);
-                
+            .map((flight) => {                
                 let flightDepartureDate = new Date(flight.flight_departure_date);
                 const departureAirportTzOffset = Luxon.getTimezoneOffset(flight.departure_airport.airport_time_zone);
                 flightDepartureDate = DateTimeUtils.modifyHours(flightDepartureDate, departureAirportTzOffset).toISOString()
