@@ -215,6 +215,147 @@ class PaymentController {
     }
   }
 
+  static async showTransaksiByBookingIdOrCode(req, res) {
+    try {
+      const { bookingId, bookingCode } = req.params;
+
+      if (!bookingId && !bookingCode) {
+        return res.status(400).json({
+          statusCode: 400,
+          status: "Failed",
+          message: "Booking ID atau Booking Code diperlukan",
+          data: [],
+        });
+      }
+
+      // Query transaksi berdasarkan booking_id atau booking_code
+      const transaksi = await prisma.bookings.findFirst({
+        where: {
+          OR: [{ booking_id: bookingId }, { booking_code: bookingCode }],
+        },
+        include: {
+          tickets: {
+            include: {
+              passanger: true, // Mengambil data penumpang
+              flight_seat_assigment: {
+                include: {
+                  seat: true,
+                  flight_seat_class: {
+                    include: {
+                      seat_class: true,
+                      flight: {
+                        include: {
+                          airline: true, // Mengambil data maskapai
+                          departure_airport: true,
+                          arrival_airport: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+
+      if (!transaksi) {
+        return res.status(404).json({
+          statusCode: 404,
+          status: "Failed",
+          message:
+            "Tidak ada transaksi ditemukan untuk booking ID atau code yang diberikan",
+          data: [],
+        });
+      }
+
+      // Format data transaksi
+      const formattedTransaksi = {
+        booking_code: transaksi.booking_code,
+        booking_payment_status: transaksi.booking_payment_status,
+        booking_amount: transaksi.booking_amount,
+        tax: transaksi.tax,
+        tickets: transaksi.tickets.map((ticket) => {
+          const seatClassType =
+            ticket.flight_seat_assigment?.flight_seat_class?.seat_class
+              ?.seat_class_type || "Unknown";
+
+          const seatClassPrice =
+            ticket.flight_seat_assigment?.flight_seat_class?.seat_class_price ||
+            0;
+
+          const flight =
+            ticket.flight_seat_assigment?.flight_seat_class?.flight || {};
+
+          const timezone = "Asia/Jakarta";
+
+          const airlineAndSeatClass = `${flight?.airline?.airline_name} - ${seatClassType}`;
+          const flightNumber = `${flight?.airline?.airline_code} - ${flight?.flight_number}`;
+          const airlineLogo = flight?.airline?.Airline_logo || "N/A";
+
+          return {
+            passenger_id: ticket.passanger?.passenger_id || "Unknown",
+            passenger_name: ticket.passanger?.name || "Unknown",
+            flight_departure_airport_name:
+              flight?.departure_airport?.airport_name || "N/A",
+            flight_arrival_airport_name:
+              flight?.arrival_airport?.airport_name || "N/A",
+            airline_and_seat_class: airlineAndSeatClass,
+            flight_number: flightNumber,
+            airline_logo: airlineLogo,
+            seat_class_type: seatClassType,
+            seat_class_price: seatClassPrice,
+            departure_airport_city:
+              flight?.departure_airport?.airport_city || "N/A",
+            arrival_airport_city:
+              flight?.arrival_airport?.airport_city || "N/A",
+            departure_date: DateTimeUtils.formatDateByTimezone(
+              flight?.flight_departure_date,
+              timezone
+            ),
+            departure_time: DateTimeUtils.formatHoursByTimezone(
+              flight?.flight_departure_date,
+              timezone
+            ),
+            arrival_date: DateTimeUtils.formatDateByTimezone(
+              flight?.flight_arrival_date,
+              timezone
+            ),
+            arrival_time: DateTimeUtils.formatHoursByTimezone(
+              flight?.flight_arrival_date,
+              timezone
+            ),
+          };
+        }),
+      };
+
+      res.status(200).json({
+        statusCode: 200,
+        status: "success",
+        message: "Successfully retrieved transaction details",
+        data: formattedTransaksi,
+      });
+    } catch (error) {
+      console.error("Error retrieving transaction details:", error.message);
+
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        return res.status(400).json({
+          statusCode: 400,
+          status: "failed",
+          message: "Kesalahan dalam permintaan ke database",
+          details: error.message,
+        });
+      }
+
+      res.status(500).json({
+        statusCode: 500,
+        status: "failed",
+        message: "Terjadi kesalahan pada server",
+        details: error.message,
+      });
+    }
+  }
+
   static async createPayment(req, res) {
     try {
       const { bookingId } = req.body;
