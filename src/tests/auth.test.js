@@ -25,7 +25,12 @@ describe('Auth', () => {
                 "user_is_active": "unverified"
             });
 
-            expect(statusCode).toBe(400);
+            const response = await request(app).post('/api/v1/auth/login').send({
+                "email": "user@example.com",
+                "user_password": "password123"
+            });
+
+            expect(response.statusCode).toBe(400);
         });
 
         test('Password salah', async () => {
