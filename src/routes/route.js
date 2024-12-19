@@ -110,7 +110,7 @@ app.post(
   TiketController.createTicketOrder
 );
 app.post(
-  "/api/v1/payment/:bookingId",
+  "/api/v1/payment/booking/:bookingId",
   AuthMiddleware.authenticateUser,
   PaymentController.createPayment
 );

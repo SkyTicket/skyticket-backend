@@ -7,12 +7,12 @@
   },
   "servers": [
     {
-      "url": "http://34.101.115.143:3000",
-      "description": "Staging Environment (HTTP/No SSL)"
-    },
-    {
       "url": "https://34.101.115.143",
       "description": "Staging Environment (HTTPS/With SSL)"
+    },
+    {
+      "url": "http://34.101.115.143:3000",
+      "description": "Staging Environment (HTTP/No SSL)"
     }
   ],
   "paths": {
@@ -1735,7 +1735,7 @@
             "description": "ID penerbangan yang ingin dicari",
             "schema": {
               "type": "string",
-              "default": "f1"
+              "default": "6b4a721d-23bb-4245-8e0c-2ec1fb7906be"
             }
           },
           {
@@ -2603,7 +2603,7 @@
         }
       }
     },
-    "/api/v1/payment/:bookingId": {
+    "/api/v1/payment/booking/{bookingId}": {
       "post": {
         "tags": ["Transaction"],
         "summary": "Membuat pembayaran untuk pemesanan",
