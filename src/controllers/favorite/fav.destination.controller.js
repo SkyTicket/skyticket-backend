@@ -15,17 +15,25 @@ class favDestination {
 
         const skip = (pageNumber - 1) * pageLimit;
 
+        const continentOptions = ['Asia', 'Amerika', 'Australia', 'Eropa', 'Afrika']
+
+        const whereClause = !continentOptions.includes(continent) ? { // if the query param value is not one of the continent options
+            flight_departure_date: {
+                gte: new Date(), // Hanya penerbangan mendatang
+            }, // if true, show all
+        } : { // else, show by continent
+            flight_departure_date: {
+                gte: new Date(),
+            },
+            arrival_airport: {
+                airport_continent: continent
+            }
+        }
+
         try {
             // Mengambil data
             const flights = await prisma.flights.findMany({
-                where: {
-                    flight_departure_date: {
-                        gte: new Date(), // Hanya penerbangan mendatang
-                    },
-                    arrival_airport: {
-                        airport_continent: continent
-                    }
-                },
+                where: whereClause,
                 select: {
                     flight_id: true,
                     flight_number: true,
@@ -119,14 +127,7 @@ class favDestination {
             );
 
             const totalFlights = await prisma.flights.count({
-                where: {
-                    flight_arrival_date: {
-                        gte: new Date(),
-                    },
-                    arrival_airport: {
-                        airport_continent: continent,
-                    }
-                },
+                where: whereClause
             });
 
             const totalPages = Math.ceil(totalFlights / pageLimit);

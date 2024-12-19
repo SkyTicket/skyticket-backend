@@ -294,7 +294,17 @@ async function main() {
                 Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Tokyo.jpg',
                 airport_time_zone: 'Asia/Tokyo',
                 airport_continent: 'Asia'
-            }            
+            },         
+            {
+                airport_id: 'acd832cd-d5f5-4801-9657-8c61cb888e5f',
+                airport_name: 'Perth Airport',
+                airport_code: 'PER',
+                airport_country: 'Australia',
+                airport_city: 'Perth',
+                Airport_city_image: 'https://ik.imagekit.io/skyticket/city_images/Perth.jpg',
+                airport_time_zone: 'Australia/Perth',
+                airport_continent: 'Australia'
+            }
         ]
     })
 
