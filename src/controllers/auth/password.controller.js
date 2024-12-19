@@ -37,7 +37,8 @@ class PasswordController {
       await sendForgotPasswordEmail(email, resetLink);
       res.status(200).json({
         message: "Link reset password telah dikirim ke email",
-        resetLink,
+        reset_link: resetLink,
+        token
       });
     } catch (err) {
       console.error("Error:", err.message);
