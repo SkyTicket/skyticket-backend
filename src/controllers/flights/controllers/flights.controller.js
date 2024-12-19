@@ -33,9 +33,9 @@ class FlightsController {
         page = parseInt(page) || 1;  
         limit = parseInt(limit) || 5;
         show_returning_flights = false;
-        total_adult_passengers = 1;
-        total_child_passengers = 0;
-        total_infant_passengers = 0;
+        total_adult_passengers = parseInt(total_adult_passengers) || 1;
+        total_child_passengers = parseInt(total_child_passengers) || 0;
+        total_infant_passengers = parseInt(total_infant_passengers) || 0;
 
         const skip = (page - 1) * limit;
 
@@ -135,22 +135,21 @@ class FlightsController {
                     total_no_infant: totalNoInfant,
                     total: passengersTotal,
                 },
+                searched_trip: `${departure_airport} > ${arrival_airport} - ${totalNoInfant} Penumpang - ${seat_class_type}`,
                 flights: show_returning_flights === false ? {
                     flights_data: mappedDepartingFlights,
                     returning_flights_url: returningFlightsUrl,
                     pagination: {
                         current_page: page,
                         limit: limit,
-                        prev_url: page > 1 ? `${fullUrlWithoutPageAndLimit}&page=${page - 1}&limit=${limit}` : null,
-                        next_url: page >= Math.ceil(Number(flightQueriesResult.departingFlightsTotal) / Number(limit)) ? null : `${fullUrlWithoutPageAndLimit}&page=${page + 1}&limit=${limit}`,
+                        total_pages: Math.ceil(flightQueriesResult.departingFlightsTotal / limit),
                     },
                 } : {
                     returning_flights: mappedReturningFlights,
                     pagination: {
                         current_page: page,
                         limit: limit,
-                        prev_url: page > 1 ? `${fullUrlWithoutPageAndLimit}&page=${page - 1}&limit=${limit}` : null,
-                        next_url: page >= Math.ceil(Number(flightQueriesResult.returningFlightsTotal) / Number(limit)) ? null : `${fullUrlWithoutPageAndLimit}&page=${page + 1}&limit=${limit}`,
+                        total_pages: Math.ceil(flightQueriesResult.returningFlightsTotal / limit),
                     }
                 },
             })

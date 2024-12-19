@@ -152,6 +152,13 @@ async function main() {
                 seat_class_price: 1255000.00,
                 seat_class_capacity: 5,
             },
+            {
+                flight_seat_class_id: '01f45f0a-91ac-433c-bd12-6da4f0a9a029',
+                seat_class_id: '6d1f8718-d810-4b7b-95a8-58fdff928823', // Economy
+                flight_id: '6c6c7879-4515-4a83-a45c-c98184af9a4c', // QZ534
+                seat_class_price: 1955000.00,
+                seat_class_capacity: 150,
+            },
         ]
     })
 

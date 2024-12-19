@@ -97,7 +97,7 @@ class SeatController {
       const subTotalPrice = {
         adult: passengerCounts.adult * seatPrice,
         child: passengerCounts.child * seatPrice,
-        baby: passengerCounts.baby * seatPrice,
+        baby: passengerCounts.baby * seatPrice * 0,
       };
       const totalPrice =
         subTotalPrice.adult + subTotalPrice.child + subTotalPrice.baby;
@@ -107,9 +107,13 @@ class SeatController {
       const seatAssignments = await prisma.flight_seat_assignments.findMany({
         where: {
           flight_seat_class: {
-            flight_seat_class_id:
-              flight.flight_seat_classes[0].flight_seat_class_id,
+            flight: {
+              flight_id: flightId,
+            },
           },
+        },
+        orderBy: {
+          seat_id: "asc",
         },
         include: {
           seat: true,

@@ -72,7 +72,7 @@ class SeatClassesController {
                     seat_class_type: type,
                     seat_class_price: price 
                     ? Currency.format(price) // Format jika harga ada
-                    : `Tidak ada ${type} Seat untuk penerbangan ini`, // Jika tidak ada harga
+                    : `${Currency.format(0)}`, // Jika tidak ada kelas tertentu untuk suatu flight
                   input_value: type.replace(/\s+/g, "") // Hapus semua spasi
                 };
             });
