@@ -54,10 +54,30 @@ class NotificationController {
             }
 
             const formattedNotifications = notifications.map((notification) => {
+                let formattedNotificationType;
+
+                switch(notification.notification_type){
+                    case 'PROMO':
+                        formattedNotificationType = 'Promo';
+                        break;
+                    case 'SCHEDULE_CHANGE':
+                        formattedNotificationType = 'Perubahan Jadwal';
+                        break;
+                    case 'TRANSACTION':
+                        formattedNotificationType = 'Transaksi';
+                        break;
+                    case 'USER_DATA_UPDATE':
+                        formattedNotificationType = 'Update Data Pengguna'
+                        break;
+                    case 'WELCOME_MSG':
+                        formattedNotificationType = 'Halo!';
+                        break
+                }
+
                 return {
                     notification_id: notification.notification_id,
                     user_id: notification.user_id,
-                    notification: notification.notification_type,
+                    notification_type: formattedNotificationType,
                     notification_message: notification.notification_message,
                     notification_is_read: notification.notification_is_read,
                     notification_created_at: DateTimeUtils.formatDateForNotification(notification.notification_created_at)
