@@ -37,7 +37,7 @@ class NotificationController {
     }
 
     static async getNotifications(req, res) {
-        const userId = req.user.userID;
+        const userId = req.user.user_id; // Menggunakan user_id yang diambil dari token
 
         try {
             const notifications = await prisma.notifications.findMany({
