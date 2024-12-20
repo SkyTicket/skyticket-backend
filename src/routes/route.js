@@ -128,11 +128,13 @@ app.post(
   NotificationController.create
 );
 app.get(
-  "/api/v1/notifications/get/:user_id",
+  "/api/v1/notifications/get",
+  AuthMiddleware.authenticateUser,
   NotificationController.getNotifications
 );
 app.patch(
   "/api/v1/notifications/update/:notification_id",
+  AuthMiddleware.authenticateUser,
   NotificationController.updateNotificationStatus
 );
 

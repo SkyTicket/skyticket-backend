@@ -2931,22 +2931,15 @@
         }
       }
     },
-    "/api/v1/notifications/get/{user_id}": {
+    "/api/v1/notifications/get": {
       "get": {
         "tags": ["Notification"],
-        "summary": "Mengambil notifikasi berdasarkan user_id",
-        "parameters": [
+        "security": [
           {
-            "name": "user_id",
-            "in": "path",
-            "description": "ID user",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "5bb68854-a9db-4909-af7f-dfb72d76858f"
-            }
+            "BearerAuth": []
           }
         ],
+        "summary": "Mengambil notifikasi berdasarkan user_id dari authenticated user",
         "responses": {
           "200": {
             "description": "Notifikasi berhasil ditemukan",
@@ -2990,6 +2983,11 @@
       "patch": {
         "tags": ["Notification"],
         "summary": "Mengubah status notifikasi",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "notification_id",
