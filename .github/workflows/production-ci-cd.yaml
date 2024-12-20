@@ -1,15 +1,13 @@
-name: Deploy to GCP and Migrate-Seed to Database
+name: Deploy to Production Server and Migrate-Seed to Database
 
 on:
   push:
     branches:
-      - 0-staging
-      - test/ci-cd
+      - main
 
   pull_request:
     branches:
-      - 0-staging
-      - test/ci-cd
+      - main
 
 jobs:
   deploy:
@@ -27,18 +25,18 @@ jobs:
 
       - name: Add VM to known_hosts
         run: |
-          ssh-keyscan -H 34.101.115.143 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 34.128.81.84 >> ~/.ssh/known_hosts
 
       - name: Deploy to VM
         run: |
-          ssh tridiktya@34.101.115.143 << 'EOF'
+          ssh tridiktya@34.128.81.84 << 'EOF'
             cd /home/tridiktya/
-            sudo sh deploy-staging.sh
+            sudo sh deploy-production.sh
           EOF
 
       - name: Migrate and Seed Database
         run: |
-          ssh tridiktya@34.101.115.143 << 'EOF'
+          ssh tridiktya@34.128.81.84 << 'EOF'
             cd /home/tridiktya/
             sudo sh migrate-seed.sh
           EOF
