@@ -14,6 +14,14 @@ async function main() {
                 user_phone: '08851234567',
                 user_is_active: 'verified'
             },
+            {
+                user_name: 'Admin',
+                user_email: 'admin@skyticket.com',
+                user_password: '$2a$12$m5jsOAWLsOeswLiNkjvjsuZ2LMA1cWyt0cycviL7MWJ7us7MdmwuC',
+                user_role: 'admin',
+                user_phone: '08851234567',
+                user_is_active: 'verified'
+            },
         ]
     })
 

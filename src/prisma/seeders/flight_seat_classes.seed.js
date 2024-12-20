@@ -143,14 +143,14 @@ async function main() {
                 seat_class_id: '6d1f8718-d810-4b7b-95a8-58fdff928823', // Economy
                 flight_id: '234a23a9-0bbb-44b5-a8a3-4f604c94b266', // JT111
                 seat_class_price: 1150000.00,
-                seat_class_capacity: 5,
+                seat_class_capacity: 180,
             },
             {
                 flight_seat_class_id: 'c336dbb9-bf6c-474a-838a-f029790347a1',
                 seat_class_id: '6d1f8718-d810-4b7b-95a8-58fdff928823', // Economy
                 flight_id: 'c0032936-6984-495e-9faf-938753c690e5', // JT222
                 seat_class_price: 1255000.00,
-                seat_class_capacity: 5,
+                seat_class_capacity: 180,
             },
             {
                 flight_seat_class_id: '01f45f0a-91ac-433c-bd12-6da4f0a9a029',
