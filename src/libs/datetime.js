@@ -71,6 +71,25 @@ class DateTimeUtils {
         newDate.setDate(date.getDate() + days);
         return newDate;
     }
+
+    static formatDateForNotification(dateTimeString, timezone){
+        const localTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone; // Asia/Jakarta, Asia/Kuala_Lumpur, etc...
+
+        const date = new Date(dateTimeString);
+        const formatter = new Intl.DateTimeFormat('id-ID', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        hour12: false,
+        timeZone: localTimezone,
+        });
+        let formattedDate = formatter.format(date)
+        let toBeRemoved = " pukul"
+        // formattedDate = formattedDate.replace(toBeRemoved, '')
+        return formattedDate.replace(toBeRemoved, ',')
+    }
 }
 
 module.exports = DateTimeUtils;
