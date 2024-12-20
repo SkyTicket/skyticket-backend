@@ -33,5 +33,5 @@ jobs:
         run: |
           ssh tridiktya@34.101.115.143 << 'EOF'
             cd /home/tridiktya/
-            sudo sh deploy-staging.sh
+            sudo sh migrate-seed.sh
           EOF
