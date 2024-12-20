@@ -37,12 +37,12 @@ class NotificationController {
     }
 
     static async getNotifications(req, res) {
-        const user_id = req.user.userID;
+        const userId = req.user.userID;
 
         try {
             const notifications = await prisma.notifications.findMany({
                 where: {
-                    user_id
+                    user_id: userId
                 },
                 orderBy: {
                     notification_created_at: 'desc'

@@ -37,7 +37,7 @@ class AuthMiddleware {
         return res.status(401).json({ message: "User tidak ditemukan." });
       }
 
-      req.user = user;
+      req.user = decoded;
       next();
     } catch (error) {
       return res.status(401).json({ message: "Token tidak valid.", error });
