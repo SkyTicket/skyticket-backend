@@ -1,0 +1,160 @@
+{
+	"status": "success",
+	"message": "Berhasil menemukan penerbangan",
+	"passengers": {
+		"adult": 2,
+		"child": 1,
+		"infant": 0,
+		"total": 3
+	},
+	"departing_flights": {
+		"flights": [
+			{
+				"airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/AWQ.png",
+				"airline_name_and_class": "Air Asia Indonesia - Economy",
+				"seat_class_price": {
+					"raw": 1000000,
+					"formatted": "IDR 1.000.000"
+				},
+				"departure_airport": "SUB",
+				"departure_time": "05.00",
+				"flight_duration": {
+					"raw": 150,
+					"formatted": "2h 30m"
+				},
+				"arrival_airport": "KUL",
+				"arrival_time": "08.30",
+				"flight_details": {
+					"departure_time": "05.00",
+					"departure_date": "26 Desember 2024",
+					"departure_airport_name": "Bandara Internasional Juanda",
+					"airline_name_and_class": "Air Asia Indonesia - Economy",
+					"flight_number": "QZ - 805",
+					"airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/AWQ.png",
+					"arrival_time": "08.30",
+					"arrival_date": "26 Desember 2024",
+					"arrival_airport_name": "Bandara Internasional Kuala Lumpur",
+					"raw_departure_datetime": "2024-12-25T22:00:00.000Z",
+					"raw_arrival_datetime": "2024-12-26T00:30:00.000Z"
+				}
+			}
+		],
+		"pagination": [
+			{
+				"date": "23/12/2024",
+				"day": "Senin",
+				"url": "http://localhost:3000/api/v1/flights?sort_by=lowest_price&departure_airport=SUB&arrival_airport=KUL&is_round_trip=true&flight_departure_date=2024-12-22T17:00:00.000Z&returning_flight_departure_date=2024-12-25T17:00:00.000Z&seat_class_type=Economy&total_adult_passengers=2&total_child_passengers=1&total_infant_passengers=0"
+			},
+			{
+				"date": "24/12/2024",
+				"day": "Selasa",
+				"url": "http://localhost:3000/api/v1/flights?sort_by=lowest_price&departure_airport=SUB&arrival_airport=KUL&is_round_trip=true&flight_departure_date=2024-12-23T17:00:00.000Z&returning_flight_departure_date=2024-12-25T17:00:00.000Z&seat_class_type=Economy&total_adult_passengers=2&total_child_passengers=1&total_infant_passengers=0"
+			},
+			{
+				"date": "25/12/2024",
+				"day": "Rabu",
+				"url": "http://localhost:3000/api/v1/flights?sort_by=lowest_price&departure_airport=SUB&arrival_airport=KUL&is_round_trip=true&flight_departure_date=2024-12-24T17:00:00.000Z&returning_flight_departure_date=2024-12-25T17:00:00.000Z&seat_class_type=Economy&total_adult_passengers=2&total_child_passengers=1&total_infant_passengers=0"
+			},
+			{
+				"date": "26/12/2024",
+				"day": "Kamis",
+				"url": "http://localhost:3000/api/v1/flights?sort_by=lowest_price&departure_airport=SUB&arrival_airport=KUL&is_round_trip=true&flight_departure_date=2024-12-25T17:00:00.000Z&returning_flight_departure_date=2024-12-25T17:00:00.000Z&seat_class_type=Economy&total_adult_passengers=2&total_child_passengers=1&total_infant_passengers=0"
+			},
+			{
+				"date": "27/12/2024",
+				"day": "Jumat",
+				"url": "http://localhost:3000/api/v1/flights?sort_by=lowest_price&departure_airport=SUB&arrival_airport=KUL&is_round_trip=true&flight_departure_date=2024-12-26T17:00:00.000Z&returning_flight_departure_date=2024-12-25T17:00:00.000Z&seat_class_type=Economy&total_adult_passengers=2&total_child_passengers=1&total_infant_passengers=0"
+			},
+			{
+				"date": "28/12/2024",
+				"day": "Sabtu",
+				"url": "http://localhost:3000/api/v1/flights?sort_by=lowest_price&departure_airport=SUB&arrival_airport=KUL&is_round_trip=true&flight_departure_date=2024-12-27T17:00:00.000Z&returning_flight_departure_date=2024-12-25T17:00:00.000Z&seat_class_type=Economy&total_adult_passengers=2&total_child_passengers=1&total_infant_passengers=0"
+			},
+			{
+				"date": "29/12/2024",
+				"day": "Minggu",
+				"url": "http://localhost:3000/api/v1/flights?sort_by=lowest_price&departure_airport=SUB&arrival_airport=KUL&is_round_trip=true&flight_departure_date=2024-12-28T17:00:00.000Z&returning_flight_departure_date=2024-12-25T17:00:00.000Z&seat_class_type=Economy&total_adult_passengers=2&total_child_passengers=1&total_infant_passengers=0"
+			},
+			{
+				"date": "30/12/2024",
+				"day": "Senin",
+				"url": "http://localhost:3000/api/v1/flights?sort_by=lowest_price&departure_airport=SUB&arrival_airport=KUL&is_round_trip=true&flight_departure_date=2024-12-29T17:00:00.000Z&returning_flight_departure_date=2024-12-25T17:00:00.000Z&seat_class_type=Economy&total_adult_passengers=2&total_child_passengers=1&total_infant_passengers=0"
+			}
+		]
+	},
+	"returning_flights": {
+		"pagination": [
+			{
+				"date": "23/12/2024",
+				"day": "Senin",
+				"url": "http://localhost:3000/api/v1/flights?sort_by=lowest_price&departure_airport=SUB&arrival_airport=KUL&is_round_trip=true&flight_departure_date=2024-12-22T16:00:00.000Z&returning_flight_departure_date=2024-12-25T17:00:00.000Z&seat_class_type=Economy&total_adult_passengers=2&total_child_passengers=1&total_infant_passengers=0"
+			},
+			{
+				"date": "24/12/2024",
+				"day": "Selasa",
+				"url": "http://localhost:3000/api/v1/flights?sort_by=lowest_price&departure_airport=SUB&arrival_airport=KUL&is_round_trip=true&flight_departure_date=2024-12-23T16:00:00.000Z&returning_flight_departure_date=2024-12-25T17:00:00.000Z&seat_class_type=Economy&total_adult_passengers=2&total_child_passengers=1&total_infant_passengers=0"
+			},
+			{
+				"date": "25/12/2024",
+				"day": "Rabu",
+				"url": "http://localhost:3000/api/v1/flights?sort_by=lowest_price&departure_airport=SUB&arrival_airport=KUL&is_round_trip=true&flight_departure_date=2024-12-24T16:00:00.000Z&returning_flight_departure_date=2024-12-25T17:00:00.000Z&seat_class_type=Economy&total_adult_passengers=2&total_child_passengers=1&total_infant_passengers=0"
+			},
+			{
+				"date": "26/12/2024",
+				"day": "Kamis",
+				"url": "http://localhost:3000/api/v1/flights?sort_by=lowest_price&departure_airport=SUB&arrival_airport=KUL&is_round_trip=true&flight_departure_date=2024-12-25T16:00:00.000Z&returning_flight_departure_date=2024-12-25T17:00:00.000Z&seat_class_type=Economy&total_adult_passengers=2&total_child_passengers=1&total_infant_passengers=0"
+			},
+			{
+				"date": "27/12/2024",
+				"day": "Jumat",
+				"url": "http://localhost:3000/api/v1/flights?sort_by=lowest_price&departure_airport=SUB&arrival_airport=KUL&is_round_trip=true&flight_departure_date=2024-12-26T16:00:00.000Z&returning_flight_departure_date=2024-12-25T17:00:00.000Z&seat_class_type=Economy&total_adult_passengers=2&total_child_passengers=1&total_infant_passengers=0"
+			},
+			{
+				"date": "28/12/2024",
+				"day": "Sabtu",
+				"url": "http://localhost:3000/api/v1/flights?sort_by=lowest_price&departure_airport=SUB&arrival_airport=KUL&is_round_trip=true&flight_departure_date=2024-12-27T16:00:00.000Z&returning_flight_departure_date=2024-12-25T17:00:00.000Z&seat_class_type=Economy&total_adult_passengers=2&total_child_passengers=1&total_infant_passengers=0"
+			},
+			{
+				"date": "29/12/2024",
+				"day": "Minggu",
+				"url": "http://localhost:3000/api/v1/flights?sort_by=lowest_price&departure_airport=SUB&arrival_airport=KUL&is_round_trip=true&flight_departure_date=2024-12-28T16:00:00.000Z&returning_flight_departure_date=2024-12-25T17:00:00.000Z&seat_class_type=Economy&total_adult_passengers=2&total_child_passengers=1&total_infant_passengers=0"
+			},
+			{
+				"date": "30/12/2024",
+				"day": "Senin",
+				"url": "http://localhost:3000/api/v1/flights?sort_by=lowest_price&departure_airport=SUB&arrival_airport=KUL&is_round_trip=true&flight_departure_date=2024-12-29T16:00:00.000Z&returning_flight_departure_date=2024-12-25T17:00:00.000Z&seat_class_type=Economy&total_adult_passengers=2&total_child_passengers=1&total_infant_passengers=0"
+			}
+		],
+		"flights": [
+			{
+				"airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/AWQ.png",
+				"airline_name_and_class": "Air Asia Indonesia - Economy",
+				"seat_class_price": {
+					"raw": 1000000,
+					"formatted": "IDR 1.000.000"
+				},
+				"departure_airport": "KUL",
+				"departure_time": "09.30",
+				"flight_duration": {
+					"raw": 90,
+					"formatted": "1h 30m"
+				},
+				"arrival_airport": "SUB",
+				"arrival_time": "10.00",
+				"flight_details": {
+					"departure_time": "09.30",
+					"departure_date": "26 Desember 2024",
+					"departure_airport_name": "Bandara Internasional Kuala Lumpur",
+					"airline_name_and_class": "Air Asia Indonesia - Economy",
+					"flight_number": "QZ - 806",
+					"airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/AWQ.png",
+					"arrival_time": "10.00",
+					"arrival_date": "26 Desember 2024",
+					"arrival_airport_name": "Bandara Internasional Juanda",
+					"raw_departure_datetime": "2024-12-26T01:30:00.000Z",
+					"raw_arrival_datetime": "2024-12-26T03:00:00.000Z"
+				}
+			}
+		]
+	}
+}

@@ -1,0 +1,24 @@
+To-Do:
+- sorting [v]
+    - harga termurah [v]
+    - durasi terpendek [v] 
+    - keberangkatan paling awal [v]
+    - keberangkatan paling akhir [v]
+    - kedatangan paling awal [v]
+    - kedatangan paling akhir [v]
+- pagination [v]
+- list PP [v]
+    - query by departure flight (NO Round-Trip) [v]
+    - query by departure flight & returning departure flight (WITH Round-Trip) [v]
+- cek ketersediaan flight/ticket []
+- limit passengers logic []
+- Relasi/model flights-aircrafts dan aircrafts-aircraft-seats []
+
+- API Docs []
+
+
+
+PAYMENT
+User memilih kursi dan mengisi data penumpang → POST /ticket-order.
+User menekan tombol "Lanjut Bayar" → POST /create-payment untuk memulai pembayaran melalui Midtrans.
+User menyelesaikan pembayaran di UI Midtrans → Midtrans mengirimkan notifikasi ke POST /midtrans-notification untuk mengupdate status pembayaran.
