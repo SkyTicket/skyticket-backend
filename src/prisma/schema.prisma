@@ -235,6 +235,7 @@ enum Title {
 enum NotificationType {
   PROMO
   SCHEDULE_CHANGE
+  TRANSACTION
 }
 
 enum PaymentStatus {
