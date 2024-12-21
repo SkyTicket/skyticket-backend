@@ -40,7 +40,7 @@ describe('Admin', () => {
                 "user_id": "12345",
                 "notification_type": "PROMO",
                 "notification_message": "This is a test notification"
-            });
+            }).set('Authorization', 'Bearer 12345');
 
             expect(response.statusCode).toBe(201);
         });
@@ -50,7 +50,7 @@ describe('Admin', () => {
                 "user_id": "12345",
                 "notification_type": "INVALID_TYPE",
                 "notification_message": "This is a test notification"
-            });
+            }).set('Authorization', 'Bearer 12345');
 
             expect(response.statusCode).toBe(400);
         });
@@ -60,7 +60,7 @@ describe('Admin', () => {
                 "user_id": "000",
                 "notification_type": "PROMO",
                 "notification_message": "This is a test notification"
-            });
+            }).set('Authorization', 'Bearer 12345');
 
             expect(response.statusCode).toBe(404);
         });
