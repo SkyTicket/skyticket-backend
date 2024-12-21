@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>E-Ticket | <%= transaction_data.booking_code %></title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f9f9f9;
+      }
+
+      .container {
+        max-width: 800px;
+        margin: 20px auto;
+        background-color: #fff;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+      }
+
+      h1 {
+        font-size: 24px;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .airline-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .airline-logo {
+        width: 120px;
+        height: auto;
+      }
+
+      .details-section {
+        border-top: 1px solid #ddd;
+        margin-top: 20px;
+        padding-top: 20px;
+      }
+
+      .details-section p {
+        margin: 5px 0;
+      }
+
+      .info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+      }
+
+      .info div {
+        width: 48%;
+      }
+
+      .notes {
+        margin-top: 20px;
+        border-top: 1px solid #ddd;
+        padding-top: 10px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      table th,
+      table td {
+        text-align: left;
+        padding: 10px;
+        border: 1px solid #ddd;
+        font-size: 14px;
+      }
+
+      table th {
+        background-color: #f4f4f4;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>E-Ticket</h1>
+      <div class="airline-container">
+        <img
+          class="airline-logo"
+          src="<%= transaction_data.ticket.airline_logo %>"
+          alt="airline_logo"
+        />
+        <div>
+          <p><b><%= transaction_data.ticket.airline %></b></p>
+          <p>
+            <%= transaction_data.ticket.flight_number %>
+          </p>
+          <p>
+            <%= transaction_data.ticket.seat_class %>
+          </p>
+        </div>
+      </div>
+
+      <div class="details-section">
+        <div class="info">
+          <div>
+            <h3>Keberangkatan</h3>
+            <p><%= transaction_data.ticket.departure_date %> - <%= transaction_data.ticket.departure_time %></p>
+            <p><%= transaction_data.departure_airport_city_and_code %></p>
+            <p><%= transaction_data.departure_airport_name %></p>
+          </div>
+          <div>
+            <h3>Kedatangan</h3>
+            <p><%= transaction_data.ticket.arrival_date %> - <%= transaction_data.ticket.arrival_time %></p>
+            <p><%= transaction_data.arrival_airport_city_and_code %></p>
+            <p><%= transaction_data.arrival_airport_name %></p>
+          </div>
+        </div>
+        <p>Durasi Penerbangan: <%= transaction_data.flight_duration %></p>
+        <p>Kode Booking (PNR): <%= transaction_data.booking_code %></p>
+      </div>
+
+      <div class="details-section">
+        <h3>Passenger Details</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>No.</th>
+              <th>Nama</th>
+              <th>Kursi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% for(let i = 0; i < transaction_data.ticket.passengers.length; i++) { %>
+            <tr>
+              <td><%= i + 1 %></td>
+              <td><%= transaction_data.ticket.passengers[i].name %> (<%= transaction_data.ticket.passengers[i].type %>) </td>
+              <td><%= transaction_data.ticket.passengers[i].seat %></td>
+            </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="notes">
+        <h3>Catatan</h3>
+        <ul>
+          <li>Tunjukkan E-Ticket dan tanda pengenal atau identitas anda saat check-in.</li>
+          <li>Check-in paling lambat 2 jam sebelum keberangkatan.</li>
+          <li>Waktu yang ditunjukkan merupakan waktu bandara setempat.</li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>

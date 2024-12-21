@@ -447,7 +447,7 @@ class PaymentController {
       });
     }
   }
-  static async showTransaksiByBookingIdEjs(req, res) {
+  static async showEticket(req, res) {
     try {
       const { bookingId } = req.params;
 
@@ -530,14 +530,14 @@ class PaymentController {
       };
 
       const formattedTransaksi = {
-        booking_payment_status: transaksi.booking_payment_status,
-        departure_airport_city:
-          flightTicket.flight.departure_airport.airport_city,
+        departure_airport_city_and_code: `${flightTicket.flight.departure_airport.airport_city} (${flightTicket.flight.departure_airport.airport_code})`,
+        departure_airport_name: flightTicket.flight.departure_airport.airport_name,
         flight_duration: Moment.timeDifferenceFormatted(
           flightTicket.flight.flight_arrival_date,
           flightTicket.flight.flight_departure_date
         ),
-        arrival_airport_city: flightTicket.flight.arrival_airport.airport_city,
+        arrival_airport_city_and_code: `${flightTicket.flight.arrival_airport.airport_city} (${flightTicket.flight.arrival_airport.airport_code})`,
+        arrival_airport_name: flightTicket.flight.arrival_airport.airport_name,
         booking_code: transaksi.booking_code,
         seat_class_type: flightTicket.seat_class.seat_class_type || "Unknown",
         booking_amount: Currency.format(transaksi.booking_amount),
@@ -551,23 +551,17 @@ class PaymentController {
             flightTicket.flight.departure_airport.airport_name || "N/A",
           flight_arrival_airport_name:
             flightTicket.flight.arrival_airport.airport_name || "N/A",
-          airline_and_seat_class: `${flightTicket.flight.airline.airline_name} - ${flightTicket.seat_class.seat_class_type}`,
+          airline: flightTicket.flight.airline.airline_name,
+          seat_class: flightTicket.seat_class.seat_class_type,
+          flight_number: `${flightTicket.flight.airline.airline_code}-${flightTicket.flight.flight_number}`,
+          // airline_and_seat_class: `${flightTicket.flight.airline.airline_name} - ${flightTicket.seat_class.seat_class_type}`,
           flight_number: `${flightTicket.flight.airline.airline_code} - ${flightTicket.flight.flight_number}`,
           airline_logo: flightTicket.flight.airline.Airline_logo || "N/A",
-          passengers: transaksi.tickets.map((passenger) => {
-            return [
-              {
-                id: passenger.passanger.passenger_id,
-                name: `${passenger.passanger.title}. ${
-                  passenger.passanger.name
-                } ${
-                  passenger.passanger.familyName
-                    ? passenger.passanger.familyName
-                    : ""
-                }`,
-              },
-            ];
-          }),
+          passengers: transaksi.tickets.map((passenger) => ({
+            seat: passenger.flight_seat_assigment.seat.seat_number,
+            type: passenger.passanger.category,
+            name: `${passenger.passanger.title}. ${passenger.passanger.familyName.toUpperCase()}, ${passenger.passanger.name}`,
+          })),
           seat_class_price: {
             raw: flightTicket.seat_class_price || 0,
             formatted: Currency.format(flightTicket.seat_class_price || 0),
@@ -592,22 +586,11 @@ class PaymentController {
         },
       };
 
-      // Ambil tanggal keberangkatan untuk pengelompokan
-      const departureDate = new Date(flightTicket.flight.flight_departure_date);
-      const monthYearKey = `${departureDate.toLocaleString("id-ID", {
-        month: "long",
-      })} ${departureDate.getFullYear()}`;
-
-      // Bungkus data dalam struktur pengelompokan
-      const transactionsData = {
-        [monthYearKey]: [formattedTransaksi],
-      };
-
-      res.render("transaksi", {
+      res.render("eticket", {
         statusCode: 200,
         status: "success",
         message: "Successfully retrieved transactions",
-        transactions_data: transactionsData,
+        transaction_data: formattedTransaksi,
       });
     } catch (error) {
       console.error("Error retrieving transaction details:", error.message);

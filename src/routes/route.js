@@ -109,8 +109,8 @@ app.get(
   PaymentController.showTransaksiByBookingId
 );
 app.get(
-  "/api/v1/transaksi/detailejs/:bookingId",
-  PaymentController.showTransaksiByBookingIdEjs
+  "/api/v1/transaksi/eticket/:bookingId",
+  PaymentController.showEticket
 );
 
 app.post(
