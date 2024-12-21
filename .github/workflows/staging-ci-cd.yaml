@@ -27,16 +27,17 @@ jobs:
         run: |
           ssh-keyscan -H 34.101.115.143 >> ~/.ssh/known_hosts
 
-      - name: Deploy to VM
+      - name: Deploy to Staging Server
         run: |
           ssh tridiktya@34.101.115.143 << 'EOF'
             cd /home/tridiktya/
             sudo sh deploy-staging.sh
           EOF
 
-      - name: Migrate and Seed Database
+      - name: Migrate-Seed Database and Re-deploy after migration
         run: |
           ssh tridiktya@34.101.115.143 << 'EOF'
             cd /home/tridiktya/
             sudo sh migrate-seed.sh
+            sudo sh deploy-staging.sh
           EOF
