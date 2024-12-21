@@ -354,6 +354,14 @@ class PaymentController {
           booking_payment_method: "Midtrans",
         },
       });
+      await prisma.notifications.create({
+        data: {
+          user_id: userId,
+          notification_type: "TRANSACTION", 
+          notification_message: `Segera lakukan pembayaran untuk kode booking ${booking.booking_code} sebelum ${formattedExpiryTime}.`,
+          notification_is_read: false,
+        },
+      });
 
       res.status(201).json({
         message: "Berhasil membuat pembayaran",
@@ -362,6 +370,7 @@ class PaymentController {
         token: token,
         redirect_url: redirectUrl,
         expiry_time: formattedExpiryTime,
+        payment_reminder: `Segera lakukan pembayaran untuk kode booking ${booking.booking_code} sebelum ${formattedExpiryTime}.`,
       });
     } catch (error) {
       console.error("Gagal membuat pembayaran", error.message);
@@ -391,7 +400,7 @@ class PaymentController {
       }
 
       let newStatus = "Unpaid";
-      let notificationMessage = `Transaksi untuk kode booking ${order_id} belum selesai.`; 
+      let notificationMessage = `Transaksi untuk kode booking ${order_id} belum selesai.`;
 
       switch (transaction_status) {
         case "capture":
