@@ -47,13 +47,13 @@ describe('Admin', () => {
     describe('POST /api/v1/notifications/create', async () => {
         test('Create notification', async () => {
             prisma.notifications.create.mockResolvedValue({
-                "user_id": "12345",
+                "user_id": "1ee4c66a-ae6f-4a2c-9310-f76c8cf2f8f6",
                 "notification_type": "PROMO",
                 "notification_message": "This is a test notification"
             });
 
             const response = await request(app).post('/api/v1/notifications/create').send({
-                "user_id": "12345",
+                "user_id": "1ee4c66a-ae6f-4a2c-9310-f76c8cf2f8f6",
                 "notification_type": "PROMO",
                 "notification_message": "This is a test notification"
             }).set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', '/json/');
@@ -63,7 +63,7 @@ describe('Admin', () => {
 
         test('Tipe notifikasi tidak valid', async () => {
             const response = await request(app).post('/api/v1/notifications/create').send({
-                "user_id": "12345",
+                "user_id": "1ee4c66a-ae6f-4a2c-9310-f76c8cf2f8f6",
                 "notification_type": "INVALID_TYPE",
                 "notification_message": "This is a test notification"
             }).set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', '/json/');
@@ -85,7 +85,7 @@ describe('Admin', () => {
             prisma.notification.create.mockRejectedValue(new Error('Database error'));
 
             const response = await request(app).post('/api/v1/notifications/create').send({
-                "user_id": "12345",
+                "user_id": "1ee4c66a-ae6f-4a2c-9310-f76c8cf2f8f6",
                 "notification_type": "PROMO",
                 "notification_message": "This is a test notification"
             }).set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', '/json/');

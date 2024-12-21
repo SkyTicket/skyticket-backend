@@ -228,7 +228,7 @@ describe('Auth', () => {
     describe('POST api/v1/auth/forgot-password', async () => {
         test('Password berhasil direset', async () => {
             const response = await request(app).post('/api/v1/auth/forgot-password').send({
-                "user_email": "john.doe@example.com"
+                "email": "john.doe@example.com"
             });
 
             expect(response.statusCode).toBe(200);
@@ -236,7 +236,7 @@ describe('Auth', () => {
 
         test('Email tidak ditemukan', async () => {
             const response = await request(app).post('/api/v1/auth/forgot-password').send({
-                "user_email": "notFound@example.com"
+                "email": "notFound@example.com"
             });
 
             expect(response.statusCode).toBe(400);
@@ -246,7 +246,7 @@ describe('Auth', () => {
             prisma.users.findUnique.mockRejectedValue(new Error('Database error'));
 
             const response = await request(app).post('/api/v1/auth/forgot-password').send({
-                "user_email": "john.doe@example.com"
+                "email": "john.doe@example.com"
             });
 
             expect(response.statusCode).toBe(500);
