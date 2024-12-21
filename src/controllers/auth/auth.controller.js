@@ -188,10 +188,19 @@ class AuthController {
 
       await prisma.otp.delete({ where: { otp_id: otpRecord.otp_id } });
 
-      await prisma.users.update({
+      const updatedUserStatus = await prisma.users.update({
         where: { user_id: user.user_id },
         data: { user_is_active: "verified" },
       });
+
+      await prisma.notifications.create({
+        data: {
+          user_id: updatedUserStatus.user_id,
+          notification_type: 'WELCOME_MSG',
+          notification_message: `Selamat datang di SkyTicket, ${updatedUserStatus.user_name}!`, 
+          notification_is_read: false,
+        }
+      })
 
       res.status(200).json({ message: "Verifikasi berhasil." });
     } catch (error) {

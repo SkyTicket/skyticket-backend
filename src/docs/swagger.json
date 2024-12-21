@@ -2931,22 +2931,15 @@
         }
       }
     },
-    "/api/v1/notifications/get/{user_id}": {
+    "/api/v1/notifications/get": {
       "get": {
         "tags": ["Notification"],
-        "summary": "Mengambil notifikasi berdasarkan user_id",
-        "parameters": [
+        "security": [
           {
-            "name": "user_id",
-            "in": "path",
-            "description": "ID user",
-            "required": true,
-            "schema": {
-              "type": "string",
-              "example": "5bb68854-a9db-4909-af7f-dfb72d76858f"
-            }
+            "BearerAuth": []
           }
         ],
+        "summary": "Mengambil notifikasi berdasarkan user_id dari authenticated user",
         "responses": {
           "200": {
             "description": "Notifikasi berhasil ditemukan",
@@ -2955,10 +2948,10 @@
                 "example": {
                   "notification_id": "77ea5767-7ed3-4594-8d61-799b0c332dbe",
                   "user_id": "5bb68854-a9db-4909-af7f-dfb72d76858f",
-                  "notification_type": "PROMO",
+                  "notification_type": "Promo",
                   "notification_message": "Ada promo nih boss...",
                   "notification_is_read": false,
-                  "notification_created_at": "2024-12-14T15:15:36.300Z"
+                  "notification_created_at": "14 Desember 2024 15.15"
                 }
               }
             }
@@ -2990,6 +2983,11 @@
       "patch": {
         "tags": ["Notification"],
         "summary": "Mengubah status notifikasi",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
         "parameters": [
           {
             "name": "notification_id",
