@@ -1141,13 +1141,7 @@
             "description": "Filter destinasi berdasarkan continent",
             "required": "false",
             "schema": {
-              "enum": [
-                "Asia",
-                "Amerika",
-                "Australia",
-                "Eropa",
-                "Afrika"
-              ],
+              "enum": ["Asia", "Amerika", "Australia", "Eropa", "Afrika"],
               "default": "Asia"
             }
           }
@@ -2445,7 +2439,7 @@
                   "statusCode": 200,
                   "status": "success",
                   "message": "Successfully retrieved transactions",
-                  "data": {
+                  "transactions_data": {
                     "Desember 2024": [
                       {
                         "booking_payment_status": "Issued",
@@ -2470,7 +2464,7 @@
                             [
                               {
                                 "id": "39c34458-b1ba-44d3-ac0d-e9aef1210156",
-                                "name": "Mr. maram2 Doe"
+                                "name": "Mr. Maram Doe"
                               }
                             ]
                           ],
@@ -2496,8 +2490,8 @@
               }
             }
           },
-          "400_idPengguna": {
-            "description": "ID pengguna tidak valid atau tidak ada",
+          "400": {
+            "description": "Bad request atau token tidak valid",
             "content": {
               "application/json": {
                 "schema": {
@@ -2552,8 +2546,121 @@
               }
             }
           },
+          "500": {
+            "description": "Kesalahan pada server",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 500
+                    },
+                    "status": {
+                      "type": "string",
+                      "example": "failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Terjadi kesalahan pada server"
+                    },
+                    "details": {
+                      "type": "string",
+                      "example": "Detailed error message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/transaksi/detail/{bookingId}": {
+      "get": {
+        "tags": ["Transaction"],
+        "summary": "Mengambil detail transaksi berdasarkan Booking ID",
+        "description": "Endpoint ini digunakan untuk mengambil detail transaksi berdasarkan Booking ID.",
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "bookingId",
+            "in": "path",
+            "required": true,
+            "description": "Booking ID yang ingin dicari.",
+            "schema": {
+              "type": "string",
+              "example": "8730e8c2-5f50-4c13-9ecc-81adb954d62e"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detail transaksi berhasil diambil.",
+            "content": {
+              "application/json": {
+                "example": {
+                  "statusCode": 200,
+                  "status": "success",
+                  "message": "Successfully retrieved transactions",
+                  "transactions_data": {
+                    "Desember 2024": [
+                      {
+                        "booking_payment_status": "Unpaid",
+                        "departure_airport_city": "Surabaya",
+                        "flight_duration": "50m",
+                        "arrival_airport_city": "Denpasar",
+                        "booking_code": "0c6d26cd",
+                        "seat_class_type": "Economy",
+                        "booking_amount": "IDR 166,5",
+                        "passangers_total": {
+                          "adult": 1,
+                          "child": 0,
+                          "baby": 0
+                        },
+                        "ticket": {
+                          "flight_departure_airport_name": "Bandara Internasional Juanda",
+                          "flight_arrival_airport_name": "Bandara Internasional Ngurah Rai",
+                          "airline_and_seat_class": "Lion Air Indonesia - Economy",
+                          "flight_number": "JT - 111",
+                          "airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/LNI.png",
+                          "passengers": [
+                            [
+                              {
+                                "id": "5458b685-a2a8-450f-b315-949d58f4cebe",
+                                "name": "Mrs. Elka family"
+                              }
+                            ]
+                          ],
+                          "seat_class_price": {
+                            "raw": "150",
+                            "formatted": "IDR 150"
+                          },
+                          "departure_date": "29 Desember 2024",
+                          "departure_time": "07.00",
+                          "arrival_date": "29 Desember 2024",
+                          "arrival_time": "08.50",
+                          "amount_details": {
+                            "adults": "1 Adults",
+                            "adults_amount_total": "IDR 150",
+                            "tax": "IDR 16,5",
+                            "booking_amount_total": "IDR 166,5"
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
           "400": {
-            "description": "Bad request due to database error",
+            "description": "Kesalahan validasi input atau Booking ID tidak diberikan.",
             "content": {
               "application/json": {
                 "schema": {
@@ -2565,15 +2672,43 @@
                     },
                     "status": {
                       "type": "string",
-                      "example": "failed"
+                      "example": "Failed"
                     },
                     "message": {
                       "type": "string",
-                      "example": "Kesalahan dalam permintaan ke database"
+                      "example": "Booking ID diperlukan"
                     },
-                    "details": {
+                    "data": {
+                      "type": "array",
+                      "items": {}
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Transaksi tidak ditemukan untuk Booking ID yang diberikan.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "statusCode": {
+                      "type": "integer",
+                      "example": 404
+                    },
+                    "status": {
                       "type": "string",
-                      "example": "Detailed error message"
+                      "example": "Failed"
+                    },
+                    "message": {
+                      "type": "string",
+                      "example": "Tidak ada transaksi ditemukan untuk Booking ID yang diberikan"
+                    },
+                    "data": {
+                      "type": "array",
+                      "items": {}
                     }
                   }
                 }
@@ -2581,7 +2716,7 @@
             }
           },
           "500": {
-            "description": "Internal server error",
+            "description": "Kesalahan pada server.",
             "content": {
               "application/json": {
                 "schema": {

@@ -6,7 +6,8 @@ const swaggerUi = require("swagger-ui-express");
 const swaggerDocument = require("./docs/swagger.json");
 require("./controllers/auth/oauth.controller");
 const session = require("express-session");
-const MemoryStore = require('memorystore')(session)
+const MemoryStore = require("memorystore")(session);
+const path = require("path");
 
 // const authRoutes = require("./routes/authRoute");
 // const passwordRoutes = require("./routes/password.route");
@@ -23,19 +24,23 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Set view engine ke EJS
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "views")); // Path ke folder views
+
 // serve swagger UI
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // Session setup
-app.set('trust proxy', 1)
+app.set("trust proxy", 1);
 
 app.use(
   session({
     cookie: {
-      maxAge: 86400000
+      maxAge: 86400000,
     },
     store: new MemoryStore({
-      checkPeriod: 86400000 
+      checkPeriod: 86400000,
     }),
     secret: process.env.SESSION_SECRET,
     resave: false,

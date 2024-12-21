@@ -105,9 +105,14 @@ app.get(
   PaymentController.showTransaksiByIdUser
 );
 app.get(
-  "/api/v1/transaksi/detail/:bookingId?/:bookingCode?",
-  PaymentController.showTransaksiByBookingIdOrCode
+  "/api/v1/transaksi/detail/:bookingId",
+  PaymentController.showTransaksiByBookingId
 );
+app.get(
+  "/api/v1/transaksi/detailejs/:bookingId",
+  PaymentController.showTransaksiByBookingIdEjs
+);
+
 app.post(
   "/api/v1/ticket-order",
   AuthMiddleware.authenticateUser,
