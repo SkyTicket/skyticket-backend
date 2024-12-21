@@ -1,0 +1,43 @@
+name: Deploy to Staging Server and Migrate-Seed to Database
+
+on:
+  push:
+    branches:
+      - 0-staging
+
+  pull_request:
+    branches:
+      - 0-staging
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup SSH Key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: Add VM to known_hosts
+        run: |
+          ssh-keyscan -H 34.101.115.143 >> ~/.ssh/known_hosts
+
+      - name: Deploy to Staging Server
+        run: |
+          ssh tridiktya@34.101.115.143 << 'EOF'
+            cd /home/tridiktya/
+            sudo sh deploy-staging.sh
+          EOF
+
+      - name: Migrate-Seed Database and Re-deploy after migration
+        run: |
+          ssh tridiktya@34.101.115.143 << 'EOF'
+            cd /home/tridiktya/
+            sudo sh migrate-seed.sh
+            sudo sh deploy-staging.sh
+          EOF
