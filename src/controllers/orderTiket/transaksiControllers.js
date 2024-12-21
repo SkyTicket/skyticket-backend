@@ -354,6 +354,14 @@ class PaymentController {
           booking_payment_method: "Midtrans",
         },
       });
+      await prisma.notifications.create({
+        data: {
+          user_id: userId,
+          notification_type: "TRANSACTION", 
+          notification_message: `Segera lakukan pembayaran untuk kode booking ${booking.booking_code} sebelum ${formattedExpiryTime}.`,
+          notification_is_read: false,
+        },
+      });
 
       res.status(201).json({
         message: "Berhasil membuat pembayaran",
@@ -362,6 +370,7 @@ class PaymentController {
         token: token,
         redirect_url: redirectUrl,
         expiry_time: formattedExpiryTime,
+        payment_reminder: `Segera lakukan pembayaran untuk kode booking ${booking.booking_code} sebelum ${formattedExpiryTime}.`,
       });
     } catch (error) {
       console.error("Gagal membuat pembayaran", error.message);
@@ -390,20 +399,23 @@ class PaymentController {
         return res.status(404).json({ error: "Booking not found" });
       }
 
-      let newStatus;
+      let newStatus = "Unpaid";
+      let notificationMessage = `Transaksi untuk kode booking ${order_id} belum selesai.`;
 
       switch (transaction_status) {
         case "capture":
         case "settlement":
           newStatus = "Issued";
+          notificationMessage = `Pembayaran tiket untuk kode booking ${order_id} berhasil.`;
           break;
         case "deny":
         case "expire":
         case "cancel":
           newStatus = "Cancelled";
+          notificationMessage = `Transaksi untuk kode booking ${order_id} gagal atau dibatalkan.`;
           break;
         default:
-          newStatus = "Unpaid";
+          break;
       }
 
       await prisma.bookings.update({
@@ -413,8 +425,23 @@ class PaymentController {
           booking_payment_method: payment_type,
         },
       });
-
-      res.status(200).json({ message: "Transaction status updated" });
+      if (
+        transaction_status === "capture" ||
+        transaction_status === "settlement"
+      ) {
+        await prisma.notifications.create({
+          data: {
+            user_id: booking.user_id,
+            notification_type: "TRANSACTION",
+            notification_message: notificationMessage,
+            notification_is_read: false,
+          },
+        });
+      }
+      res.status(200).json({
+        message: "Transaction status updated",
+        notification_message: notificationMessage,
+      });
     } catch (error) {
       console.error("Error updating payment status:", error.message);
       res.status(500).json({ error: "Failed to update transaction status" });

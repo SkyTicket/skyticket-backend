@@ -2669,6 +2669,11 @@
                       "type": "string",
                       "description": "Waktu kedaluwarsa dalam format jam:menit:detik",
                       "example": "16:55:28"
+                    },
+                    "payment_reminder": {
+                      "type": "string",
+                      "description": "Reminder pembayaran disertai bookingcode dan waktu kadaluarsa",
+                      "example": "Segera lakukan pembayaran untuk kode booking 00c126f1 sebelum 09:52:55."
                     }
                   }
                 }
@@ -2785,7 +2790,7 @@
                   },
                   "transaction_status": {
                     "type": "string",
-                    "description": "Status transaksi dari Midtrans",
+                    "description": "Status transaksi dari Midtrans. percobaan capture/settlement, deny, Unpaid",
                     "example": "settlement"
                   },
                   "payment_type": {
@@ -2810,6 +2815,11 @@
                     "message": {
                       "type": "string",
                       "example": "Transaction status updated"
+                    },
+                    "notification_message": {
+                      "type": "string",
+                      "description": "Transaksi akan memberikan tahukan berhasil, gagal, dan dibatalkan",
+                      "example": "Transaksi untuk kode booking fff99e80 gagal atau dibatalkan."
                     }
                   }
                 }
