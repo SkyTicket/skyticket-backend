@@ -3,10 +3,6 @@ const app = require('../../src/app');
 const prisma = require('./mocks/prisma');
 const { expect } = require('@jest/globals');
 
-const pageNumber = parseInt(page);
-const pageLimit = parseInt(limit);
-const skip = (pageNumber - 1) * pageLimit;
-
 description('GET /api/v1/favorite-destination', () => {
     test('Menampilkan destinasi favorit', async () => {
         const response = await request(app).get('/api/v1/favorite-destination?page=1&continent=asia');

@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require('../../src/app');
 const prisma = require('./mocks/prisma');
-const { expect, describe } = require('@jest/globals');
+const { expect } = require('@jest/globals');
 
 describe('Admin', () => {
     describe('GET /api/v1/user/all-users', () => {
@@ -30,7 +30,7 @@ describe('Admin', () => {
 
     describe('POST /api/v1/notifications/create', async () => {
         test('Create notification', async () => {
-            prisma.notification.create.mockResolvedValue({
+            prisma.notifications.create.mockResolvedValue({
                 "user_id": "12345",
                 "notification_type": "PROMO",
                 "notification_message": "This is a test notification"
