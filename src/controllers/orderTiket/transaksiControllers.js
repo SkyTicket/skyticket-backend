@@ -460,7 +460,7 @@ class PaymentController {
         });
       }
 
-      const transaksi = await prisma.bookings.findFirst({
+      const transaksi = await prisma.bookings.findUnique({
         where: { booking_id: bookingId },
         include: {
           tickets: {
@@ -603,7 +603,7 @@ class PaymentController {
         [monthYearKey]: [formattedTransaksi],
       };
 
-      res.status(200).render("transaksi", {
+      res.render("transaksi", {
         statusCode: 200,
         status: "success",
         message: "Successfully retrieved transactions",
