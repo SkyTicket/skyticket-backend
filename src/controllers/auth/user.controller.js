@@ -63,7 +63,16 @@ class UserController {
         data: updateData,
       });
 
-      res.status(200).json({
+      await prisma.notifications.create({
+        data: {
+          user_id: updatedUser.user_id,
+          notification_type: 'USER_DATA_UPDATE',
+          notification_message: `Perubahan profil berhasil!`, 
+          notification_is_read: false,
+        }
+      })
+
+      return res.status(200).json({
         message: "User berhasil diperbarui",
         data: updatedUser,
       });

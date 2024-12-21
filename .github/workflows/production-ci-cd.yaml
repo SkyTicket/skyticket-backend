@@ -27,16 +27,17 @@ jobs:
         run: |
           ssh-keyscan -H 34.128.81.84 >> ~/.ssh/known_hosts
 
-      - name: Deploy to VM
+      - name: Deploy to Production Server
         run: |
           ssh tridiktya@34.128.81.84 << 'EOF'
             cd /home/tridiktya/
             sudo sh deploy-production.sh
           EOF
 
-      - name: Migrate and Seed Database
+      - name: Migrate-Seed Database and Re-deploy after migration
         run: |
           ssh tridiktya@34.128.81.84 << 'EOF'
             cd /home/tridiktya/
             sudo sh migrate-seed.sh
+            sudo sh deploy-production.sh
           EOF
