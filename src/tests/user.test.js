@@ -14,6 +14,12 @@ describe('User', () => {
         email: 'test@example.com'
     };
     const mockToken = jwt.sign(mockUser, process.env.JWT_SECRET);
+    beforeEach(() => {
+        jwt.verify.mockImplementation((token, secret, callback) => {
+            callback(null, mockUser);
+        });
+    });
+    
     describe('GET /api/v1/user/get-user', () => {
         test('Get user by id', async () => {
             prisma.users.findUnique.mockResolvedValue({
