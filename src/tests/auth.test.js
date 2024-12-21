@@ -2,8 +2,23 @@ const request = require('supertest');
 const app = require('../../src/app');
 const prisma = require('./mocks/prisma');
 const { expect } = require('@jest/globals');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+
+jest.mock('jsonwebtoken');
+jest.mock('crypto');
 
 describe('Auth', () => {
+    const mockUser = {
+        user_id: 1,
+        email: 'test@example.com'
+    };
+    const mockToken = jwt.sign(mockUser, process.env.JWT_SECRET);
+    beforeEach(() => {
+        jwt.verify.mockImplementation((token, secret, callback) => {
+            callback(null, mockUser);
+        });
+    });
     describe('POST /api/v1/auth/login', () => {
         test('User berhasil login', async () => {
             prisma.users.findUnique.mockResolvedValue({
@@ -14,7 +29,7 @@ describe('Auth', () => {
             const response = await request(app).post('/api/v1/auth/login').send({
                 "email": "user@example.com",
                 "user_password": "password123"
-            });
+            }).expect('Content-Type', '/json/');
 
             expect(response.statusCode).toBe(200);
         });
@@ -28,7 +43,7 @@ describe('Auth', () => {
             const response = await request(app).post('/api/v1/auth/login').send({
                 "email": "user@example.com",
                 "user_password": "password123"
-            });
+            }).expect('Content-Type', '/json/');
 
             expect(response.statusCode).toBe(400);
         });
@@ -42,7 +57,7 @@ describe('Auth', () => {
             const response = await request(app).post('/api/v1/auth/login').send({
                 "email": "user@example.com",
                 "user_password": "wrongPassword"
-            });
+            }).expect('Content-Type', '/json/');
 
             expect(response.statusCode).toBe(401);
         });
@@ -56,7 +71,7 @@ describe('Auth', () => {
             const response = await request(app).post('/api/v1/auth/login').send({
                 "email": "notFound@example.com",
                 "user_password": "password123"
-            });
+            }).expect('Content-Type', '/json/');
 
             expect(response.statusCode).toBe(404);
         });
@@ -67,7 +82,7 @@ describe('Auth', () => {
             const response = await request(app).post('/api/v1/auth/login').send({
                 "email": "user@example.com",
                 "user_password": "password123"
-            });
+            }).expect('Content-Type', '/json/');
 
             expect(response.statusCode).toBe(500);
         });
@@ -240,31 +255,31 @@ describe('Auth', () => {
 
     describe('POST api/v1/auth/reset-password', async () => {
         test('Password berhasil direset', async () => {
-            const response = await request(app).post('/api/v1/auth/reset-password').send({
+            const response = await request(app).post('/api/v1/auth/reset-password').set('Authorization', `Bearer ${mockToken}`).send({
                 "token": "reset_password_token",
                 "password": "newPassword123",
                 "confirmPassword": "newPassword123"    
-            });
+            }).expect('Content-Type', /json/);
 
             expect(response.statusCode).toBe(200);
         });
 
         test('validasi gagal', async () => {
-            const response = await request(app).post('/api/v1/auth/reset-password').send({
+            const response = await request(app).post('/api/v1/auth/reset-password').set('Authorization', `Bearer ${mockToken}`).send({
                 "token": "invalid_token",
                 "password": "newPassword123",
                 "confirmPassword": "newPassword123"    
-            });
+            }).expect('Content-Type', /json/);
 
             expect(response.statusCode).toBe(400);
         });
 
         test('Token kadaluarsa', async () => {
-            const response = await request(app).post('/api/v1/auth/reset-password').send({
+            const response = await request(app).post('/api/v1/auth/reset-password').set('Authorization', `Bearer ${mockToken}`).send({
                 "token": "expired_token",
                 "password": "newPassword123",
                 "confirmPassword": "newPassword123"   
-            });
+            }).expect('Content-Type', /json/);
 
             expect(response.statusCode).toBe(404);
         });
@@ -272,11 +287,11 @@ describe('Auth', () => {
         test('Kesalahan pada server', async () => {
             prisma.users.findUnique.mockRejectedValue(new Error('Database error'));
 
-            const response = await request(app).post('/api/v1/auth/reset-password').send({
+            const response = await request(app).post('/api/v1/auth/reset-password').set('Authorization', `Bearer ${mockToken}`).send({
                 "token": "reset_password_token",
                 "password": "newPassword123",
                 "confirmPassword": "newPassword123"    
-            });
+            }).expect('Content-Type', /json/);
 
             expect(response.statusCode).toBe(500);
         });
