@@ -1,5 +1,7 @@
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const DateTimeUtils = require('../../libs/datetime');
+const { notification } = require('midtrans-client/lib/snapBi/snapBi');
 
 class NotificationController {
     static async create(req, res) {
@@ -35,12 +37,12 @@ class NotificationController {
     }
 
     static async getNotifications(req, res) {
-        const { user_id } = req.params;
+        const userId = req.user.user_id; // Menggunakan user_id yang diambil dari token
 
         try {
             const notifications = await prisma.notifications.findMany({
                 where: {
-                    user_id
+                    user_id: userId
                 },
                 orderBy: {
                     notification_created_at: 'desc'
@@ -51,7 +53,41 @@ class NotificationController {
                 return res.status(404).json({ message: 'Tidak ada notifikasi' });
             }
 
-            res.status(200).json({ notifications });
+            const formattedNotifications = notifications.map((notification) => {
+                let formattedNotificationType;
+
+                switch(notification.notification_type){
+                    case 'PROMO':
+                        formattedNotificationType = 'Promo';
+                        break;
+                    case 'SCHEDULE_CHANGE':
+                        formattedNotificationType = 'Perubahan Jadwal';
+                        break;
+                    case 'TRANSACTION':
+                        formattedNotificationType = 'Transaksi';
+                        break;
+                    case 'USER_DATA_UPDATE':
+                        formattedNotificationType = 'Update Data Pengguna'
+                        break;
+                    case 'WELCOME_MSG':
+                        formattedNotificationType = 'Halo!';
+                        break
+                }
+
+                return {
+                    notification_id: notification.notification_id,
+                    user_id: notification.user_id,
+                    notification_type: formattedNotificationType,
+                    notification_message: notification.notification_message,
+                    notification_is_read: notification.notification_is_read,
+                    notification_created_at: DateTimeUtils.formatDateForNotification(notification.notification_created_at)
+                }
+            })
+
+            return res.status(200).json({
+                status: 'success',
+                notifications: formattedNotifications
+            });
         } catch (error) {
             console.error('Error mengambil notifikasi: ', error);
             res.status(500).json({ message: 'Kesalahan pada server' });
