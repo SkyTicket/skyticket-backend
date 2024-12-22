@@ -106,10 +106,6 @@ app.get(
   AuthMiddleware.authenticateUser,
   PaymentController.showTransaksiByIdUser
 );
-app.get(
-  "/api/v1/transaksi/detail/:bookingId",
-  PaymentController.showTransaksiByBookingId
-);
 
 app.get(
   "/api/v1/transaksi/eticket-trigger/:bookingId",

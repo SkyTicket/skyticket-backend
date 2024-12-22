@@ -217,6 +217,7 @@ class PaymentController {
               flightTicket.flight.flight_arrival_date,
               flightTicket.flight.arrival_airport.airport_time_zone
             ),
+            send_eticket_url: `${req.protocol}://${req.get('host')}/api/v1/transaksi/eticket-trigger/${booking.booking_id}`,
             amount_details: amountDetails,
           },
         };
