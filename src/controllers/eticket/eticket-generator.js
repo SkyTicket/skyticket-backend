@@ -7,6 +7,12 @@ const DateTimeUtils = require("../../libs/datetime");
 const Mailer = require("../../libs/nodemailer");
 const EticketQueries = require("./services/eticketQueries");
 
+const {
+    STAGING_SERVER_NO_SSL,
+    PRODUCTION_SERVER_NO_SSL,
+    NODE_ENV
+} = process.env
+
 class EticketGenerator {
     static async generateEticket(eticketUrl, filename){
             try {
@@ -73,7 +79,12 @@ class EticketGenerator {
                 }
             }
 
-            const eticketUrl = `${req.protocol}://${req.get('host')}/api/v1/transaksi/eticket/${transaksi.booking_id}`
+            let eticketUrl = `${req.protocol}://${req.get('host')}/api/v1/transaksi/eticket/${transaksi.booking_id}`;
+            if(NODE_ENV === 'staging'){
+                eticketUrl = STAGING_SERVER_NO_SSL
+            } else if (NODE_ENV === 'production'){
+                eticketUrl = PRODUCTION_SERVER_NO_SSL
+            }
             
             const departureAirportCode = transaksi.tickets[0].flight_seat_assigment.flight_seat_class.flight.departure_airport.airport_code
             const arrivalAirportCode = transaksi.tickets[0].flight_seat_assigment.flight_seat_class.flight.arrival_airport.airport_code
