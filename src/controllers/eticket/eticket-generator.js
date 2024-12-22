@@ -10,7 +10,8 @@ const EticketQueries = require("./services/eticketQueries");
 const {
     STAGING_SERVER_NO_SSL,
     PRODUCTION_SERVER_NO_SSL,
-    NODE_ENV
+    NODE_ENV,
+    ETICKET_PDF_PATH
 } = process.env
 
 class EticketGenerator {
@@ -35,7 +36,7 @@ class EticketGenerator {
                 // To reflect CSS used for screens instead of print
                 await page.emulateMediaType('screen');
         
-                const eticketPdfPath = `public/etickets/${filename}.pdf`;
+                const eticketPdfPath = `${ETICKET_PDF_PATH}/${filename}.pdf`;
                 // Download the PDF
                 const eticketPdf = await page.pdf({
                     path: eticketPdfPath,
@@ -106,7 +107,7 @@ class EticketGenerator {
                 subject: `E-Ticket Anda - Konfirmasi Pemesanan SkyTicket`,
                 attachments: [
                     {
-                        path: `public/etickets/${eticketFilename}.pdf`
+                        path: `${ETICKET_PDF_PATH}/${eticketFilename}.pdf`
                     },
                 ],
                 html: `
