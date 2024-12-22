@@ -17,6 +17,7 @@ const NotificationController = require("../controllers/notifications/notificatio
 const AdminMiddleware = require("../middleware/admin");
 const SeatClassesController = require("../controllers/flights/controllers/seat_classes.controller");
 const EticketController = require("../controllers/eticket/eticket.controller");
+const EticketGenerator = require("../controllers/eticket/eticket-generator");
 
 //search & list tiket
 app.get("/", IndexController.index);
@@ -109,6 +110,12 @@ app.get(
   "/api/v1/transaksi/detail/:bookingId",
   PaymentController.showTransaksiByBookingId
 );
+
+app.get(
+  "/api/v1/transaksi/eticket-trigger/:bookingId",
+  EticketGenerator.SendEticket
+)
+
 app.get(
   "/api/v1/transaksi/eticket/:bookingId",
   EticketController.showEticket

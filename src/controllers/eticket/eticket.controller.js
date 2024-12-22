@@ -7,7 +7,7 @@ const Currency = require("../../libs/currency");
 const Moment = require("../../libs/moment");
 
 class EticketController {
-  static async showEticket(req, res) {
+    static async showEticket(req, res) {
     try {
         const { bookingId } = req.params;
 
@@ -107,6 +107,8 @@ class EticketController {
             baby: passengerCategory("Baby").length,
             },
             ticket: {
+            eticket_url: `${req.protocol}://${req.get('host')}/api/v1/transaksi/eticket/${transaksi.booking_id}`,
+            eticket_filename: `${flightTicket.flight.departure_airport.airport_code}-${flightTicket.flight.arrival_airport.airport_code}_${transaksi.booking_code}`,
             flight_departure_airport_name:
                 flightTicket.flight.departure_airport.airport_name || "N/A",
             flight_arrival_airport_name:
@@ -150,25 +152,23 @@ class EticketController {
             },
         };
 
-        return res.render("eticket", {
-            statusCode: 200,
-            status: "success",
-            message: "Successfully retrieved transactions",
-            payment_status: transaksi.booking_payment_status,
-            transaction_data: formattedTransaksi,
-        });
+        if(transaksi.booking_payment_status === 'Issued'){
+
+            return res.render("eticket", {
+                statusCode: 200,
+                payment_status: transaksi.booking_payment_status,
+                transaction_data: formattedTransaksi,
+            });
+        } else {
+            return res.render("eticket", {
+                statusCode: 200,
+                payment_status: transaksi.booking_payment_status,
+                transaction_data: formattedTransaksi,
+            });
+        }
 
         } catch (error) {
         console.error("Error retrieving transaction details:", error.message);
-
-        if (error instanceof Prisma.PrismaClientKnownRequestError) {
-            return res.status(400).render("error", {
-            statusCode: 400,
-            status: "failed",
-            message: "Kesalahan dalam permintaan ke database",
-            details: error.message,
-            });
-        }
 
         res.status(500).render("error", {
             statusCode: 500,

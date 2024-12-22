@@ -23,3 +23,32 @@ cron.schedule("0 */2 * * *", async () => {
     console.error("Error saat membersihkan data kedaluwarsa:", error);
   }
 });
+
+const cleanOldFiles = (folderPath, expiryInDays) => {
+  const now = Date.now();
+  const expiryTime = expiryInDays * 24 * 60 * 60 * 1000;
+
+  fs.readdir(folderPath, (err, files) => {
+    if (err) throw err;
+
+    files.forEach((file) => {
+      const filePath = path.join(folderPath, file);
+      fs.stat(filePath, (err, stats) => {
+        if (err) throw err;
+
+        if (now - stats.mtimeMs > expiryTime) {
+          fs.unlink(filePath, (err) => {
+            if (err) throw err;
+            console.log(`Deleted old file: ${file}`);
+          });
+        }
+      });
+    });
+  });
+};
+
+// every 2 AM
+cron.schedule("0 2 * * *", () => {
+  console.log("Running clean-up task...");
+  cleanOldFiles("public/etickets", 7); // Bersihkan file lebih dari 7 hari
+});
