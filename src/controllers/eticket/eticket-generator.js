@@ -81,9 +81,9 @@ class EticketGenerator {
 
             let eticketUrl = `${req.protocol}://${req.get('host')}/api/v1/transaksi/eticket/${transaksi.booking_id}`;
             if(NODE_ENV === 'staging'){
-                eticketUrl = STAGING_SERVER_NO_SSL
+                eticketUrl = `${STAGING_SERVER_NO_SSL}/api/v1/transaksi/eticket/${transaksi.booking_id}`
             } else if (NODE_ENV === 'production'){
-                eticketUrl = PRODUCTION_SERVER_NO_SSL
+                eticketUrl = `${PRODUCTION_SERVER_NO_SSL}/api/v1/transaksi/eticket/${transaksi.booking_id}`
             }
             
             const departureAirportCode = transaksi.tickets[0].flight_seat_assigment.flight_seat_class.flight.departure_airport.airport_code

@@ -7,6 +7,12 @@ const DateTimeUtils = require("../../libs/datetime");
 const Currency = require("../../libs/currency");
 const Moment = require("../../libs/moment");
 
+const {
+  STAGING_SERVER_NO_SSL,
+  PRODUCTION_SERVER_NO_SSL,
+  NODE_ENV
+} = process.env
+
 const MIDTRANS_API_URL =
   "https://app.sandbox.midtrans.com/snap/v1/transactions";
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
@@ -157,6 +163,13 @@ class PaymentController {
           booking_amount_total: Currency.format(Number(booking.booking_amount)),
         };
 
+        let sendEticketUrl = `${req.protocol}://${req.get('host')}/api/v1/transaksi/eticket-trigger/${booking.booking_id}`;
+        if(NODE_ENV === 'staging'){
+          sendEticketUrl = `${STAGING_SERVER_NO_SSL}/api/v1/transaksi/eticket-trigger/${transaksi.booking_id}`
+        } else if (NODE_ENV === 'production'){
+            sendEticketUrl = `${PRODUCTION_SERVER_NO_SSL}/api/v1/transaksi/eticket-trigger/${transaksi.booking_id}`
+        }
+
         const formattedData = {
           booking_payment_status: booking.booking_payment_status,
           departure_airport_city:
@@ -217,7 +230,7 @@ class PaymentController {
               flightTicket.flight.flight_arrival_date,
               flightTicket.flight.arrival_airport.airport_time_zone
             ),
-            send_eticket_url: `${req.protocol}://${req.get('host')}/api/v1/transaksi/eticket-trigger/${booking.booking_id}`,
+            send_eticket_url: sendEticketUrl,
             amount_details: amountDetails,
           },
         };
