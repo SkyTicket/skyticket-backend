@@ -5,6 +5,7 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const DateTimeUtils = require("../../libs/datetime");
 const Mailer = require("../../libs/nodemailer");
+const EticketQueries = require("./services/eticketQueries");
 
 class EticketGenerator {
     static async generateEticket(eticketUrl, filename){
@@ -52,57 +53,14 @@ class EticketGenerator {
         const { bookingId } = req.params;
 
         try {
-            const transaksi = await prisma.bookings.findUnique({
-                where: {
-                    booking_id: bookingId
-                },
-                select: {
-                    booking_id: true,
-                    booking_code: true,
-                    booking_payment_status: true,
-                    user: {
-                        select: {
-                            user_email: true,
-                            user_name: true
-                        }
-                    },
-                    tickets: {
-                        select: {
-                            flight_seat_assigment: {
-                                select: {
-                                    flight_seat_class: {
-                                        select: {
-                                            flight: {
-                                                select: {
-                                                    departure_airport: {
-                                                        select: {
-                                                            airport_code: true,
-                                                            airport_time_zone: true
-                                                        }
-                                                    },
-                                                    arrival_airport: {
-                                                        select: {
-                                                            airport_code: true
-                                                        }
-                                                    },
-                                                    airline: {
-                                                        select: {
-                                                            airline_name: true,
-                                                            airline_code: true
-                                                        }
-                                                    },
-                                                    flight_number: true,
-                                                    flight_departure_date: true
-                                                }
-                                            }
-                                        }
-                                    },
-                                }
-                            }
-                        }
-                    }
+            const transaksi = (await EticketQueries.eticketGeneratorFindUnique(bookingId)).transaksi
+
+            if(!transaksi){
+                throw {
+                    statusCode: 404,
+                    message: `booking_id ${bookingId} tidak ada dalam database`
                 }
-            })
+            }
 
             if(transaksi.booking_payment_status !== 'Issued'){
                 throw {
@@ -128,7 +86,7 @@ class EticketGenerator {
             const flightDepartureDate = transaksi.tickets[0].flight_seat_assigment.flight_seat_class.flight.flight_departure_date;
 
             const mailOptions = {
-                from: 'SkyTicket DJARUM 76 <no-reply@skyticket.com>',
+                from: 'SkyTicket <no-reply@skyticket.com>',
                 to: userEmail,
                 subject: `E-Ticket Anda - Konfirmasi Pemesanan SkyTicket`,
                 attachments: [
@@ -166,6 +124,15 @@ class EticketGenerator {
             };            
 
             Mailer.sendEmail(mailOptions)
+
+            await prisma.notifications.create({
+                data: {
+                    user_id: transaksi.user.user_id,
+                    notification_type: 'TRANSACTION',
+                    notification_message: "E-Ticket berhasil dikirimkan. Cek email anda sekarang!",
+                    notification_is_read: false
+                }
+            })
 
             return res.json({
                 status: 'success',

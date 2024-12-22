@@ -5,6 +5,7 @@ const jwt = require("jsonwebtoken");
 const DateTimeUtils = require("../../libs/datetime");
 const Currency = require("../../libs/currency");
 const Moment = require("../../libs/moment");
+const EticketQueries = require("./services/eticketQueries");
 
 class EticketController {
     static async showEticket(req, res) {
@@ -20,33 +21,7 @@ class EticketController {
             });
         }
 
-        const transaksi = await prisma.bookings.findUnique({
-            where: { booking_id: bookingId },
-            include: {
-            tickets: {
-                include: {
-                passanger: true,
-                flight_seat_assigment: {
-                    include: {
-                    seat: true,
-                    flight_seat_class: {
-                        include: {
-                        seat_class: true,
-                        flight: {
-                            include: {
-                            airline: true,
-                            departure_airport: true,
-                            arrival_airport: true,
-                            },
-                        },
-                        },
-                    },
-                    },
-                },
-                },
-            },
-            },
-        });
+        const transaksi = (await EticketQueries.eticketShowFindUnique(bookingId)).transaksi
 
         if (!transaksi) {
             return res.status(404).render("error", {
