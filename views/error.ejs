@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Error</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        color: #333;
+      }
+      .error-container {
+        max-width: 600px;
+        margin: auto;
+        text-align: center;
+      }
+      h1 {
+        color: #e74c3c;
+      }
+      p {
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="error-container">
+      <h1>Error <%= statusCode %></h1>
+      <p>Status: <strong><%= status %></strong></p>
+      <p>Pesan: <%= message %></p>
+      <% if (details) { %>
+      <p>Detail: <%= details %></p>
+      <% } %>
+    </div>
+  </body>
+</html>

@@ -217,6 +217,7 @@ class PaymentController {
               flightTicket.flight.flight_arrival_date,
               flightTicket.flight.arrival_airport.airport_time_zone
             ),
+            send_eticket_url: `${req.protocol}://${req.get('host')}/api/v1/transaksi/eticket-trigger/${booking.booking_id}`,
             amount_details: amountDetails,
           },
         };
@@ -357,7 +358,7 @@ class PaymentController {
       await prisma.notifications.create({
         data: {
           user_id: userId,
-          notification_type: "TRANSACTION", 
+          notification_type: "TRANSACTION",
           notification_message: `Segera lakukan pembayaran untuk kode booking ${booking.booking_code} sebelum ${formattedExpiryTime}.`,
           notification_is_read: false,
         },
