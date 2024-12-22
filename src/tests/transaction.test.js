@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require('../../src/app');
 const prisma = require('./mocks/prisma');
-const { expect, jest, beforeEach, describe } = require('@jest/globals');
+// const { expect, jest, beforeEach, describe } = require('@jest/globals');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 

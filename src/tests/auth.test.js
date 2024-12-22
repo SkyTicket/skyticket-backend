@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require('../../src/app');
 const prisma = require('./mocks/prisma');
-const { expect } = require('@jest/globals');
+// const { expect } = require('@jest/globals');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
@@ -29,7 +29,7 @@ describe('Auth', () => {
             const response = await request(app).post('/api/v1/auth/login').send({
                 "email": "user@example.com",
                 "user_password": "password123"
-            }).expect('Content-Type', '/json/');
+            }).expect('Content-Type', /json/);
 
             expect(response.statusCode).toBe(200);
         });
@@ -43,7 +43,7 @@ describe('Auth', () => {
             const response = await request(app).post('/api/v1/auth/login').send({
                 "email": "user@example.com",
                 "user_password": "password123"
-            }).expect('Content-Type', '/json/');
+            }).expect('Content-Type', /json/);
 
             expect(response.statusCode).toBe(400);
         });
@@ -57,7 +57,7 @@ describe('Auth', () => {
             const response = await request(app).post('/api/v1/auth/login').send({
                 "email": "user@example.com",
                 "user_password": "wrongPassword"
-            }).expect('Content-Type', '/json/');
+            }).expect('Content-Type', /json/);
 
             expect(response.statusCode).toBe(401);
         });
@@ -71,7 +71,7 @@ describe('Auth', () => {
             const response = await request(app).post('/api/v1/auth/login').send({
                 "email": "notFound@example.com",
                 "user_password": "password123"
-            }).expect('Content-Type', '/json/');
+            }).expect('Content-Type', /json/);
 
             expect(response.statusCode).toBe(404);
         });
@@ -82,7 +82,7 @@ describe('Auth', () => {
             const response = await request(app).post('/api/v1/auth/login').send({
                 "email": "user@example.com",
                 "user_password": "password123"
-            }).expect('Content-Type', '/json/');
+            }).expect('Content-Type', /json/);
 
             expect(response.statusCode).toBe(500);
         });

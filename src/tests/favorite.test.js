@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require('../../src/app');
 const prisma = require('./mocks/prisma');
-const { expect, describe } = require('@jest/globals');
+// const { expect, describe } = require('@jest/globals');
 
 describe('Favorite', () => {
     description('GET /api/v1/favorite-destination', () => {

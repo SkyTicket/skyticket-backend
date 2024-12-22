@@ -1,3 +1,5 @@
+const request = require('supertest');
+const app = require('../../src/app');
 const { expect, test } = require('@jest/globals');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
