@@ -165,9 +165,9 @@ class PaymentController {
 
         let sendEticketUrl = `${req.protocol}://${req.get('host')}/api/v1/transaksi/eticket-trigger/${booking.booking_id}`;
         if(NODE_ENV === 'staging'){
-          sendEticketUrl = `${STAGING_SERVER_NO_SSL}/api/v1/transaksi/eticket-trigger/${transaksi.booking_id}`
+          sendEticketUrl = `${STAGING_SERVER_NO_SSL}/api/v1/transaksi/eticket-trigger/${booking.booking_id}`
         } else if (NODE_ENV === 'production'){
-            sendEticketUrl = `${PRODUCTION_SERVER_NO_SSL}/api/v1/transaksi/eticket-trigger/${transaksi.booking_id}`
+            sendEticketUrl = `${PRODUCTION_SERVER_NO_SSL}/api/v1/booking/eticket-trigger/${booking.booking_id}`
         }
 
         const formattedData = {

@@ -19,7 +19,7 @@ async function main() {
             },
             {
                 airline_id: 'c000cdc0-b0d5-4728-8616-8d6abc4z91h3',
-                airline_name: 'Air Asia Indonesia',
+                airline_name: 'AirAsia Indonesia',
                 airline_code: 'QZ',
                 Airline_logo: 'https://ik.imagekit.io/skyticket/airline_logo/AWQ.png'
             },

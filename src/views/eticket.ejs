@@ -88,11 +88,6 @@
     </style>
   </head>
   <body>
-    <% if(payment_status === 'Unpaid') {%>
-      <p>Maaf, pembayaran anda belum selesai. Segera selesaikan pembayaran untuk mendapatkan E-Ticket anda.</p>
-    <% } else if(payment_status === 'Cancelled') { %>
-      <p>Maaf, pembayan anda telah dibatalkan, sehingga tidak bisa mendapatkan E-Ticket.</p>
-    <% } else { %>
     <div class="container">
       <h1>E-Ticket</h1>
       <div class="airline-container">
@@ -162,6 +157,5 @@
         </ul>
       </div>
     </div>
-    <% } %>
   </body>
 </html>

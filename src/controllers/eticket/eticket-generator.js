@@ -11,27 +11,24 @@ const {
     STAGING_SERVER_NO_SSL,
     PRODUCTION_SERVER_NO_SSL,
     NODE_ENV,
-    ETICKET_PDF_PATH
+    ETICKET_PDF_PATH,
+    FRONTEND_TRANSACTION_HISOTRY_URL
 } = process.env
 
 class EticketGenerator {
     static async generateEticket(eticketUrl, filename){
             try {
-                // Create a browser instance
                 const browser = await puppeteer.launch({
                     headless: true,
                     args: ['--no-sandbox', '--disable-setuid-sandbox'],
-                    executablePath: '/usr/bin/chromium-browser'
+                    executablePath: NODE_ENV === 'staging' || NODE_ENV === 'production' ? '/usr/bin/chromium-browser' : ''
                 });
         
                 // Create a new page
                 const page = await browser.newPage();
         
-                // Website URL to export as PDF
-                const website_url = eticketUrl;
-        
                 // Open URL in current page
-                await page.goto(website_url, { waitUntil: 'networkidle0' });
+                await page.goto(eticketUrl, { waitUntil: 'networkidle0' });
         
                 // To reflect CSS used for screens instead of print
                 await page.emulateMediaType('screen');
@@ -67,17 +64,20 @@ class EticketGenerator {
             const transaksi = (await EticketQueries.eticketGeneratorFindUnique(bookingId)).transaksi
 
             if(!transaksi){
-                throw {
+                return res.status(404).render("error", {
                     statusCode: 404,
-                    message: `booking_id ${bookingId} tidak ada dalam database`
-                }
+                    status: 'Error',
+                    message: `Transaksi dengan booking_id ${bookingId} tidak ditemukan`,
+                    details: 'Pastikan booking_id benar'
+                })
             }
 
             if(transaksi.booking_payment_status !== 'Issued'){
-                throw {
-                    statusCode: 403,
-                    message: 'Gagal mengirim E-Ticket. Pembayaran anda belum selesai atau telah dibatalkan'
-                }
+                return res.status(403).render("eticket-trigger", {
+                    transaksi: transaksi,
+                    booking_payment_status: transaksi.booking_payment_status,
+                    FRONTEND_TRANSACTION_HISOTRY_URL
+                })
             }
 
             let eticketUrl = `${req.protocol}://${req.get('host')}/api/v1/transaksi/eticket/${transaksi.booking_id}`;
@@ -150,9 +150,10 @@ class EticketGenerator {
                 }
             })
 
-            return res.json({
-                status: 'success',
-                message: 'E-Ticket telah berhasil dikirim ke email anda'
+            return res.render("eticket-trigger", {
+                transaksi: transaksi,
+                booking_payment_status: transaksi.booking_payment_status,
+                FRONTEND_TRANSACTION_HISOTRY_URL
             })
 
         } catch(err) {

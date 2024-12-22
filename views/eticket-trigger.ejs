@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Status Pengiriman Email</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .status {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .pending {
+            color: #d9534f;
+        }
+
+        .sent {
+            color: #5cb85c;
+        }
+
+        .countdown {
+            font-size: 16px;
+            margin-top: 10px;
+        }
+
+        footer {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #777;
+        }
+    </style>
+    <script>
+        let countdown = 4;
+        const interval = setInterval(function() {
+            document.getElementById('countdown').textContent = countdown;
+            countdown--;
+            if (countdown < 0) {
+                clearInterval(interval);
+                window.location.href = "<%= FRONTEND_TRANSACTION_HISOTRY_URL %>"; // Ganti "/redirect_page" dengan URL tujuan
+            }
+        }, 1000);
+
+        // Menghapus riwayat halaman sebelumnya
+        history.replaceState(null, "", location.href);
+    </script>
+</head>
+<body>
+    <div class="container">
+        <% if(booking_payment_status === 'Unpaid') { %>
+            <p class="status pending">Maaf, pembayaran belum selesai. Silakan selesaikan pembayaran untuk menerima tiket.</p>
+        <% } else if(booking_payment_status === 'Cancelled') { %>
+            <p class="status pending">Maaf, pembayaran anda telah dibatalkan.</p>
+        <% } else { %>
+            <p class="status sent">Tiket berhasil diterbitkan dan telah dikirim ke email Anda.</p>
+        <% } %>
+        <p class="countdown">Mengalihkan dalam <span id="countdown">5</span> detik...</p>
+    </div>
+    <footer>
+        &copy; <%= new Date().getFullYear() %> BINAR KM7 | Tim 7 - Djarum 76 
+    </footer>
+</body>
+</html>
