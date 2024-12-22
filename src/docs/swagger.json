@@ -2544,6 +2544,7 @@
                           "departure_time": "10.00",
                           "arrival_date": "27 Desember 2024",
                           "arrival_time": "13.00",
+                          "send_eticket_url": "http://localhost:3000/api/v1/transaksi/eticket-trigger/70a88a49-9bd5-4aa9-b7be-e1bee4fbbdf5",
                           "amount_details": {
                             "adults": "1 Adults",
                             "adults_amount_total": "IDR 1.500.000",
@@ -3068,7 +3069,8 @@
                   "notification_type": "Promo",
                   "notification_message": "Ada promo nih boss...",
                   "notification_is_read": false,
-                  "notification_created_at": "14 Desember 2024 15.15"
+                  "notification_created_at": "14 Desember 2024 15.15",
+                  "notification_created_at_raw": "2024-12-22T04:34:26.400Z"
                 }
               }
             }
