@@ -6,3 +6,4 @@ push.sh
 notes.txt
 notes.json
 /prisma/migrations/
+public/etickets/

@@ -80,7 +80,8 @@ class NotificationController {
                     notification_type: formattedNotificationType,
                     notification_message: notification.notification_message,
                     notification_is_read: notification.notification_is_read,
-                    notification_created_at: DateTimeUtils.formatDateForNotification(notification.notification_created_at)
+                    notification_created_at: DateTimeUtils.formatDateForNotification(notification.notification_created_at),
+                    notification_created_at_raw: notification.notification_created_at.toISOString()
                 }
             })
 
