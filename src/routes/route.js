@@ -113,6 +113,7 @@ app.get(
 
 app.get(
   "/api/v1/transaksi/eticket-trigger/:bookingId",
+  AuthMiddleware.authenticateUser,
   EticketGenerator.SendEticket
 )
 

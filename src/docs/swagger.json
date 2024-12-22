@@ -15,6 +15,10 @@
       "description": "Staging Environment (HTTPS/With SSL)"
     },
     {
+      "url": "http://localhost:3000",
+      "description": "Local Environment"
+    },
+    {
       "url": "http://34.101.115.143:3000",
       "description": "Staging Environment (HTTP/No SSL)"
     }
@@ -24,7 +28,9 @@
       "post": {
         "summary": "Login pengguna",
         "description": "Melakukan login pengguna dengan email dan password. Jika akun belum diverifikasi, akan ada respon khusus.",
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -41,7 +47,10 @@
                     "example": "password123"
                   }
                 },
-                "required": ["email", "user_password"]
+                "required": [
+                  "email",
+                  "user_password"
+                ]
               }
             }
           }
@@ -142,7 +151,9 @@
       "post": {
         "summary": "Logout",
         "description": "Logout dan blacklist token JWT.",
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "security": [
           {
             "BearerAuth": []
@@ -216,7 +227,9 @@
       "post": {
         "summary": "Registrasi pengguna",
         "description": "Melakukan registrasi pengguna baru dengan email, password, dan nomor telepon. OTP akan dikirim untuk verifikasi.",
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -338,7 +351,9 @@
     "/api/v1/auth/verify-otp": {
       "post": {
         "summary": "Verifikasi OTP",
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "description": "Verifikasi OTP yang dikirimkan ke email pengguna untuk aktivasi akun.",
         "requestBody": {
           "required": true,
@@ -356,7 +371,10 @@
                     "example": "123456"
                   }
                 },
-                "required": ["user_email", "otp_code"]
+                "required": [
+                  "user_email",
+                  "otp_code"
+                ]
               }
             }
           }
@@ -437,7 +455,9 @@
       "post": {
         "summary": "Resend OTP",
         "description": "Mengirim ulang kode OTP ke email pengguna yang terdaftar jika kode OTP sebelumnya tidak diterima atau sudah kedaluwarsa.",
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -450,7 +470,9 @@
                     "example": "john.doe@example.com"
                   }
                 },
-                "required": ["user_email"]
+                "required": [
+                  "user_email"
+                ]
               }
             }
           }
@@ -547,7 +569,9 @@
       "post": {
         "summary": "Lupa Password",
         "description": "Mengirim link reset password ke email pengguna.",
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -640,7 +664,9 @@
       "post": {
         "summary": "Reset Password",
         "description": "Reset password pengguna dengan token yang valid.",
-        "tags": ["Auth"],
+        "tags": [
+          "Auth"
+        ],
         "requestBody": {
           "required": true,
           "content": {
@@ -664,7 +690,11 @@
                     "example": "newPassword123"
                   }
                 },
-                "required": ["token", "password", "confirmPassword"]
+                "required": [
+                  "token",
+                  "password",
+                  "confirmPassword"
+                ]
               }
             }
           }
@@ -777,7 +807,9 @@
       "get": {
         "summary": "Get All Users",
         "description": "Menampilkan semua data pengguna.",
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "security": [
           {
             "BearerAuth": []
@@ -842,7 +874,9 @@
       "get": {
         "summary": "Get User by ID",
         "description": "Mengambil data pengguna berdasarkan ID yang ada di dalam JWT.",
-        "tags": ["User"],
+        "tags": [
+          "User"
+        ],
         "security": [
           {
             "BearerAuth": []
@@ -925,7 +959,9 @@
       "put": {
         "summary": "Update User",
         "description": "Memperbarui data pengguna berdasarkan user_id yang ada di JWT.",
-        "tags": ["User"],
+        "tags": [
+          "User"
+        ],
         "security": [
           {
             "BearerAuth": []
@@ -1061,7 +1097,9 @@
       "delete": {
         "summary": "Delete User",
         "description": "Menghapus pengguna berdasarkan user_id yang ada di JWT.",
-        "tags": ["User"],
+        "tags": [
+          "User"
+        ],
         "security": [
           {
             "BearerAuth": []
@@ -1121,7 +1159,9 @@
     },
     "/api/v1/favorite-destination": {
       "get": {
-        "tags": ["Favorite"],
+        "tags": [
+          "Favorite"
+        ],
         "summary": "Menampilkan destinasi penerbangan favorit",
         "description": "Menampilkan destinasi penerbangan favorit dengan memfilter berdasarkan continent dan paginasi",
         "parameters": [
@@ -1141,7 +1181,13 @@
             "description": "Filter destinasi berdasarkan continent",
             "required": "false",
             "schema": {
-              "enum": ["Asia", "Amerika", "Australia", "Eropa", "Afrika"],
+              "enum": [
+                "Asia",
+                "Amerika",
+                "Australia",
+                "Eropa",
+                "Afrika"
+              ],
               "default": "Asia"
             }
           }
@@ -1204,7 +1250,9 @@
     },
     "/api/v1/airports": {
       "get": {
-        "tags": ["Flights"],
+        "tags": [
+          "Flights"
+        ],
         "summary": "Mencari bandara",
         "description": "Endpoint ini digunakan untuk mencari daftar bandara berdasarkan negara atau kota yang selanjutnya digunakan sebagai input pencarian bandara asal dan tujuan. Jika tidak ada parameter pencarian, maka akan ditampilkan 5 bandara pertama secara default.",
         "parameters": [
@@ -1272,7 +1320,9 @@
     },
     "/api/v1/seat-classes-price": {
       "get": {
-        "tags": ["Flights"],
+        "tags": [
+          "Flights"
+        ],
         "summary": "Menampilkan harga seat class",
         "description": "Menampilkan harga seat class di kolom pencarian flights.",
         "parameters": [
@@ -1382,7 +1432,9 @@
     },
     "/api/v1/flights": {
       "get": {
-        "tags": ["Flights"],
+        "tags": [
+          "Flights"
+        ],
         "summary": "Pencarian penerbangan",
         "description": "Mencari dan mem-filter penerbangan berdasarkan bandara asal, bandara tujuan, tanggal, jumlah penumpang, dan parameter lainnya.",
         "parameters": [
@@ -1477,7 +1529,12 @@
             "description": "Jenis kelas kursi (Economy, Business, First Class, Premium Economy)",
             "schema": {
               "type": "string",
-              "enum": ["Economy", "Business", "FirstClass", "PremiumEconomy"],
+              "enum": [
+                "Economy",
+                "Business",
+                "FirstClass",
+                "PremiumEconomy"
+              ],
               "default": "Economy"
             }
           },
@@ -1721,7 +1778,9 @@
     },
     "/api/v1/flights/detail": {
       "get": {
-        "tags": ["Flights"],
+        "tags": [
+          "Flights"
+        ],
         "summary": "Mendapatkan detail penerbangan",
         "description": "Mengambil detail penerbangan berdasarkan ID penerbangan, kelas kursi, dan jumlah penumpang",
         "security": [
@@ -1952,7 +2011,9 @@
     },
     "/api/v1/ticket-order": {
       "post": {
-        "tags": ["Transaction"],
+        "tags": [
+          "Transaction"
+        ],
         "summary": "Membuat tiket pesanan",
         "description": "API untuk membuat pemesanan tiket pesawat",
         "security": [
@@ -1986,7 +2047,10 @@
                       "properties": {
                         "title": {
                           "type": "string",
-                          "enum": ["Mr", "Mrs"],
+                          "enum": [
+                            "Mr",
+                            "Mrs"
+                          ],
                           "example": "Mr"
                         },
                         "name": {
@@ -2272,7 +2336,9 @@
     },
     "/api/v1/transaksi": {
       "get": {
-        "tags": ["Transaction"],
+        "tags": [
+          "Transaction"
+        ],
         "summary": "Menampilkan List Transaksi",
         "description": "Mengambil data dari tabel bookings",
         "security": [
@@ -2422,7 +2488,9 @@
     },
     "/api/v1/transaksi/user": {
       "get": {
-        "tags": ["Transaction"],
+        "tags": [
+          "Transaction"
+        ],
         "summary": "Mengambil transaksi berdasarkan ID pengguna",
         "security": [
           {
@@ -2577,11 +2645,13 @@
         }
       }
     },
-    "/api/v1/transaksi/detail/{bookingId}": {
+    "/api/v1/transaksi/eticket-trigger/{bookingId}": {
       "get": {
-        "tags": ["Transaction"],
-        "summary": "Mengambil detail transaksi berdasarkan Booking ID",
-        "description": "Endpoint ini digunakan untuk mengambil detail transaksi berdasarkan Booking ID.",
+        "tags": [
+          "Transaction"
+        ],
+        "summary": "Mengirim ulang E-Ticket berdasarkan Booking ID",
+        "description": "Endpoint ini digunakan untuk mengirim ulang E-Ticket ke email berdasarkan Booking ID.",
         "security": [
           {
             "BearerAuth": []
@@ -2601,144 +2671,34 @@
         ],
         "responses": {
           "200": {
-            "description": "Detail transaksi berhasil diambil.",
+            "description": "E-Ticket berhasil dikirim.",
             "content": {
               "application/json": {
                 "example": {
-                  "statusCode": 200,
                   "status": "success",
-                  "message": "Successfully retrieved transactions",
-                  "transactions_data": {
-                    "Desember 2024": [
-                      {
-                        "booking_payment_status": "Unpaid",
-                        "departure_airport_city": "Surabaya",
-                        "flight_duration": "50m",
-                        "arrival_airport_city": "Denpasar",
-                        "booking_code": "0c6d26cd",
-                        "seat_class_type": "Economy",
-                        "booking_amount": "IDR 166,5",
-                        "passangers_total": {
-                          "adult": 1,
-                          "child": 0,
-                          "baby": 0
-                        },
-                        "ticket": {
-                          "flight_departure_airport_name": "Bandara Internasional Juanda",
-                          "flight_arrival_airport_name": "Bandara Internasional Ngurah Rai",
-                          "airline_and_seat_class": "Lion Air Indonesia - Economy",
-                          "flight_number": "JT - 111",
-                          "airline_logo": "https://ik.imagekit.io/skyticket/airline_logo/LNI.png",
-                          "passengers": [
-                            [
-                              {
-                                "id": "5458b685-a2a8-450f-b315-949d58f4cebe",
-                                "name": "Mrs. Elka family"
-                              }
-                            ]
-                          ],
-                          "seat_class_price": {
-                            "raw": "150",
-                            "formatted": "IDR 150"
-                          },
-                          "departure_date": "29 Desember 2024",
-                          "departure_time": "07.00",
-                          "arrival_date": "29 Desember 2024",
-                          "arrival_time": "08.50",
-                          "amount_details": {
-                            "adults": "1 Adults",
-                            "adults_amount_total": "IDR 150",
-                            "tax": "IDR 16,5",
-                            "booking_amount_total": "IDR 166,5"
-                          }
-                        }
-                      }
-                    ]
-                  }
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Kesalahan validasi input atau Booking ID tidak diberikan.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "integer",
-                      "example": 400
-                    },
-                    "status": {
-                      "type": "string",
-                      "example": "Failed"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Booking ID diperlukan"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {}
-                    }
-                  }
+                  "message": "E-Ticket telah berhasil dikirim ke email anda"
                 }
               }
             }
           },
           "404": {
-            "description": "Transaksi tidak ditemukan untuk Booking ID yang diberikan.",
+            "description": "Booking ID tidak ditemukan dalam database.",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "integer",
-                      "example": 404
-                    },
-                    "status": {
-                      "type": "string",
-                      "example": "Failed"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Tidak ada transaksi ditemukan untuk Booking ID yang diberikan"
-                    },
-                    "data": {
-                      "type": "array",
-                      "items": {}
-                    }
-                  }
+                "example": {
+                  "status": "error",
+                  "message": "booking_id 8730e8c2-5f50-4c13-9ecc-81adb954d62e tidak ada dalam database"
                 }
               }
             }
           },
-          "500": {
-            "description": "Kesalahan pada server.",
+          "403": {
+            "description": "E-Ticket gagal dikirim karena pembayaran belum selesai atau dibatalkan.",
             "content": {
               "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "statusCode": {
-                      "type": "integer",
-                      "example": 500
-                    },
-                    "status": {
-                      "type": "string",
-                      "example": "failed"
-                    },
-                    "message": {
-                      "type": "string",
-                      "example": "Terjadi kesalahan pada server"
-                    },
-                    "details": {
-                      "type": "string",
-                      "example": "Detailed error message"
-                    }
-                  }
+                "example": {
+                  "status": "error",
+                  "message": "Gagal mengirim E-Ticket. Pembayaran anda belum selesai atau telah dibatalkan"
                 }
               }
             }
@@ -2748,7 +2708,9 @@
     },
     "/api/v1/payment/booking/{bookingId}": {
       "post": {
-        "tags": ["Transaction"],
+        "tags": [
+          "Transaction"
+        ],
         "summary": "Membuat pembayaran untuk pemesanan",
         "security": [
           {
@@ -2903,7 +2865,9 @@
     },
     "/api/v1/payment/notification": {
       "post": {
-        "tags": ["Transaction"],
+        "tags": [
+          "Transaction"
+        ],
         "summary": "Menerima notifikasi pembayaran dari Midtrans",
         "security": [
           {
@@ -2934,7 +2898,11 @@
                     "example": "credit_card"
                   }
                 },
-                "required": ["order_id", "transaction_status", "payment_type"]
+                "required": [
+                  "order_id",
+                  "transaction_status",
+                  "payment_type"
+                ]
               }
             }
           }
@@ -2998,7 +2966,9 @@
     },
     "/api/v1/notifications/create": {
       "post": {
-        "tags": ["Admin"],
+        "tags": [
+          "Admin"
+        ],
         "summary": "Membuat notifikasi",
         "security": [
           {
@@ -3078,7 +3048,9 @@
     },
     "/api/v1/notifications/get": {
       "get": {
-        "tags": ["Notification"],
+        "tags": [
+          "Notification"
+        ],
         "security": [
           {
             "BearerAuth": []
@@ -3126,7 +3098,9 @@
     },
     "/api/v1/notifications/update/{notification_id}": {
       "patch": {
-        "tags": ["Notification"],
+        "tags": [
+          "Notification"
+        ],
         "summary": "Mengubah status notifikasi",
         "security": [
           {
