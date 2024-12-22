@@ -11,7 +11,10 @@ class EticketGenerator {
     static async generateEticket(eticketUrl, filename){
             try {
                 // Create a browser instance
-                const browser = await puppeteer.launch();
+                const browser = await puppeteer.launch({
+                    headless: true,
+                    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+                });
         
                 // Create a new page
                 const page = await browser.newPage();
