@@ -32,6 +32,7 @@ app.post(
   AuthMiddleware.validateRegister,
   RegisterController.register
 );
+
 app.post("/api/v1/auth/verify-otp", OtpController.verifyOtp);
 app.post("/api/v1/auth/resend-otp", OtpController.resendOtp);
 app.post("/api/v1/auth/login", authController.login);

@@ -232,4 +232,4 @@ class ShowTransactionControllerByIdUser {
   }
 }
 
-module.exports = new ShowTransactionControllerByIdUser();
+module.exports = ShowTransactionControllerByIdUser;

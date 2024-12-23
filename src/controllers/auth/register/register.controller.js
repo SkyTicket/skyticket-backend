@@ -10,7 +10,7 @@ const MailerController = require("../mailer.controller");
 totp.options = { step: 60 }; // OTP berlaku selama 60 detik
 
 class RegisterController {
-  async register(req, res) {
+  static async register(req, res) {
     const { user_name, user_email, user_password, user_phone } = req.body;
     const hashedPassword = await bcrypt.hash(user_password, 10);
 
@@ -74,4 +74,4 @@ class RegisterController {
     }
   }
 }
-module.exports = new RegisterController();
+module.exports = RegisterController;

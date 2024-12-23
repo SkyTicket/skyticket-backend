@@ -67,4 +67,4 @@ class ShowTransactionController {
   }
 }
 
-module.exports = new ShowTransactionController();
+module.exports = ShowTransactionController;

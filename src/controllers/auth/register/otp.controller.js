@@ -7,7 +7,7 @@ const SECRET_KEY = process.env.JWT_SECRET;
 const MailerController = require("../mailer.controller");
 
 class OtpController {
-  async verifyOtp(req, res) {
+  static async verifyOtp(req, res) {
     const { user_email, otp_code } = req.body;
 
     try {
@@ -61,7 +61,7 @@ class OtpController {
     }
   }
 
-  async resendOtp(req, res) {
+  static async resendOtp(req, res) {
     const { user_email } = req.body;
 
     try {
@@ -176,4 +176,4 @@ class OtpController {
   }
 }
 
-module.exports = new OtpController();
+module.exports = OtpController;
