@@ -70,6 +70,7 @@ class TicketController {
             },
           },
         });
+
         if (seatData.length !== seats.length) {
           throw {
             statusCode: 400,
@@ -83,6 +84,7 @@ class TicketController {
           child: 0,
           Infant: 0,
         };
+
         seatData.forEach((seat, index) => {
           const passengerCategory = TicketController.getCategoryByAge(
             passengers[index].dateOfBirth
@@ -99,6 +101,7 @@ class TicketController {
             categorySubtotals.baby += 0;
           }
         });
+
         const totalPrice = categorySubtotals.adult + categorySubtotals.child;
         const tax = 0.11 * totalPrice;
         const totalAmount = totalPrice + tax;
@@ -117,15 +120,18 @@ class TicketController {
             },
           },
         });
+
         const bookerData = {
           user_id: userId,
           booker_name: bookerName,
           booker_email: bookerEmail,
           booker_phone: bookerPhone,
         };
+
         const booker = await prisma.bookers.create({
           data: bookerData,
         });
+
         const passengerData = passengers.map((passenger) => {
           const category = TicketController.getCategoryByAge(
             passenger.dateOfBirth
@@ -149,10 +155,12 @@ class TicketController {
         await prisma.passengers.createMany({
           data: passengerData,
         });
+
         const passengerIds = await prisma.passengers.findMany({
-          where: { name: { in: passengers.map((p) => p.name) } },
+          where: { bookers_id: booker.booker_id },
           select: { passenger_id: true },
         });
+
         if (seats.length !== passengers.length) {
           throw {
             statusCode: 400,
@@ -167,6 +175,7 @@ class TicketController {
           passenger_id: passengerIds[index].passenger_id,
           category: passengerData[index].category,
         }));
+
         // Update status kursi dengan optimistik locking
         const updateResults = await prisma.flight_seat_assignments.updateMany({
           where: {
@@ -187,6 +196,7 @@ class TicketController {
         await prisma.tickets.createMany({
           data: ticketData,
         });
+
         return {
           statusCode: 200,
           status: "Success",
@@ -198,8 +208,10 @@ class TicketController {
           total: totalAmount,
         };
       });
+
       return res.status(transaction.statusCode).json(transaction);
-    } catch (error) {
+    } 
+    catch (error) {
       const statusCode = error.statusCode || 500;
       const message = error.message || "Terjadi kesalahan saat pada server";
       return res.status(statusCode).json({
