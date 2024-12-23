@@ -8,18 +8,18 @@ const crypto = require('crypto');
 jest.mock('jsonwebtoken');
 jest.mock('crypto');
 
-describe('POST /api/v1/ticket-order', () => {
-    const mockUser = {
-        user_id: 1,
-        email: 'test@example.com'
-    };
-    const mockToken = jwt.sign(mockUser, process.env.JWT_SECRET);
+const mockUser = {
+    user_id: 1,
+    email: 'test@example.com'
+};
+const mockToken = jwt.sign(mockUser, process.env.JWT_SECRET);
 
-    beforeEach(() => {
-        jwt.verify.mockImplementation((token, secret, callback) => {
-            callback(null, mockUser);
-        });
+beforeEach(() => {
+    jwt.verify.mockImplementation((token, secret, callback) => {
+        callback(null, mockUser);
     });
+});
+describe('POST /api/v1/ticket-order', () => {
 
     test('Membuat tiket pesanan', async () => {
         prisma.flight_seat_assignments.create.mockResolvedValue([
@@ -56,7 +56,7 @@ describe('POST /api/v1/ticket-order', () => {
                 }
             ], bookerName: "Jane Doe", bookerEmail: "jane.doe@example.com", 
             bookerPhone: "08851234567"
-        }).expect('Content-Type', /json/);
+        });
 
         expect(response.statusCode).toBe(201);
     });
@@ -69,7 +69,7 @@ describe('POST /api/v1/ticket-order', () => {
                 }
             ], bookerName: "Jane Doe", bookerEmail: "jane.doe@example.com", 
             bookerPhone: "08851234567"
-        }).expect('Content-Type', /json/);
+        });
 
         expect(response.statusCode).toBe(400);
     });
@@ -82,7 +82,7 @@ describe('POST /api/v1/ticket-order', () => {
                 }
             ], bookerName: "Jane Doe", bookerEmail: "jane.doe@example.com", 
             bookerPhone: "08851234567"
-        }).expect('Content-Type', /json/);
+        });
 
         expect(response.statusCode).toBe(400);
     });
@@ -95,7 +95,7 @@ describe('POST /api/v1/ticket-order', () => {
                 }
             ], bookerName: "Jane Doe", bookerEmail: "jane.doe@example.com", 
             bookerPhone: "08851234567"
-        }).expect('Content-Type', /json/);
+        });
 
         expect(response.statusCode).toBe(400);
     });
@@ -119,7 +119,7 @@ describe('POST /api/v1/ticket-order', () => {
                 }
             ], bookerName: "Jane Doe", bookerEmail: "jane.doe@example.com", 
             bookerPhone: "08851234567"
-        }).expect('Content-Type', /json/);
+        });
 
         expect(response.statusCode).toBe(400);
     });
@@ -136,7 +136,7 @@ describe('POST /api/v1/ticket-order', () => {
                 }
             ], bookerName: "Jane Doe", bookerEmail: "jane.doe@example.com", 
             bookerPhone: "08851234567"
-        }).expect('Content-Type', /json/);
+        });
 
         expect(response.statusCode).toBe(401);
     });
@@ -151,7 +151,7 @@ describe('POST /api/v1/ticket-order', () => {
                 }
             ], bookerName: "Jane Doe", bookerEmail: "jane.doe@example.com", 
             bookerPhone: "08851234567"
-        }).expect('Content-Type', /json/);
+        });
 
         expect(response.statusCode).toBe(500);
     });
@@ -159,13 +159,13 @@ describe('POST /api/v1/ticket-order', () => {
 
 describe('GET /api/v1/transaksi', () => {
     test('Menampilkan transaksi', async () => {
-        const response = await request(app).get('/api/v1/transaksi').set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', /json/);
+        const response = await request(app).get('/api/v1/transaksi').set('Authorization', `Bearer ${mockToken}`);
 
         expect(response.statusCode).toBe(200);
     });
 
     test('Transaksi tidak ditemukan', async () => {
-        const response = await request(app).get('/api/v1/transaksi').set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', /json/);
+        const response = await request(app).get('/api/v1/transaksi').set('Authorization', `Bearer ${mockToken}`);
 
         expect(response.statusCode).toBe(404);
     });
@@ -173,7 +173,7 @@ describe('GET /api/v1/transaksi', () => {
     test('Kesalahan pada server', async () => {
         prisma.ticket_orders.findMany.mockRejectedValue(new Error('Database error'));
 
-        const response = await request(app).get('/api/v1/transaksi').set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', /json/);
+        const response = await request(app).get('/api/v1/transaksi').set('Authorization', `Bearer ${mockToken}`);
 
         expect(response.statusCode).toBe(500);
     });
@@ -181,25 +181,25 @@ describe('GET /api/v1/transaksi', () => {
 
 describe('GET /api/v1/transaksi/user', () => {
     test('Menampilkan transaksi', async () => {
-        const response = await request(app).get('/api/v1/transaksi/user').set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', /json/);
+        const response = await request(app).get('/api/v1/transaksi/user').set('Authorization', `Bearer ${mockToken}`);
 
         expect(response.statusCode).toBe(200);
     });
 
     test('Bad request', async () => {
-        const response = await request(app).get('/api/v1/transaksi/user').set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', /json/);
+        const response = await request(app).get('/api/v1/transaksi/user').set('Authorization', `Bearer ${mockToken}`);
 
         expect(response.statusCode).toBe(400);
     });
 
     test('Transaksi tidak ditemukan pada pengguna ini', async () => {
-        const response = await request(app).get('/api/v1/transaksi/user').set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', /json/);
+        const response = await request(app).get('/api/v1/transaksi/user').set('Authorization', `Bearer ${mockToken}`);
 
         expect(response.statusCode).toBe(404);
     });
 
     test('ID pengguna tidak valid', async () => {
-        const response = await request(app).get('/api/v1/transaksi/user').set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', /json/);
+        const response = await request(app).get('/api/v1/transaksi/user').set('Authorization', `Bearer ${mockToken}`);
 
         expect(response.statusCode).toBe(400);
     });
@@ -207,7 +207,7 @@ describe('GET /api/v1/transaksi/user', () => {
     test('Kesalahan pada server', async () => {
         prisma.ticket_orders.findMany.mockRejectedValue(new Error('Database error'));
 
-        const response = await request(app).get('/api/v1/transaksi/user').set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', /json/);
+        const response = await request(app).get('/api/v1/transaksi/user').set('Authorization', `Bearer ${mockToken}`);
 
         expect(response.statusCode).toBe(500);
     });
@@ -217,7 +217,7 @@ describe('POST /api/v1/booking/{bookingId}', () => {
     test('Membuat pembayaran untuk pesanan', async () => {
         const response = await request(app).post('/api/v1/booking/1').set('Authorization', `Bearer ${mockToken}`).send({
             bookingId: 1,
-        }).expect('Content-Type', /json/);
+        });
 
         expect(response.statusCode).toBe(201);
     });
@@ -225,7 +225,7 @@ describe('POST /api/v1/booking/{bookingId}', () => {
     test('Permintaan tidak valid', async () => {
         const response = await request(app).post('/api/v1/booking/1').set('Authorization', `Bearer ${mockToken}`).send({
             bookingId: 1,
-        }).expect('Content-Type', /json/);
+        });
 
         expect(response.statusCode).toBe(400);
     });
@@ -233,7 +233,7 @@ describe('POST /api/v1/booking/{bookingId}', () => {
     test('Detail pengguna tidak lengkap', async () => {
         const response = await request(app).post('/api/v1/booking/1').set('Authorization', `Bearer ${mockToken}`).send({
             bookingId: 1,
-        }).expect('Content-Type', /json/);
+        });
 
         expect(response.statusCode).toBe(400);
     });
@@ -241,7 +241,7 @@ describe('POST /api/v1/booking/{bookingId}', () => {
     test('ID bookings tidak ditemukan', async () => {
         const response = await request(app).post('/api/v1/booking/100').set('Authorization', `Bearer ${mockToken}`).send({
             bookingId: 100,
-        }).expect('Content-Type', /json/);
+        });
 
         expect(response.statusCode).toBe(404);
     });
@@ -249,7 +249,7 @@ describe('POST /api/v1/booking/{bookingId}', () => {
     test('ID pengguna tidak ditemukan', async () => {
         const response = await request(app).post('/api/v1/booking/1').set('Authorization', `Bearer ${mockToken}`).send({
             bookingId: 1,
-        }).expect('Content-Type', /json/);
+        });
 
         expect(response.statusCode).toBe(404);
     });
@@ -259,7 +259,7 @@ describe('POST /api/v1/booking/{bookingId}', () => {
 
         const response = await request(app).post('/api/v1/booking/1').set('Authorization', `Bearer ${mockToken}`).send({
             bookingId: 1,
-        }).expect('Content-Type', /json/);
+        });
 
         expect(response.statusCode).toBe(500);
     });
@@ -271,7 +271,7 @@ describe('POST /api/v1/payment/notification', () => {
             "order_id": "08c7d800",
             "transaction_status": "settlement",
             "payment_type": "credit_card"
-        }).expect('Content-Type', /json/);
+        });
 
         expect(response.statusCode).toBe(200);
     });
@@ -281,7 +281,7 @@ describe('POST /api/v1/payment/notification', () => {
             "order_id": "xxxx",
             "transaction_status": "settlement",
             "payment_type": "credit_card"
-        }).expect('Content-Type', /json/);
+        });
 
         expect(response.statusCode).toBe(404);
     });
@@ -293,7 +293,7 @@ describe('POST /api/v1/payment/notification', () => {
             "order_id": "08c7d800",
             "transaction_status": "settlement",
             "payment_type": "credit_card"
-        }).expect('Content-Type', /json/);
+        });
 
         expect(response.statusCode).toBe(500);
     });

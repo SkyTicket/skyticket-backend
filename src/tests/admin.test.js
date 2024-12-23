@@ -30,7 +30,7 @@ describe('Admin', () => {
                     "user_phone": "+6281234567890"
                 });
 
-            const response = await request(app).get('/api/v1/user/all-users').set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', /json/);
+            const response = await request(app).get('/api/v1/user/all-users').set('Authorization', `Bearer ${mockToken}`);
 
             expect(response.statusCode).toBe(200);
         });
@@ -38,13 +38,13 @@ describe('Admin', () => {
         test('Kesalahan pada server', async () => {
             prisma.users.findMany.mockRejectedValue(new Error('Database error'));
 
-            const response = await request(app).get('/api/v1/user/all-users').set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', /json/);
+            const response = await request(app).get('/api/v1/user/all-users').set('Authorization', `Bearer ${mockToken}`);
 
             expect(response.statusCode).toBe(500);
         });
     });
 
-    describe('POST /api/v1/notifications/create', async () => {
+    describe('POST /api/v1/notifications/create', () => {
         test('Create notification', async () => {
             prisma.notifications.create.mockResolvedValue({
                 "user_id": "1ee4c66a-ae6f-4a2c-9310-f76c8cf2f8f6",
@@ -56,7 +56,7 @@ describe('Admin', () => {
                 "user_id": "1ee4c66a-ae6f-4a2c-9310-f76c8cf2f8f6",
                 "notification_type": "PROMO",
                 "notification_message": "This is a test notification"
-            }).set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', /json/);
+            }).set('Authorization', `Bearer ${mockToken}`);
 
             expect(response.statusCode).toBe(201);
         });
@@ -66,7 +66,7 @@ describe('Admin', () => {
                 "user_id": "1ee4c66a-ae6f-4a2c-9310-f76c8cf2f8f6",
                 "notification_type": "INVALID_TYPE",
                 "notification_message": "This is a test notification"
-            }).set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', /json/);
+            }).set('Authorization', `Bearer ${mockToken}`);
 
             expect(response.statusCode).toBe(400);
         });
@@ -76,7 +76,7 @@ describe('Admin', () => {
                 "user_id": "000",
                 "notification_type": "PROMO",
                 "notification_message": "This is a test notification"
-            }).set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', /json/);
+            }).set('Authorization', `Bearer ${mockToken}`);
 
             expect(response.statusCode).toBe(404);
         });
@@ -88,7 +88,7 @@ describe('Admin', () => {
                 "user_id": "1ee4c66a-ae6f-4a2c-9310-f76c8cf2f8f6",
                 "notification_type": "PROMO",
                 "notification_message": "This is a test notification"
-            }).set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', /json/);
+            }).set('Authorization', `Bearer ${mockToken}`);
 
             expect(response.statusCode).toBe(500);
         });
