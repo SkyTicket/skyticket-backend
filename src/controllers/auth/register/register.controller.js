@@ -6,7 +6,6 @@ const prisma = new PrismaClient();
 const SECRET_KEY = process.env.JWT_SECRET;
 const MailerController = require("../mailer.controller");
 
-// Konfigurasi `otplib` (opsional, jika Anda ingin mengubah durasi OTP)
 totp.options = { step: 60 }; // OTP berlaku selama 60 detik
 
 class RegisterController {
@@ -47,14 +46,10 @@ class RegisterController {
         });
 
         // Kirim email OTP
-        const emailSent = await MailerController.sendOtpEmail(
+        await MailerController.sendOtpEmail(
           user_email,
           otpCode
         );
-
-        if (!emailSent) {
-          throw new Error("Gagal mengirim email OTP.");
-        }
 
         return { otpRecord, newUser };
       });

@@ -102,7 +102,7 @@ class EticketGenerator {
             const flightDepartureDate = transaksi.tickets[0].flight_seat_assigment.flight_seat_class.flight.flight_departure_date;
 
             const mailOptions = {
-                from: 'SkyTicket <no-reply@skyticket.com>',
+                from: 'SkyTicket - Tim7 <no-reply@skyticket.binar>',
                 to: userEmail,
                 subject: `E-Ticket Anda - Konfirmasi Pemesanan SkyTicket`,
                 attachments: [
@@ -128,7 +128,7 @@ class EticketGenerator {
                         </p>
                         <p>
                             Jika ada pertanyaan atau membutuhkan bantuan lebih lanjut, Anda dapat menghubungi tim layanan pelanggan kami di 
-                            <a href="mailto:support@skyticket.com">support@skyticket.com</a>.
+                            <a href="mailto:support@skyticket.binar">support@skyticket.binar</a>.
                         </p>
                         <p>Selamat menikmati perjalanan Anda!</p>
                         <p style="color: #888; font-size: 12px;">
