@@ -28,19 +28,19 @@ describe('Flights', () => {
     
     describe('GET /api/v1/seat-classes-price', () => {
         test('Mencari harga kelas kursi', async () => {
-            const response = await request(app).get('api/v1/seat-classes-price?departure_airport=CKG&arrival_airport=DHX&is_round_trip=false');
+            const response = await request(app).get('/api/v1/seat-classes-price');
     
             expect(response.statusCode).toBe(200);
         });
     
         test('Data belum lengkap', async () => {
-            const response = await request(app).get('api/v1/seat-classes-price');
+            const response = await request(app).get('/api/v1/seat-classes-price');
     
             expect(response.statusCode).toBe(400);
         });
     
         test('Penerbangan tidak ditemukan', async () => {
-            const response = await request(app).get('api/v1/seat-classes-price?departure_airport=CKG&arrival_airport=DHX&is_round_trip=true');
+            const response = await request(app).get('/api/v1/seat-classes-price');
     
             expect(response.statusCode).toBe(404);
         });

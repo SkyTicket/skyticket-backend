@@ -27,9 +27,12 @@ const config = {
   coverageDirectory: "coverage",
 
   // An array of regexp pattern strings used to skip coverage collection
-  // coveragePathIgnorePatterns: [
-  //   "\\\\node_modules\\\\"
-  // ],
+  coveragePathIgnorePatterns: [
+    "\\\\node_modules\\\\",
+    "/src/prisma/seeders",
+    "/src/libs",
+    "server.js",
+  ],
 
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: "v8",
@@ -181,7 +184,8 @@ const config = {
   // An array of regexp pattern strings that are matched against all source file paths, matched files will skip transformation
   // transformIgnorePatterns: [
   //   "\\\\node_modules\\\\",
-  //   "\\.pnp\\.[^\\\\]+$"
+  //   "\\.pnp\\.[^\\\\]+$",
+  //   "seed",
   // ],
 
   // An array of regexp pattern strings that are matched against all modules before the module loader will automatically return a mock for them

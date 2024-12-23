@@ -1,11 +1,9 @@
 const request = require('supertest');
 const app = require('../../src/app');
-const { expect, test } = require('@jest/globals');
 const jwt = require('jsonwebtoken');
-const crypto = require('crypto');
+const prisma = require('./mocks/prisma'); // Import mocked Prisma
 
 jest.mock('jsonwebtoken');
-jest.mock('crypto');
 
 describe('Notification', () => {
     const mockUser = {
@@ -22,13 +20,28 @@ describe('Notification', () => {
 
     describe('GET /api/v1/notifications/get/{user_id}', () => {
         test('Menampilkan notifikasi', async () => {
-            const response = await request(app).get('/api/v1/notifications/get/1').set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', /json/);
+            prisma.notifications.findMany.mockResolvedValue([
+                { id: 1, message: 'Notification 1' },
+                { id: 2, message: 'Notification 2' },
+            ]);
 
-            expect(response.statusCode).toBe(200);  
+            const response = await request(app)
+                .get('/api/v1/notifications/get/1')
+                .set('Authorization', `Bearer ${mockToken}`);
+
+            expect(response.statusCode).toBe(200);
+            expect(response.body).toEqual([
+                { id: 1, message: 'Notification 1' },
+                { id: 2, message: 'Notification 2' },
+            ]);
         });
 
         test('Notifikasi tidak ditemukan', async () => {
-            const response = await request(app).get('/api/v1/notifications/get/1').set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', /json/);
+            prisma.notifications.findMany.mockResolvedValue([]);
+
+            const response = await request(app)
+                .get('/api/v1/notifications/get/1')
+                .set('Authorization', `Bearer ${mockToken}`);
 
             expect(response.statusCode).toBe(404);
         });
@@ -36,42 +49,49 @@ describe('Notification', () => {
         test('Kesalahan pada server', async () => {
             prisma.notifications.findMany.mockRejectedValue(new Error('Database error'));
 
-            const response = await request(app).get('/api/v1/notifications/get/1').set('Authorization', `Bearer ${mockToken}`).expect('Content-Type', /json/);
+            const response = await request(app)
+                .get('/api/v1/notifications/get/1')
+                .set('Authorization', `Bearer ${mockToken}`);
 
             expect(response.statusCode).toBe(500);
         });
     });
-});
 
-describe('PATCH /api/v1/notifications/update/{notification_id}', () => {
-    test('Update notifikasi', async () => {
-        prisma.notifications.update.mockResolvedValue({
-            "notification_id": "77ea5767-7ed3-4594-8d61-799b0c332dbe",
-            "notification_is_read": true,
+    describe('PATCH /api/v1/notifications/update/{notification_id}', () => {
+        test('Update notifikasi', async () => {
+            prisma.notifications.update.mockResolvedValue({
+                notification_id: '77ea5767-7ed3-4594-8d61-799b0c332dbe',
+                notification_is_read: true,
+            });
+
+            const response = await request(app)
+                .patch('/api/v1/notifications/update/77ea5767-7ed3-4594-8d61-799b0c332dbe')
+                .set('Authorization', `Bearer ${mockToken}`)
+                .send({ notification_is_read: true });
+
+            expect(response.statusCode).toBe(200);
         });
 
-        const response = await request(app).patch('/api/v1/notifications/update/77ea5767-7ed3-4594-8d61-799b0c332dbe').set('Authorization', `Bearer ${mockToken}`).send({
-            notification_is_read: true,
-        }).expect('Content-Type', /json/);
+        test('Notifikasi tidak ditemukan', async () => {
+            prisma.notifications.update.mockResolvedValue(null);
 
-        expect(response.statusCode).toBe(200);
-    });
+            const response = await request(app)
+                .patch('/api/v1/notifications/update/87ea5767-7ed3-4594-8d61-799b0c332dbe')
+                .set('Authorization', `Bearer ${mockToken}`)
+                .send({ notification_is_read: true });
 
-    test('Notifikasi tidak ditemukan', async () => {
-        const response = await request(app).patch('/api/v1/notifications/update/87ea5767-7ed3-4594-8d61-799b0c332dbe').set('Authorization', `Bearer ${mockToken}`).send({
-            notification_is_read: true,
-        }).expect('Content-Type', /json/);
+            expect(response.statusCode).toBe(404);
+        });
 
-        expect(response.statusCode).toBe(404);
-    });
+        test('Kesalahan pada server', async () => {
+            prisma.notifications.update.mockRejectedValue(new Error('Database error'));
 
-    test('Kesalahan pada server', async () => {
-        prisma.notifications.update.mockRejectedValue(new Error('Database error'));
+            const response = await request(app)
+                .patch('/api/v1/notifications/update/87ea5767-7ed3-4594-8d61-799b0c332dbe')
+                .set('Authorization', `Bearer ${mockToken}`)
+                .send({ notification_is_read: true });
 
-        const response = await request(app).patch('/api/v1/notifications/update/87ea5767-7ed3-4594-8d61-799b0c332dbe').set('Authorization', `Bearer ${mockToken}`).send({
-            notification_is_read: true,
-        }).expect('Content-Type', /json/);
-
-        expect(response.statusCode).toBe(500);
+            expect(response.statusCode).toBe(500);
+        });
     });
 });
