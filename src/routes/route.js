@@ -5,13 +5,17 @@ const IndexController = require("../controllers/flights/index.controller");
 const passport = require("passport");
 const AuthMiddleware = require("../middleware/auth");
 const authController = require("../controllers/auth/auth.controller");
+const RegisterController = require("../controllers/auth/register/register.controller");
+const OtpController = require("../controllers/auth/register/otp.controller");
 const PasswordController = require("../controllers/auth/password.controller");
 const UserController = require("../controllers/auth/user.controller");
 const AirportsController = require("../controllers/flights/controllers/airports.controller");
 const FlightsController = require("../controllers/flights/controllers/flights.controller");
 const SeatController = require("../controllers/orderTiket/seatControllers");
 const TiketController = require("../controllers/orderTiket/ticketControllers");
-const PaymentController = require("../controllers/orderTiket/transaksiControllers");
+const ShowTransactionController = require("../controllers/transaction/show-transaction.controller");
+const ShowTransactionControllerByIdUser = require("../controllers/transaction/show-transaction-by-userid.controller");
+const PaymentController = require("../controllers/transaction/payment.controller");
 const FavDestinationController = require("../controllers/favorite/fav.destination.controller");
 const NotificationController = require("../controllers/notifications/notification.controller");
 const AdminMiddleware = require("../middleware/admin");
@@ -26,10 +30,11 @@ app.get("/", IndexController.index);
 app.post(
   "/api/v1/auth/register",
   AuthMiddleware.validateRegister,
-  authController.register
+  RegisterController.register
 );
-app.post("/api/v1/auth/verify-otp", authController.verifyOtp);
-app.post("/api/v1/auth/resend-otp", authController.resendOtp);
+
+app.post("/api/v1/auth/verify-otp", OtpController.verifyOtp);
+app.post("/api/v1/auth/resend-otp", OtpController.resendOtp);
 app.post("/api/v1/auth/login", authController.login);
 app.post("/api/v1/auth/logout", authController.logout);
 app.post("/api/v1/auth/forget-password", PasswordController.forgetPassword);
@@ -99,23 +104,20 @@ app.get(
 app.get(
   "/api/v1/transaksi",
   AuthMiddleware.authenticateUser,
-  PaymentController.showTransaksi
+  ShowTransactionController.showTransaksi
 );
 app.get(
   "/api/v1/transaksi/user",
   AuthMiddleware.authenticateUser,
-  PaymentController.showTransaksiByIdUser
+  ShowTransactionControllerByIdUser.showTransaksiByIdUser
 );
 
 app.get(
   "/api/v1/transaksi/eticket-trigger/:bookingId",
   EticketGenerator.SendEticket
-)
-
-app.get(
-  "/api/v1/transaksi/eticket/:bookingId",
-  EticketController.showEticket
 );
+
+app.get("/api/v1/transaksi/eticket/:bookingId", EticketController.showEticket);
 
 app.post(
   "/api/v1/ticket-order",
