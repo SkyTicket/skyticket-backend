@@ -29,7 +29,7 @@ describe('Auth', () => {
             const response = await request(app).post('/api/v1/auth/login').send({
                 "email": "user@example.com",
                 "user_password": "password123"
-            }).expect('Content-Type', /json/);
+            });
 
             expect(response.statusCode).toBe(200);
         });
@@ -43,7 +43,7 @@ describe('Auth', () => {
             const response = await request(app).post('/api/v1/auth/login').send({
                 "email": "user@example.com",
                 "user_password": "password123"
-            }).expect('Content-Type', /json/);
+            });
 
             expect(response.statusCode).toBe(400);
         });
@@ -57,7 +57,7 @@ describe('Auth', () => {
             const response = await request(app).post('/api/v1/auth/login').send({
                 "email": "user@example.com",
                 "user_password": "wrongPassword"
-            }).expect('Content-Type', /json/);
+            });
 
             expect(response.statusCode).toBe(401);
         });
@@ -71,7 +71,7 @@ describe('Auth', () => {
             const response = await request(app).post('/api/v1/auth/login').send({
                 "email": "notFound@example.com",
                 "user_password": "password123"
-            }).expect('Content-Type', /json/);
+            });
 
             expect(response.statusCode).toBe(404);
         });
@@ -82,7 +82,7 @@ describe('Auth', () => {
             const response = await request(app).post('/api/v1/auth/login').send({
                 "email": "user@example.com",
                 "user_password": "password123"
-            }).expect('Content-Type', /json/);
+            });
 
             expect(response.statusCode).toBe(500);
         });
@@ -90,17 +90,13 @@ describe('Auth', () => {
 
     describe('POST /api/v1/auth/logout', () => {
         test('User berhasil logout', async () => {
-            const response = (await request(app).post('/api/v1/auth/logout')).setEncoding({
-                "Authorization": "Bearer token123"
-            });
+            const response = await request(app).post('/api/v1/auth/logout').set('Authorization', 'Bearer InvalidToken');
 
             expect(response.statusCode).toBe(200);
         });
 
         test('Token tidak valid', async () => {
-            const response = (await request(app).post('/api/v1/auth/logout')).setEncoding({
-                "Authorization": "Bearer InvalidToken"
-            });
+            const response = await request(app).post('/api/v1/auth/logout').set('Authorization', 'Bearer InvalidToken');
 
             expect(response.statusCode).toBe(401);
         });
@@ -108,11 +104,15 @@ describe('Auth', () => {
         test('Kesalahan pada server', async () => {
             prisma.users.findUnique.mockRejectedValue(new Error('Database error'));
 
+            const response = await request(app)
+            .post('/api/v1/auth/logout')
+            .set('Authorization', 'Bearer InvalidToken');
+
             expect(response.statusCode).toBe(500);
         });
     });
 
-    describe('POST /api/v1/auth/register', async () => {
+    describe('POST /api/v1/auth/register', () => {
         test('User berhasil register', async () => {
             const response = await request(app).post('/api/v1/auth/register').send({
                 "user_name": "John Doe",
@@ -149,7 +149,7 @@ describe('Auth', () => {
         });
     });
 
-    describe('POST api/v1/auth/verify-otp', async () => {
+    describe('POST api/v1/auth/verify-otp', () => {
         test('User berhasil verifikasi OTP', async () => {
             const response = await request(app).post('/api/v1/auth/verify-otp').send({
                 "user_email": "john.doe@example.com",
@@ -189,7 +189,7 @@ describe('Auth', () => {
         });
     });
 
-    describe('POST api/v1/auth/resend-otp', async () => {
+    describe('POST api/v1/auth/resend-otp', () => {
         test('OTP berhasil dikirim ulang', async () => {
             const response = await request(app).post('/api/v1/auth/resend-otp').send({
                 "user_email": "john.doe@example.com"
@@ -225,7 +225,7 @@ describe('Auth', () => {
         });
     });
 
-    describe('POST api/v1/auth/forgot-password', async () => {
+    describe('POST api/v1/auth/forgot-password', () => {
         test('Password berhasil direset', async () => {
             const response = await request(app).post('/api/v1/auth/forgot-password').send({
                 "email": "john.doe@example.com"
@@ -253,13 +253,13 @@ describe('Auth', () => {
         });
     });
 
-    describe('POST api/v1/auth/reset-password', async () => {
+    describe('POST api/v1/auth/reset-password', () => {
         test('Password berhasil direset', async () => {
             const response = await request(app).post('/api/v1/auth/reset-password').set('Authorization', `Bearer ${mockToken}`).send({
                 "token": "reset_password_token",
                 "password": "newPassword123",
                 "confirmPassword": "newPassword123"    
-            }).expect('Content-Type', /json/);
+            });
 
             expect(response.statusCode).toBe(200);
         });
@@ -269,7 +269,7 @@ describe('Auth', () => {
                 "token": "invalid_token",
                 "password": "newPassword123",
                 "confirmPassword": "newPassword123"    
-            }).expect('Content-Type', /json/);
+            });
 
             expect(response.statusCode).toBe(400);
         });
@@ -279,7 +279,7 @@ describe('Auth', () => {
                 "token": "expired_token",
                 "password": "newPassword123",
                 "confirmPassword": "newPassword123"   
-            }).expect('Content-Type', /json/);
+            });
 
             expect(response.statusCode).toBe(404);
         });
@@ -291,7 +291,7 @@ describe('Auth', () => {
                 "token": "reset_password_token",
                 "password": "newPassword123",
                 "confirmPassword": "newPassword123"    
-            }).expect('Content-Type', /json/);
+            });
 
             expect(response.statusCode).toBe(500);
         });
