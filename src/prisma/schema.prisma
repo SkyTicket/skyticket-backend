@@ -189,16 +189,6 @@ model Aircrafts {
   aircraft_manufacturer String
   aircraft_type String @db.Char(5)
   flights Flights[]
-  aircraft_seats Aircraft_seats[]
-}
-
-model Aircraft_seats {
-  aircraft_seat_id String @id @default(uuid())
-  aircraft_id String
-  aircraft_seat_position String @db.Char(3)
-  aircraft Aircrafts @relation(fields: [aircraft_id], references: [aircraft_id])
-
-
 }
 
 model TokenBlacklist {
@@ -227,9 +217,11 @@ enum PassengerCategory {
   Child
   Baby
 }
+
 enum Title {
   Mr
   Mrs
+  Ms
 }
 
 enum NotificationType {
